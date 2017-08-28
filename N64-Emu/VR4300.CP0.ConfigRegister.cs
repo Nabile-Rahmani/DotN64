@@ -28,7 +28,10 @@
                 #endregion
 
                 #region Constructors
-                public ConfigRegister(ulong[] registers) => this.registers = registers;
+                public ConfigRegister(ulong[] registers)
+                {
+                    this.registers = registers;
+                }
                 #endregion
 
                 #region Enumerations
