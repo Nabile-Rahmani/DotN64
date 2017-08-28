@@ -28,6 +28,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="Nintendo64.cs" />
+    <Compile Include="Cartridge.cs" />
+    <Compile Include="VR4300.cs" />
+    <Compile Include="VR4300.CP0.cs" />
+    <Compile Include="VR4300.CP0.Register.cs" />
+    <Compile Include="VR4300.GPRegister.cs" />
+    <Compile Include="VR4300.CP0.ConfigRegister.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Documentation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
