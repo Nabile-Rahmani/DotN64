@@ -2,7 +2,7 @@
 {
     public partial class VR4300
     {
-        public partial class CP0
+        public partial class Coprocessor0
         {
             public enum Register : byte
             {

@@ -42,13 +42,13 @@
         /// </summary>
         public float FCR31 { get; set; }
 
-        public CP0 Coprocessor0 { get; } = new CP0();
+        public Coprocessor0 CP0 { get; } = new Coprocessor0();
         #endregion
 
         #region Methods
         public void PowerOnReset()
         {
-            Coprocessor0.PowerOnReset();
+            CP0.PowerOnReset();
         }
         #endregion
     }

@@ -7,7 +7,7 @@ namespace N64Emu
         #region Properties
         public VR4300 CPU { get; } = new VR4300();
 
-        public byte[] RAM { get; } = new byte[8 * 1024 * 1024]; // 8 MB of memory (includes expansion pack).
+        public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
         public Cartridge Cartridge { get; private set; }
         #endregion
@@ -23,10 +23,10 @@ namespace N64Emu
             CPU.GPRegisters[(int)VR4300.GPRegister.s4] = 0x1;
             CPU.GPRegisters[(int)VR4300.GPRegister.s6] = 0x3F;
             CPU.GPRegisters[(int)VR4300.GPRegister.sp] = 0xA4001FF0;
-            CPU.Coprocessor0.Registers[(int)VR4300.CP0.Register.Random] = 0x0000001F;
-            CPU.Coprocessor0.Registers[(int)VR4300.CP0.Register.Status] = 0x70400004;
-            CPU.Coprocessor0.Registers[(int)VR4300.CP0.Register.PRId] = 0x00000B00;
-            CPU.Coprocessor0.Registers[(int)VR4300.CP0.Register.Config] = 0x0006E463;
+            CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.Random] = 0x0000001F;
+            CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.Status] = 0x70400004;
+            CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.PRId] = 0x00000B00;
+            CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.Config] = 0x0006E463;
 
             for (int i = 0; i < sizeof(int); i++)
             {

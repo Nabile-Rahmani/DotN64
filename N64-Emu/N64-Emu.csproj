@@ -31,10 +31,10 @@
     <Compile Include="Nintendo64.cs" />
     <Compile Include="Cartridge.cs" />
     <Compile Include="VR4300.cs" />
-    <Compile Include="VR4300.CP0.cs" />
-    <Compile Include="VR4300.CP0.Register.cs" />
+    <Compile Include="VR4300.Coprocessor0.cs" />
+    <Compile Include="VR4300.Coprocessor0.Register.cs" />
     <Compile Include="VR4300.GPRegister.cs" />
-    <Compile Include="VR4300.CP0.ConfigRegister.cs" />
+    <Compile Include="VR4300.Coprocessor0.ConfigRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
