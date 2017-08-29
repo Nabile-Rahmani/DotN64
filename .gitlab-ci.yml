@@ -1,0 +1,13 @@
+image: mono
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+  - nuget restore
+  - msbuild /t:Build /p:Configuration="Release" /p:Platform="Any CPU" N64-Emu.sln
