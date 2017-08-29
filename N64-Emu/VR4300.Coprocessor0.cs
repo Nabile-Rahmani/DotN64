@@ -13,7 +13,7 @@
             #region Constructors
             public Coprocessor0()
             {
-                Config = new ConfigRegister(Registers);
+                Config = new ConfigRegister(this);
             }
             #endregion
 

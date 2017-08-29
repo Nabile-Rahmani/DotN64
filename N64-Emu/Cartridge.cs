@@ -5,7 +5,7 @@ namespace N64Emu
     public class Cartridge
     {
         #region Properties
-        public byte[] Data { get; set; }
+        public byte[] ROM { get; set; }
         #endregion
 
         #region Methods
@@ -15,7 +15,7 @@ namespace N64Emu
             {
                 return new Cartridge
                 {
-                    Data = reader.ReadBytes((int)reader.BaseStream.Length)
+                    ROM = reader.ReadBytes((int)reader.BaseStream.Length)
                 };
             }
         }

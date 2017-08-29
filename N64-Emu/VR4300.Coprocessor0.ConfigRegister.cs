@@ -7,7 +7,7 @@
             public class ConfigRegister
             {
                 #region Fields
-                private readonly ulong[] registers;
+                private readonly Coprocessor0 cp0;
 
                 private const int EPShift = 24, EPSize = 4;
                 private const int BEShift = 15, BESize = 1;
@@ -16,21 +16,21 @@
                 #region Properties
                 public EP ConfigEP
                 {
-                    get => (EP)(registers[(int)Register.Config] >> EPShift & EPSize);
-                    set => registers[(int)Register.Config] |= ((ulong)value & EPSize) << EPShift;
+                    get => (EP)(cp0.Registers[(int)Register.Config] >> EPShift & EPSize);
+                    set => cp0.Registers[(int)Register.Config] |= ((ulong)value & EPSize) << EPShift;
                 }
 
                 public BE ConfigBE
                 {
-                    get => (BE)(registers[(int)Register.Config] >> BEShift & BESize);
-                    set => registers[(int)Register.Config] |= ((ulong)value & BESize) << BEShift;
+                    get => (BE)(cp0.Registers[(int)Register.Config] >> BEShift & BESize);
+                    set => cp0.Registers[(int)Register.Config] |= ((ulong)value & BESize) << BEShift;
                 }
                 #endregion
 
                 #region Constructors
-                public ConfigRegister(ulong[] registers)
+                public ConfigRegister(Coprocessor0 cp0)
                 {
-                    this.registers = registers;
+                    this.cp0 = cp0;
                 }
                 #endregion
 

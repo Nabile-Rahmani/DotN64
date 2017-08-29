@@ -5,11 +5,18 @@ namespace N64Emu
     public class Nintendo64
     {
         #region Properties
-        public VR4300 CPU { get; } = new VR4300();
+        public VR4300 CPU { get; }
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
         public Cartridge Cartridge { get; private set; }
+        #endregion
+
+        #region Constructors
+        public Nintendo64()
+        {
+            CPU = new VR4300(this);
+        }
         #endregion
 
         #region Methods
@@ -19,7 +26,6 @@ namespace N64Emu
         /// </summary>
         private void RunPIF()
         {
-            // Set default register values.
             CPU.GPRegisters[(int)VR4300.GPRegister.s4] = 0x1;
             CPU.GPRegisters[(int)VR4300.GPRegister.s6] = 0x3F;
             CPU.GPRegisters[(int)VR4300.GPRegister.sp] = 0xA4001FF0;
@@ -28,20 +34,11 @@ namespace N64Emu
             CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.PRId] = 0x00000B00;
             CPU.CP0.Registers[(int)VR4300.Coprocessor0.Register.Config] = 0x0006E463;
 
-            for (int i = 0; i < sizeof(int); i++)
-            {
-                RAM[MapMemory(new IntPtr(0x04300004 + i))] = 0x01;
-            }
+            Array.Copy(BitConverter.GetBytes(0x01010101), 0, RAM, (uint)CPU.MapMemory(new UIntPtr(0x04300004)), sizeof(int));
+            Array.Copy(Cartridge.ROM, 0, RAM, (uint)CPU.MapMemory(new UIntPtr(0xA4000000)), 0x1000);
 
-            for (int i = 0; i < 0x1000; i++) // Set the first 0x1000 bytes of the cartridge to this memory location.
-            {
-                RAM[MapMemory(new IntPtr(0xA4000000 + i))] = Cartridge.Data[i];
-            }
-
-            CPU.ProgramCounter = (ulong)MapMemory(new IntPtr(0xA4000040)); // Move the program counter to this address.
+            CPU.ProgramCounter = (ulong)CPU.MapMemory(new UIntPtr(0xA4000040));
         }
-
-        private int MapMemory(IntPtr address) => address.ToInt32() - new IntPtr(0x04000000).ToInt32(); // Need to emulate a MMU (RAM, cartridge space, etc.).
 
         public void Initialise()
         {

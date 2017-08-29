@@ -35,6 +35,7 @@
     <Compile Include="VR4300.Coprocessor0.Register.cs" />
     <Compile Include="VR4300.GPRegister.cs" />
     <Compile Include="VR4300.Coprocessor0.ConfigRegister.cs" />
+    <Compile Include="VR4300.OpCode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
