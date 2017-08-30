@@ -9,19 +9,19 @@ namespace N64Emu
             public class StatusRegister : Register
             {
                 #region Fields
-                private const int IESize = 1 << 1, IEShift = 0;
-                private const int EXLSize = 1 << 1, EXLShift = 1;
-                private const int ERLSize = 1 << 1, ERLShift = 2;
-                private const int KSUSize = 1 << 2, KSUShift = 3;
-                private const int UXSize = 1 << 1, UXShift = 5;
-                private const int SXSize = 1 << 1, SXShift = 6;
-                private const int KXSize = 1 << 1, KXShift = 7;
-                private const int IMSize = 1 << 8, IMShift = 8;
-                private const int DSSize = 1 << 9, DSShift = 16;
-                private const int RESize = 1 << 1, REShift = 25;
-                private const int FRSize = 1 << 1, FRShift = 26;
-                private const int RPSize = 1 << 1, RPShift = 27;
-                private const int CUSize = 1 << 4, CUShift = 28;
+                private const int IEShift = 0, IESize = (1 << 1) - 1;
+                private const int EXLShift = 1, EXLSize = (1 << 1) - 1;
+                private const int ERLShift = 2, ERLSize = (1 << 1) - 1;
+                private const int KSUShift = 3, KSUSize = (1 << 2) - 1;
+                private const int UXShift = 5, UXSize = (1 << 1) - 1;
+                private const int SXShift = 6, SXSize = (1 << 1) - 1;
+                private const int KXShift = 7, KXSize = (1 << 1) - 1;
+                private const int IMShift = 8, IMSize = (1 << 8) - 1;
+                private const int DSShift = 16, DSSize = (1 << 9) - 1;
+                private const int REShift = 25, RESize = (1 << 1) - 1;
+                private const int FRShift = 26, FRSize = (1 << 1) - 1;
+                private const int RPShift = 27, RPSize = (1 << 1) - 1;
+                private const int CUShift = 28, CUSize = (1 << 4) - 1;
                 #endregion
 
                 #region Properties
