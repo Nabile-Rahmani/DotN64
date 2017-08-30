@@ -76,7 +76,7 @@
                 #region Enumerations
                 public enum K0 : byte
                 {
-                    UnusedCache = 0b010
+                    CacheUnused = 0b010
                 }
 
                 public enum BE : byte
