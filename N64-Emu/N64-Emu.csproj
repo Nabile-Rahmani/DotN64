@@ -32,11 +32,12 @@
     <Compile Include="Cartridge.cs" />
     <Compile Include="VR4300.cs" />
     <Compile Include="VR4300.Coprocessor0.cs" />
-    <Compile Include="VR4300.Coprocessor0.Register.cs" />
-    <Compile Include="VR4300.GPRegister.cs" />
+    <Compile Include="VR4300.Coprocessor0.RegisterIndex.cs" />
+    <Compile Include="VR4300.GPRegisterIndex.cs" />
     <Compile Include="VR4300.Coprocessor0.ConfigRegister.cs" />
     <Compile Include="VR4300.OpCode.cs" />
     <Compile Include="VR4300.Coprocessor0.StatusRegister.cs" />
+    <Compile Include="VR4300.Coprocessor0.Register.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

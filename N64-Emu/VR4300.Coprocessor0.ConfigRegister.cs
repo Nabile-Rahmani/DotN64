@@ -4,42 +4,32 @@
     {
         public partial class Coprocessor0
         {
-            public class ConfigRegister
+            public class ConfigRegister : Register
             {
                 #region Fields
-                private readonly Coprocessor0 cp0;
-
                 private const int EPShift = 24, EPSize = 4;
                 private const int BEShift = 15, BESize = 1;
                 #endregion
 
                 #region Properties
+                protected override RegisterIndex Index => RegisterIndex.Config;
+
                 public EP ConfigEP
                 {
-                    get => (EP)(cp0.Registers[(int)Register.Config] >> EPShift & EPSize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(EPSize << EPShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & EPSize) << EPShift;
-                    }
+                    get => (EP)GetRegister(EPShift, EPSize);
+                    set => SetRegister(EPShift, EPSize, (ulong)value);
                 }
 
                 public BE ConfigBE
                 {
-                    get => (BE)(cp0.Registers[(int)Register.Config] >> BEShift & BESize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(BESize << BEShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & BESize) << BEShift;
-                    }
+                    get => (BE)GetRegister(BEShift, BESize);
+                    set => SetRegister(BEShift, BESize, (ulong)value);
                 }
                 #endregion
 
                 #region Constructors
                 public ConfigRegister(Coprocessor0 cp0)
-                {
-                    this.cp0 = cp0;
-                }
+                    : base(cp0) { }
                 #endregion
 
                 #region Enumerations

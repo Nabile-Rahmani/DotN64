@@ -6,38 +6,34 @@ namespace N64Emu
     {
         public partial class Coprocessor0
         {
-            public class StatusRegister
+            public class StatusRegister : Register
             {
                 #region Fields
-                private readonly Coprocessor0 cp0;
-
-                private const int IESize = 1, IEShift = 0;
-                private const int EXLSize = 1, EXLShift = 1;
-                private const int ERLSize = 1, ERLShift = 2;
-                private const int KSUSize = 2, KSUShift = 3;
-                private const int UXSize = 1, UXShift = 5;
-                private const int SXSize = 1, SXShift = 6;
-                private const int KXSize = 1, KXShift = 7;
-                private const int IMSize = 8, IMShift = 8;
-                private const int DSSize = 9, DSShift = 16;
-                private const int RESize = 1, REShift = 25;
-                private const int FRSize = 1, FRShift = 26;
-                private const int RPSize = 1, RPShift = 27;
-                private const int CUSize = 4, CUShift = 28;
+                private const int IESize = 1 << 1, IEShift = 0;
+                private const int EXLSize = 1 << 1, EXLShift = 1;
+                private const int ERLSize = 1 << 1, ERLShift = 2;
+                private const int KSUSize = 1 << 2, KSUShift = 3;
+                private const int UXSize = 1 << 1, UXShift = 5;
+                private const int SXSize = 1 << 1, SXShift = 6;
+                private const int KXSize = 1 << 1, KXShift = 7;
+                private const int IMSize = 1 << 8, IMShift = 8;
+                private const int DSSize = 1 << 9, DSShift = 16;
+                private const int RESize = 1 << 1, REShift = 25;
+                private const int FRSize = 1 << 1, FRShift = 26;
+                private const int RPSize = 1 << 1, RPShift = 27;
+                private const int CUSize = 1 << 4, CUShift = 28;
                 #endregion
 
                 #region Properties
+                protected override RegisterIndex Index => RegisterIndex.Status;
+
                 /// <summary>
                 /// Specifies and indicates global interrupt enable.
                 /// </summary>
                 public bool IE
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> IEShift & IESize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(IESize << IEShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? IESize : 0) & IESize) << IEShift;
-                    }
+                    get => GetBoolean(IEShift, IESize);
+                    set => SetRegister(IEShift, IESize, value);
                 }
 
                 /// <summary>
@@ -45,12 +41,8 @@ namespace N64Emu
                 /// </summary>
                 public bool EXL
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> EXLShift & EXLSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(EXLSize << EXLShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? EXLSize : 0) & EXLSize) << EXLShift;
-                    }
+                    get => GetBoolean(EXLShift, EXLSize);
+                    set => SetRegister(EXLShift, EXLSize, value);
                 }
 
                 /// <summary>
@@ -58,12 +50,8 @@ namespace N64Emu
                 /// </summary>
                 public bool ERL
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> ERLShift & ERLSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(ERLSize << ERLShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? ERLSize : 0) & ERLSize) << ERLShift;
-                    }
+                    get => GetBoolean(ERLShift, ERLSize);
+                    set => SetRegister(ERLShift, ERLSize, value);
                 }
 
                 /// <summary>
@@ -71,12 +59,8 @@ namespace N64Emu
                 /// </summary>
                 public KSU ConfigKSU
                 {
-                    get => (KSU)(cp0.Registers[(int)Register.Config] >> KSUShift & KSUSize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(KSUSize << KSUShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & KSUSize) << KSUShift;
-                    }
+                    get => (KSU)GetRegister(KSUShift, KSUSize);
+                    set => SetRegister(KSUShift, KSUSize, (ulong)value);
                 }
 
                 /// <summary>
@@ -85,12 +69,8 @@ namespace N64Emu
                 /// </summary>
                 public bool UX
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> UXShift & UXSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(UXSize << UXShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? UXSize : 0) & UXSize) << UXShift;
-                    }
+                    get => GetBoolean(UXShift, UXSize);
+                    set => SetRegister(UXShift, UXSize, value);
                 }
 
                 /// <summary>
@@ -99,12 +79,8 @@ namespace N64Emu
                 /// </summary>
                 public bool SX
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> SXShift & SXSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(SXSize << SXShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? SXSize : 0) & SXSize) << SXShift;
-                    }
+                    get => GetBoolean(SXShift, SXSize);
+                    set => SetRegister(SXShift, SXSize, value);
                 }
 
                 /// <summary>
@@ -113,12 +89,8 @@ namespace N64Emu
                 /// </summary>
                 public bool KX
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> KXShift & KXSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(KXSize << KXShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? KXSize : 0) & KXSize) << KXShift;
-                    }
+                    get => GetBoolean(KXShift, KXSize);
+                    set => SetRegister(KXShift, KXSize, value);
                 }
 
                 /// <summary>
@@ -126,12 +98,8 @@ namespace N64Emu
                 /// </summary>
                 public byte IM
                 {
-                    get => (byte)(cp0.Registers[(int)Register.Config] >> IMShift & IMSize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(IMSize << IMShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & IMSize) << IMShift;
-                    }
+                    get => (byte)GetRegister(IMShift, IMSize);
+                    set => SetRegister(IMShift, IMSize, value);
                 }
 
                 /// <summary>
@@ -139,12 +107,8 @@ namespace N64Emu
                 /// </summary>
                 public ushort DS
                 {
-                    get => (ushort)(cp0.Registers[(int)Register.Config] >> DSShift & DSSize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(DSSize << DSShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & DSSize) << DSShift;
-                    }
+                    get => (ushort)GetRegister(DSShift, DSSize);
+                    set => SetRegister(DSShift, DSSize, value);
                 }
 
                 /// <summary>
@@ -152,12 +116,8 @@ namespace N64Emu
                 /// </summary>
                 public bool RE
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> REShift & RESize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(RESize << REShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? RESize : 0) & RESize) << REShift;
-                    }
+                    get => GetBoolean(REShift, RESize);
+                    set => SetRegister(REShift, RESize, value);
                 }
 
                 /// <summary>
@@ -165,12 +125,8 @@ namespace N64Emu
                 /// </summary>
                 public bool FR
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> FRShift & FRSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(FRSize << FRShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? FRSize : 0) & FRSize) << FRShift;
-                    }
+                    get => GetBoolean(FRShift, FRSize);
+                    set => SetRegister(FRShift, FRSize, value);
                 }
 
                 /// <summary>
@@ -178,12 +134,8 @@ namespace N64Emu
                 /// </summary>
                 public bool RP
                 {
-                    get => (cp0.Registers[(int)Register.Status] >> RPShift & RPSize) != 0;
-                    set
-                    {
-                        cp0.Registers[(int)Register.Status] &= ~(ulong)(RPSize << RPShift);
-                        cp0.Registers[(int)Register.Status] |= ((ulong)(value ? RPSize : 0) & RPSize) << RPShift;
-                    }
+                    get => GetBoolean(RPShift, RPSize);
+                    set => SetRegister(RPShift, RPSize, value);
                 }
 
                 /// <summary>
@@ -191,20 +143,14 @@ namespace N64Emu
                 /// </summary>
                 public CU ConfigCU
                 {
-                    get => (CU)(cp0.Registers[(int)Register.Config] >> CUShift & CUSize);
-                    set
-                    {
-                        cp0.Registers[(int)Register.Config] &= ~(ulong)(CUSize << CUShift);
-                        cp0.Registers[(int)Register.Config] |= ((ulong)value & CUSize) << CUShift;
-                    }
+                    get => (CU)GetRegister(CUShift, CUSize);
+                    set => SetRegister(CUShift, CUSize, (ulong)value);
                 }
                 #endregion
 
                 #region Constructors
                 public StatusRegister(Coprocessor0 cp0)
-                {
-                    this.cp0 = cp0;
-                }
+                    : base(cp0) { }
                 #endregion
 
                 #region Enumerations
