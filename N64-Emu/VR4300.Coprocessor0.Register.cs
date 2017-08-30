@@ -22,17 +22,17 @@
                 #endregion
 
                 #region Methods
-                protected ulong GetRegister(int shift, ulong size) => cp0.Registers[(int)Index] >> shift & size;
+                protected ulong GetValue(int shift, ulong size) => cp0.Registers[(int)Index] >> shift & size;
 
-                protected bool GetBoolean(int shift, ulong size) => GetRegister(shift, size) != 0;
+                protected bool GetBoolean(int shift, ulong size) => GetValue(shift, size) != 0;
 
-                protected void SetRegister(int shift, ulong size, ulong value)
+                protected void SetValue(int shift, ulong size, ulong value)
                 {
                     cp0.Registers[(int)Index] &= ~(size << shift);
                     cp0.Registers[(int)Index] |= (value & size) << shift;
                 }
 
-                protected void SetRegister(int shift, ulong size, bool value) => SetRegister(shift, size, value ? size : 0);
+                protected void SetValue(int shift, ulong size, bool value) => SetValue(shift, size, value ? size : 0);
                 #endregion
             }
         }

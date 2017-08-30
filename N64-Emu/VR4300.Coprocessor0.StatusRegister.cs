@@ -33,7 +33,7 @@ namespace N64Emu
                 public bool IE
                 {
                     get => GetBoolean(IEShift, IESize);
-                    set => SetRegister(IEShift, IESize, value);
+                    set => SetValue(IEShift, IESize, value);
                 }
 
                 /// <summary>
@@ -42,7 +42,7 @@ namespace N64Emu
                 public bool EXL
                 {
                     get => GetBoolean(EXLShift, EXLSize);
-                    set => SetRegister(EXLShift, EXLSize, value);
+                    set => SetValue(EXLShift, EXLSize, value);
                 }
 
                 /// <summary>
@@ -51,7 +51,7 @@ namespace N64Emu
                 public bool ERL
                 {
                     get => GetBoolean(ERLShift, ERLSize);
-                    set => SetRegister(ERLShift, ERLSize, value);
+                    set => SetValue(ERLShift, ERLSize, value);
                 }
 
                 /// <summary>
@@ -59,8 +59,8 @@ namespace N64Emu
                 /// </summary>
                 public KSU ConfigKSU
                 {
-                    get => (KSU)GetRegister(KSUShift, KSUSize);
-                    set => SetRegister(KSUShift, KSUSize, (ulong)value);
+                    get => (KSU)GetValue(KSUShift, KSUSize);
+                    set => SetValue(KSUShift, KSUSize, (ulong)value);
                 }
 
                 /// <summary>
@@ -70,7 +70,7 @@ namespace N64Emu
                 public bool UX
                 {
                     get => GetBoolean(UXShift, UXSize);
-                    set => SetRegister(UXShift, UXSize, value);
+                    set => SetValue(UXShift, UXSize, value);
                 }
 
                 /// <summary>
@@ -80,7 +80,7 @@ namespace N64Emu
                 public bool SX
                 {
                     get => GetBoolean(SXShift, SXSize);
-                    set => SetRegister(SXShift, SXSize, value);
+                    set => SetValue(SXShift, SXSize, value);
                 }
 
                 /// <summary>
@@ -90,7 +90,7 @@ namespace N64Emu
                 public bool KX
                 {
                     get => GetBoolean(KXShift, KXSize);
-                    set => SetRegister(KXShift, KXSize, value);
+                    set => SetValue(KXShift, KXSize, value);
                 }
 
                 /// <summary>
@@ -98,8 +98,8 @@ namespace N64Emu
                 /// </summary>
                 public byte IM
                 {
-                    get => (byte)GetRegister(IMShift, IMSize);
-                    set => SetRegister(IMShift, IMSize, value);
+                    get => (byte)GetValue(IMShift, IMSize);
+                    set => SetValue(IMShift, IMSize, value);
                 }
 
                 /// <summary>
@@ -107,8 +107,8 @@ namespace N64Emu
                 /// </summary>
                 public ushort DS
                 {
-                    get => (ushort)GetRegister(DSShift, DSSize);
-                    set => SetRegister(DSShift, DSSize, value);
+                    get => (ushort)GetValue(DSShift, DSSize);
+                    set => SetValue(DSShift, DSSize, value);
                 }
 
                 /// <summary>
@@ -117,7 +117,7 @@ namespace N64Emu
                 public bool RE
                 {
                     get => GetBoolean(REShift, RESize);
-                    set => SetRegister(REShift, RESize, value);
+                    set => SetValue(REShift, RESize, value);
                 }
 
                 /// <summary>
@@ -126,7 +126,7 @@ namespace N64Emu
                 public bool FR
                 {
                     get => GetBoolean(FRShift, FRSize);
-                    set => SetRegister(FRShift, FRSize, value);
+                    set => SetValue(FRShift, FRSize, value);
                 }
 
                 /// <summary>
@@ -135,7 +135,7 @@ namespace N64Emu
                 public bool RP
                 {
                     get => GetBoolean(RPShift, RPSize);
-                    set => SetRegister(RPShift, RPSize, value);
+                    set => SetValue(RPShift, RPSize, value);
                 }
 
                 /// <summary>
@@ -143,8 +143,8 @@ namespace N64Emu
                 /// </summary>
                 public CU ConfigCU
                 {
-                    get => (CU)GetRegister(CUShift, CUSize);
-                    set => SetRegister(CUShift, CUSize, (ulong)value);
+                    get => (CU)GetValue(CUShift, CUSize);
+                    set => SetValue(CUShift, CUSize, (ulong)value);
                 }
                 #endregion
 

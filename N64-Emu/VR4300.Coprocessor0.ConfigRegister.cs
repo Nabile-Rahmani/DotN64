@@ -22,8 +22,8 @@
                 /// </summary>
                 public K0 ConfigK0
                 {
-                    get => (K0)GetRegister(K0Shift, K0Size);
-                    set => SetRegister(K0Shift, K0Size, (ulong)value);
+                    get => (K0)GetValue(K0Shift, K0Size);
+                    set => SetValue(K0Shift, K0Size, (ulong)value);
                 }
 
                 /// <summary>
@@ -32,7 +32,7 @@
                 public bool CU
                 {
                     get => GetBoolean(CUShift, CUSize);
-                    set => SetRegister(CUShift, CUSize, value);
+                    set => SetValue(CUShift, CUSize, value);
                 }
 
                 /// <summary>
@@ -40,8 +40,8 @@
                 /// </summary>
                 public BE ConfigBE
                 {
-                    get => (BE)GetRegister(BEShift, BESize);
-                    set => SetRegister(BEShift, BESize, (ulong)value);
+                    get => (BE)GetValue(BEShift, BESize);
+                    set => SetValue(BEShift, BESize, (ulong)value);
                 }
 
                 /// <summary>
@@ -49,8 +49,8 @@
                 /// </summary>
                 public EP ConfigEP
                 {
-                    get => (EP)GetRegister(EPShift, EPSize);
-                    set => SetRegister(EPShift, EPSize, (ulong)value);
+                    get => (EP)GetValue(EPShift, EPSize);
+                    set => SetValue(EPShift, EPSize, (ulong)value);
                 }
 
                 /// <summary>
@@ -58,8 +58,8 @@
                 /// </summary>
                 public byte EC
                 {
-                    get => (byte)GetRegister(ECShift, ECSize);
-                    set => SetRegister(ECShift, ECSize, value);
+                    get => (byte)GetValue(ECShift, ECSize);
+                    set => SetValue(ECShift, ECSize, value);
                 }
                 #endregion
 
@@ -67,9 +67,9 @@
                 public ConfigRegister(Coprocessor0 cp0)
                     : base(cp0)
                 {
-                    SetRegister(4, (1 << 11) - 1, 0b11001000110);
-                    SetRegister(16, (1 << 8) - 1, 0b00000110);
-                    SetRegister(31, (1 << 1) - 1, 0);
+                    SetValue(4, (1 << 11) - 1, 0b11001000110);
+                    SetValue(16, (1 << 8) - 1, 0b00000110);
+                    SetValue(31, (1 << 1) - 1, 0);
                 }
                 #endregion
 
