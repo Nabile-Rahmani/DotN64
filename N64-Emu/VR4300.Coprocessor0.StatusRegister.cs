@@ -165,10 +165,10 @@ namespace N64Emu
                 public enum CU : byte
                 {
                     None = 0,
-                    CP0,
-                    CP1,
-                    CP2,
-                    CP3
+                    CP0 = 1 << 0,
+                    CP1 = 1 << 1,
+                    CP2 = 1 << 2,
+                    CP3 = 1 << 3
                 }
                 #endregion
             }
