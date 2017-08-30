@@ -105,9 +105,9 @@ namespace N64Emu
                 /// <summary>
                 /// Diagnostic Status field.
                 /// </summary>
-                public ushort DS
+                public DiagnosticStatus DS
                 {
-                    get => (ushort)GetValue(DSShift, DSSize);
+                    get => (DiagnosticStatus)GetValue(DSShift, DSSize);
                     set => SetValue(DSShift, DSSize, value);
                 }
 
@@ -151,6 +151,98 @@ namespace N64Emu
                 #region Constructors
                 public StatusRegister(Coprocessor0 cp0)
                     : base(cp0) { }
+                #endregion
+
+                #region Structures
+                public struct DiagnosticStatus
+                {
+                    #region Fields
+                    private ushort data;
+                    #endregion
+
+                    #region Properties
+                    /// <summary>
+                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by thehardware of the VR4300.
+                    /// </summary>
+                    public bool DE
+                    {
+                        get => Get(0);
+                        set => Set(0, value);
+                    }
+
+                    /// <summary>
+                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by thehardware of the VR4300.
+                    /// </summary>
+                    public bool CE
+                    {
+                        get => Get(1);
+                        set => Set(1, value);
+                    }
+
+                    /// <summary>
+                    /// CP0 condition bit.
+                    /// </summary>
+                    public bool CH
+                    {
+                        get => Get(2);
+                        set => Set(2, value);
+                    }
+
+                    /// <summary>
+                    /// Indicates a Soft Reset or NMI has occurred.
+                    /// </summary>
+                    public bool SR
+                    {
+                        get => Get(4);
+                        set => Set(4, value);
+                    }
+
+                    /// <summary>
+                    /// Indicates TLB shutdown has occurred (read-only); used to avoid damage to the TLB if more than one TLB entry matches a single virtual address.
+                    /// </summary>
+                    public bool TS
+                    {
+                        get => Get(5);
+                        set => Set(5, value);
+                    }
+
+                    /// <summary>
+                    /// Controls the location of TLB miss and general purpose exception vectors.
+                    /// </summary>
+                    /// <value>Boostrap if true, otherwise Normal.</value>
+                    public bool BEV
+                    {
+                        get => Get(6);
+                        set => Set(6, value);
+                    }
+
+                    /// <summary>
+                    /// Enables Instruction Trace Support.
+                    /// </summary>
+                    public bool ITS
+                    {
+                        get => Get(8);
+                        set => Set(8, value);
+                    }
+                    #endregion
+
+                    #region Methods
+                    private bool Get(int shift) => (data >> shift & 1) != 0;
+
+                    private void Set(int shift, bool value)
+                    {
+                        var reset = ~(1 << shift);
+                        this.data &= (ushort)reset;
+                        this.data |= (ushort)((value ? 1 : 0) << shift);
+                    }
+                    #endregion
+
+                    #region Operators
+                    public static implicit operator DiagnosticStatus(ushort value) => new DiagnosticStatus { data = value };
+
+                    public static implicit operator ushort(DiagnosticStatus status) => status.data;
+                    #endregion
+                }
                 #endregion
 
                 #region Enumerations
