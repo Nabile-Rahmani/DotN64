@@ -67,9 +67,8 @@ namespace N64Emu
             CP0.PowerOnReset();
         }
 
-        public void Step()
+        public void Run(uint instruction)
         {
-            var instruction = ReadWord(new UIntPtr(ProgramCounter));
             var opCode = (OpCode)(instruction >> 26);
 
             var rt = instruction >> 16 & 0b11111; // TODO: Decode in switch based on opcode type ?
@@ -87,6 +86,11 @@ namespace N64Emu
                 default:
                     throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)opCode, 2)}) from instruction 0x{instruction:x}.");
             }
+        }
+
+        public void Step()
+        {
+            Run(ReadWord(new UIntPtr(ProgramCounter)));
 
             ProgramCounter += sizeof(uint);
         }
