@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+using System.Net;
 
 namespace N64Emu
 {
@@ -93,13 +93,15 @@ namespace N64Emu
             if ((uint)physicalAddress >= 0x1FC00000 && (uint)physicalAddress <= 0x1FC007BF) // TODO: define consts.
                 throw new NotImplementedException("PIF ROM access is not supported.");
 
-            return BitConverter.ToInt32(nintendo64.RAM, (int)physicalAddress);
+            return IPAddress.HostToNetworkOrder(BitConverter.ToInt32(nintendo64.RAM, (int)physicalAddress)); // Use a binary stream extension package for byte swapping (with runtime endianness check) ?
         }
 
         /// <summary>
         /// Translates a virtual address into a physical address.
         /// See: datasheet#5.2.4 Table 5-3.
         /// </summary>
+        /// <param name="address">The virtual address.</param>
+        /// <returns>The physical address.</returns>
         public UIntPtr MapMemory(UIntPtr address) // TODO: move to an MMU, and CP0 relations ?
         {
             switch ((ulong)address >> 29 & 0b111)
