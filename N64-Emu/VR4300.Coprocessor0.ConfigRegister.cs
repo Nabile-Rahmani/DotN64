@@ -17,13 +17,21 @@
                 public EP ConfigEP
                 {
                     get => (EP)(cp0.Registers[(int)Register.Config] >> EPShift & EPSize);
-                    set => cp0.Registers[(int)Register.Config] |= ((ulong)value & EPSize) << EPShift;
+                    set
+                    {
+                        cp0.Registers[(int)Register.Config] &= ~(ulong)(EPSize << EPShift);
+                        cp0.Registers[(int)Register.Config] |= ((ulong)value & EPSize) << EPShift;
+                    }
                 }
 
                 public BE ConfigBE
                 {
                     get => (BE)(cp0.Registers[(int)Register.Config] >> BEShift & BESize);
-                    set => cp0.Registers[(int)Register.Config] |= ((ulong)value & BESize) << BEShift;
+                    set
+                    {
+                        cp0.Registers[(int)Register.Config] &= ~(ulong)(BESize << BEShift);
+                        cp0.Registers[(int)Register.Config] |= ((ulong)value & BESize) << BEShift;
+                    }
                 }
                 #endregion
 

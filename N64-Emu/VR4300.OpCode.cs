@@ -10,7 +10,12 @@
             /// The result is placed into general purpose register rt.
             /// In 64-bit mode, the loaded word is sign-extended to 64 bits.
             /// </summary>
-            LUI = 0b001111
+            LUI = 0b001111,
+            /// <summary>
+            /// Move To System Control Coprocessor.
+            /// The contents of general purpose register rt are loaded into general purpose register rd of CP0.
+            /// </summary>
+            MTC0 = 0b010000
         }
     }
 }

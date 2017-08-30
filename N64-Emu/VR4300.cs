@@ -72,28 +72,33 @@ namespace N64Emu
             var instruction = ReadWord(new UIntPtr(ProgramCounter));
             var opCode = (OpCode)(instruction >> 26);
 
+            var rt = instruction >> 16 & 0b11111; // TODO: Decode in switch based on opcode type ?
+
             switch (opCode)
             {
                 case OpCode.LUI:
-                    var rt = instruction >> 16 & 0b11111;
                     var immediate = instruction & 0xFFFF;
-                    GPRegisters[rt] = (ulong)(immediate << 16); // TODO: sign extend for 64-bit mode.
+                    GPRegisters[rt] = immediate << 16; // TODO: sign extend for 64-bit mode.
+                    break;
+                case OpCode.MTC0:
+                    var rd = instruction >> 11 & 0b11111;
+                    CP0.Registers[rd] = GPRegisters[rt];
                     break;
                 default:
                     throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)opCode, 2)}) from instruction 0x{instruction:x}.");
             }
 
-            ProgramCounter += sizeof(int);
+            ProgramCounter += sizeof(uint);
         }
 
-        private int ReadWord(UIntPtr virtualAddress)
+        private uint ReadWord(UIntPtr virtualAddress)
         {
             var physicalAddress = MapMemory(virtualAddress);
 
             if ((uint)physicalAddress >= 0x1FC00000 && (uint)physicalAddress <= 0x1FC007BF) // TODO: define consts.
                 throw new NotImplementedException("PIF ROM access is not supported.");
 
-            return IPAddress.HostToNetworkOrder(BitConverter.ToInt32(nintendo64.RAM, (int)physicalAddress)); // Use a binary stream extension package for byte swapping (with runtime endianness check) ?
+            return (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(nintendo64.RAM, (int)physicalAddress)); // Use a binary stream extension package for byte swapping (with runtime endianness check) ?
         }
 
         /// <summary>
