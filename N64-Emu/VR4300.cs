@@ -69,7 +69,7 @@ namespace N64Emu
 
         public void Run(Instruction instruction)
         {
-            switch (instruction.OpCode)
+            switch (instruction.OP)
             {
                 case OpCode.LUI:
                     GPRegisters[instruction.RT] = (ulong)(instruction.Immediate << 16); // TODO: sign extend for 64-bit mode.
@@ -81,7 +81,7 @@ namespace N64Emu
                     GPRegisters[instruction.RT] = GPRegisters[instruction.RS] | instruction.Immediate;
                     break;
                 default:
-                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OpCode, 2)}) from instruction 0x{instruction:x}.");
+                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{instruction:x}.");
             }
         }
 
