@@ -2,7 +2,7 @@
 {
     public partial class VR4300
     {
-        private enum OpCode : byte
+        public enum OpCode : byte
         {
             /// <summary>
             /// Load Upper Immediate.
@@ -15,7 +15,13 @@
             /// Move To System Control Coprocessor.
             /// The contents of general purpose register rt are loaded into general purpose register rd of CP0.
             /// </summary>
-            MTC0 = 0b010000
+            MTC0 = 0b010000,
+            /// <summary>
+            /// Or Immediate.
+            /// A logical OR operation applied between 16-bit zero-extended immediate and the contents of general purpose register rs is executed in bit units.
+            /// The result is stored in general purpose register rt.
+            /// </summary>
+            ORI = 0b001101
         }
     }
 }

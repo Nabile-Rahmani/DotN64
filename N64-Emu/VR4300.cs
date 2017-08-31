@@ -67,24 +67,21 @@ namespace N64Emu
             CP0.PowerOnReset();
         }
 
-        public void Run(uint instruction)
+        public void Run(Instruction instruction)
         {
-            var opCode = (OpCode)(instruction >> 26);
-
-            var rt = instruction >> 16 & 0b11111; // TODO: Decode in switch based on opcode type ?
-
-            switch (opCode)
+            switch (instruction.OpCode)
             {
                 case OpCode.LUI:
-                    var immediate = instruction & 0xFFFF;
-                    GPRegisters[rt] = immediate << 16; // TODO: sign extend for 64-bit mode.
+                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate << 16); // TODO: sign extend for 64-bit mode.
                     break;
                 case OpCode.MTC0:
-                    var rd = instruction >> 11 & 0b11111;
-                    CP0.Registers[rd] = GPRegisters[rt];
+                    CP0.Registers[instruction.RD] = GPRegisters[instruction.RT];
+                    break;
+                case OpCode.ORI:
+                    GPRegisters[instruction.RT] = GPRegisters[instruction.RS] | instruction.Immediate;
                     break;
                 default:
-                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)opCode, 2)}) from instruction 0x{instruction:x}.");
+                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OpCode, 2)}) from instruction 0x{instruction:x}.");
             }
         }
 
