@@ -39,6 +39,9 @@
     <Compile Include="VR4300.Coprocessor0.StatusRegister.cs" />
     <Compile Include="VR4300.Coprocessor0.Register.cs" />
     <Compile Include="VR4300.Instruction.cs" />
+    <Compile Include="RealityCoprocessor.cs" />
+    <Compile Include="RealityCoprocessor.RealitySignalProcessor.cs" />
+    <Compile Include="Nintendo64.MappingEntry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

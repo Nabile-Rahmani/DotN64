@@ -2,10 +2,26 @@
 
 namespace N64Emu
 {
-    public class Nintendo64
+    public partial class Nintendo64
     {
+        #region Fields
+        public static readonly MappingEntry[] MemoryMaps =
+        {
+            new MappingEntry
+            {
+                StartAddress = 0x1FC00000,
+                EndAddress = 0x1FC007BF,
+                EntryName = MappingEntry.Name.PIFBootROM
+            }
+        };
+
+        public const uint SPStatusRegisterAddress = 0x04040010;
+        #endregion
+
         #region Properties
         public VR4300 CPU { get; }
+
+        public RealityCoprocessor RCP { get; } = new RealityCoprocessor();
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 

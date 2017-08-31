@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace N64Emu
 {
@@ -106,11 +107,20 @@ namespace N64Emu
         private uint ReadWord(UIntPtr virtualAddress)
         {
             var physicalAddress = MapMemory(virtualAddress);
+            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => (uint)physicalAddress >= e.StartAddress && (uint)physicalAddress <= e.EndAddress);
 
-            if ((uint)physicalAddress >= 0x1FC00000 && (uint)physicalAddress <= 0x1FC007BF) // TODO: define consts.
-                throw new NotImplementedException("PIF ROM access is not supported.");
-
-            return (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(nintendo64.RAM, (int)physicalAddress)); // Use a binary stream extension package for byte swapping (with runtime endianness check) ?
+            switch (entry.EntryName)
+            {
+                case Nintendo64.MappingEntry.Name.PIFBootROM:
+                    throw new NotImplementedException("PIF ROM access is not supported.");
+                default:
+                    switch ((uint)physicalAddress)
+                    {
+                        case Nintendo64.SPStatusRegisterAddress:
+                            return nintendo64.RCP.RSP.StatusRegister;
+                    }
+                    throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:x}.");
+            }
         }
 
         /// <summary>
