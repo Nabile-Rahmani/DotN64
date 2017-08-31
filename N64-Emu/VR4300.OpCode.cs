@@ -29,7 +29,13 @@
             /// In 64-bit mode, the loaded word is sign-extended to 64 bits.
             /// If either of the low-order two bits of the address is not zero, an address error exception occurs.
             /// </summary>
-            LW = 0b100011
+            LW = 0b100011,
+            /// <summary>
+            /// And Immediate.
+            /// The 16-bit immediate is zero-extended and combined with the contents of general purpose register rs in a bit-wise logical AND operation.
+            /// The result is stored in general purpose register rt.
+            /// </summary>
+            ANDI = 0b001100
         }
     }
 }

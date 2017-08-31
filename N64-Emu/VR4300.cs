@@ -92,6 +92,9 @@ namespace N64Emu
                     var vAddr = SignExtend(instruction.Immediate) + GPRegisters[instruction.RS];
                     GPRegisters[instruction.RT] = SignExtend(ReadWord(new UIntPtr(vAddr)));
                     break;
+                case OpCode.ANDI:
+                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate & (ushort)GPRegisters[instruction.RS]);
+                    break;
                 default:
                     throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
             }
