@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace N64Emu
 {
@@ -67,12 +68,18 @@ namespace N64Emu
             CP0.PowerOnReset();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong SignExtend(ushort value) => (ulong)(short)value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong SignExtend(uint value) => (ulong)(int)value;
+
         public void Run(Instruction instruction)
         {
             switch (instruction.OP)
             {
                 case OpCode.LUI:
-                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate << 16); // TODO: sign extend for 64-bit mode.
+                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate << 16);
                     break;
                 case OpCode.MTC0:
                     CP0.Registers[instruction.RD] = GPRegisters[instruction.RT];
@@ -80,8 +87,12 @@ namespace N64Emu
                 case OpCode.ORI:
                     GPRegisters[instruction.RT] = GPRegisters[instruction.RS] | instruction.Immediate;
                     break;
+                case OpCode.LW: // 'offset' is Immediate, 'base' is RS.
+                    var vAddr = SignExtend(instruction.Immediate) + GPRegisters[instruction.RS];
+                    GPRegisters[instruction.RT] = SignExtend(ReadWord(new UIntPtr(vAddr)));
+                    break;
                 default:
-                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{instruction:x}.");
+                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
             }
         }
 
