@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Net;
-using System.Runtime.CompilerServices;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace N64Emu
 {
@@ -95,6 +94,11 @@ namespace N64Emu
                 case OpCode.ANDI:
                     GPRegisters[instruction.RT] = (ulong)(instruction.Immediate & (ushort)GPRegisters[instruction.RS]);
                     break;
+                case OpCode.BEQL:
+                    if (GPRegisters[instruction.RS] == GPRegisters[instruction.RT])
+                        ProgramCounter += (uint)SignExtend((ushort)(instruction.Immediate << 2));
+
+                    break;
                 default:
                     throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
             }
@@ -114,16 +118,18 @@ namespace N64Emu
 
             switch (entry.EntryName)
             {
-                case Nintendo64.MappingEntry.Name.PIFBootROM:
-                    throw new NotImplementedException("PIF ROM access is not supported.");
-                default:
+                case Nintendo64.MappingEntry.Name.None:
                     switch ((uint)physicalAddress)
                     {
                         case Nintendo64.SPStatusRegisterAddress:
                             return nintendo64.RCP.RSP.StatusRegister;
                     }
-                    throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:x}.");
+                    break;
+                case Nintendo64.MappingEntry.Name.PIFBootROM:
+                    throw new NotImplementedException("PIF ROM access is not supported.");
             }
+
+            throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:x}.");
         }
 
         /// <summary>

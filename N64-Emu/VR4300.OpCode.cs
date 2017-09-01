@@ -35,7 +35,15 @@
             /// The 16-bit immediate is zero-extended and combined with the contents of general purpose register rs in a bit-wise logical AND operation.
             /// The result is stored in general purpose register rt.
             /// </summary>
-            ANDI = 0b001100
+            ANDI = 0b001100,
+            /// <summary>
+            /// Branch On Equal Likely.
+            /// A branch address is calculated from the sum of the address of the instruction in the delay slot and the 16-bit offset, shifted two bits left and sign-extended.
+            /// The contents of general purpose register rs and the contents of general purpose register rt are compared.
+            /// If the two registers are equal, the program branches to the branch address with a delay of one instruction.
+            /// If it does not branch, the instruction in the branch delay slot is discarded.
+            /// </summary>
+            BEQL = 0b010100
         }
     }
 }
