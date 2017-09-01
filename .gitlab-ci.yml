@@ -10,4 +10,4 @@ build:
   stage: build
   script:
   - nuget restore
-  - msbuild /t:Build /p:Configuration="Release" /p:Platform="Any CPU" N64-Emu.sln
+  - msbuild /p:Configuration="Release" /p:Platform="Any CPU"
