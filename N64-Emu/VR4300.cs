@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -9,6 +10,7 @@ namespace N64Emu
     {
         #region Fields
         private readonly Nintendo64 nintendo64;
+        private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         #endregion
 
         #region Properties
@@ -57,6 +59,24 @@ namespace N64Emu
         public VR4300(Nintendo64 nintendo64)
         {
             this.nintendo64 = nintendo64;
+            operations = new Dictionary<OpCode, Action<Instruction>>
+            {
+                [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
+                [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
+                [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
+                [OpCode.LW] = i => // 'offset' is Immediate, 'base' is RS.
+                {
+                    var vAddr = SignExtend(i.Immediate) + GPRegisters[i.RS];
+                    GPRegisters[i.RT] = SignExtend(ReadWord(new UIntPtr(vAddr)));
+                },
+                [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
+                [OpCode.BEQL] = i =>
+                {
+                    if (GPRegisters[i.RS] == GPRegisters[i.RT])
+                        ProgramCounter += (uint)SignExtend((ushort)(i.Immediate << 2));
+                },
+                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate)
+            };
         }
         #endregion
 
@@ -76,35 +96,10 @@ namespace N64Emu
 
         public void Run(Instruction instruction)
         {
-            switch (instruction.OP)
-            {
-                case OpCode.LUI:
-                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate << 16);
-                    break;
-                case OpCode.MTC0:
-                    CP0.Registers[instruction.RD] = GPRegisters[instruction.RT];
-                    break;
-                case OpCode.ORI:
-                    GPRegisters[instruction.RT] = GPRegisters[instruction.RS] | instruction.Immediate;
-                    break;
-                case OpCode.LW: // 'offset' is Immediate, 'base' is RS.
-                    var vAddr = SignExtend(instruction.Immediate) + GPRegisters[instruction.RS];
-                    GPRegisters[instruction.RT] = SignExtend(ReadWord(new UIntPtr(vAddr)));
-                    break;
-                case OpCode.ANDI:
-                    GPRegisters[instruction.RT] = (ulong)(instruction.Immediate & (ushort)GPRegisters[instruction.RS]);
-                    break;
-                case OpCode.BEQL:
-                    if (GPRegisters[instruction.RS] == GPRegisters[instruction.RT])
-                        ProgramCounter += (uint)SignExtend((ushort)(instruction.Immediate << 2));
-
-                    break;
-                case OpCode.ADDIU:
-                    GPRegisters[instruction.RT] = GPRegisters[instruction.RS] + SignExtend(instruction.Immediate);
-                    break;
-                default:
-                    throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
-            }
+            if (operations.TryGetValue(instruction.OP, out var operation))
+                operation(instruction);
+            else
+                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
         }
 
         public void Step()
