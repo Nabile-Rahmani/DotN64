@@ -43,7 +43,15 @@
             /// If the two registers are equal, the program branches to the branch address with a delay of one instruction.
             /// If it does not branch, the instruction in the branch delay slot is discarded.
             /// </summary>
-            BEQL = 0b010100
+            BEQL = 0b010100,
+            /// <summary>
+            /// Add Immediate Unsigned.
+            /// The 16-bit immediate is sign-extended and added to the contents of general purpose register rs to store the result in general purpose register rt.
+            /// No integer overflow exception occurs under any circumstance.
+            /// In 64-bit mode, the operand must be sign-extended, 32-bit values.
+            /// The only difference between this instruction and the ADDI instruction is that ADDIU instruction never causes an integer overflow exception.
+            /// </summary>
+            ADDIU = 0b001001
         }
     }
 }

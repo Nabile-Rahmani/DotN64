@@ -99,6 +99,9 @@ namespace N64Emu
                         ProgramCounter += (uint)SignExtend((ushort)(instruction.Immediate << 2));
 
                     break;
+                case OpCode.ADDIU:
+                    GPRegisters[instruction.RT] = GPRegisters[instruction.RS] + SignExtend(instruction.Immediate);
+                    break;
                 default:
                     throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
             }
