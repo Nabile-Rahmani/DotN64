@@ -73,12 +73,16 @@ namespace N64Emu
                 [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
                 [OpCode.BEQL] = i =>
                 {
+                    var delaySlotInstruction = ReadWord(new UIntPtr(ProgramCounter));
+
                     if (GPRegisters[i.RS] == GPRegisters[i.RT])
                     {
                         ProgramCounter += SignExtend((ushort)(i.Immediate << 2));
 
-                        Step();
+                        Run(delaySlotInstruction);
                     }
+                    else
+                        ProgramCounter += sizeof(uint);
                 },
                 [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate)
             };
