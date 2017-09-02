@@ -108,7 +108,7 @@ namespace N64Emu
             if (operations.TryGetValue(instruction.OP, out var operation))
                 operation(instruction);
             else
-                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:x}.");
+                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:X}.");
         }
 
         public void Step()
@@ -137,7 +137,7 @@ namespace N64Emu
                     return (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(nintendo64.PIFROM, (int)((uint)physicalAddress - entry.StartAddress)));
             }
 
-            throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:x}.");
+            throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace N64Emu
                 case 0b101: // kseg1.
                     return new UIntPtr((ulong)address - 0xFFFFFFFFA0000000);
                 default:
-                    throw new Exception($"Unknown memory map segment for location 0x{(ulong)address:x}.");
+                    throw new Exception($"Unknown memory map segment for location 0x{(ulong)address:X}.");
             }
         }
         #endregion
