@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace N64Emu
@@ -73,7 +74,11 @@ namespace N64Emu
                 [OpCode.BEQL] = i =>
                 {
                     if (GPRegisters[i.RS] == GPRegisters[i.RT])
+                    {
                         ProgramCounter += (uint)SignExtend((ushort)(i.Immediate << 2));
+
+                        Step();
+                    }
                 },
                 [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate)
             };
@@ -124,7 +129,7 @@ namespace N64Emu
                     }
                     break;
                 case Nintendo64.MappingEntry.Name.PIFBootROM:
-                    throw new NotImplementedException("PIF ROM access is not supported.");
+                    return (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(nintendo64.PIFROM, (int)((uint)physicalAddress - entry.StartAddress)));
             }
 
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:x}.");

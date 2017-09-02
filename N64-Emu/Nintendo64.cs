@@ -25,6 +25,8 @@ namespace N64Emu
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
+        public byte[] PIFROM { get; set; }
+
         public Cartridge Cartridge { get; private set; }
         #endregion
 
@@ -59,7 +61,14 @@ namespace N64Emu
         public void Initialise()
         {
             CPU.PowerOnReset();
-            RunPIF();
+
+            if (PIFROM == null)
+                RunPIF();
+
+            while (true)
+            {
+                CPU.Step();
+            }
         }
 
         public void Insert(Cartridge cartridge)
