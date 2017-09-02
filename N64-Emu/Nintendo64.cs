@@ -16,6 +16,7 @@ namespace N64Emu
         };
 
         public const uint SPStatusRegisterAddress = 0x04040010;
+        public const uint SPDMABusyRegisterAddress = 0x04040018;
         #endregion
 
         #region Properties

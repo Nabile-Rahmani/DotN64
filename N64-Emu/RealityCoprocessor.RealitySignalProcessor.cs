@@ -5,7 +5,9 @@
         public class RealitySignalProcessor
         {
             #region Properties
-            public uint StatusRegister { get; set; }
+            public uint StatusRegister { get; set; } = 1;
+
+            public uint DMABusyRegister { get; set; }
             #endregion
         }
     }

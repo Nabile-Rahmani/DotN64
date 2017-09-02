@@ -84,7 +84,26 @@ namespace N64Emu
                     else
                         ProgramCounter += sizeof(uint);
                 },
-                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate)
+                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate),
+                [OpCode.SW] = i => WriteWord(MapMemory(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS])), (uint)GPRegisters[i.RT]),
+                [OpCode.BNEL] = i =>
+                {
+                    var delaySlotInstruction = ReadWord(new UIntPtr(ProgramCounter));
+
+                    if (GPRegisters[i.RS] != GPRegisters[i.RT])
+                    {
+                        ProgramCounter += SignExtend((ushort)(i.Immediate << 2));
+
+                        Run(delaySlotInstruction);
+                    }
+                    else
+                        ProgramCounter += sizeof(uint);
+                },
+                [OpCode.BNE] = i =>
+                {
+                    if (GPRegisters[i.RS] != GPRegisters[i.RT])
+                        ProgramCounter += SignExtend(i.Immediate);
+                }
             };
         }
         #endregion
@@ -131,6 +150,8 @@ namespace N64Emu
                     {
                         case Nintendo64.SPStatusRegisterAddress:
                             return nintendo64.RCP.RSP.StatusRegister;
+                        case Nintendo64.SPDMABusyRegisterAddress:
+                            return nintendo64.RCP.RSP.DMABusyRegister;
                     }
                     break;
                 case Nintendo64.MappingEntry.Name.PIFBootROM:
@@ -138,6 +159,23 @@ namespace N64Emu
             }
 
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
+        }
+
+        private void WriteWord(UIntPtr physicalAddress, uint word)
+        {
+            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => (uint)physicalAddress >= e.StartAddress && (uint)physicalAddress <= e.EndAddress);
+
+            switch (entry.EntryName)
+            {
+                case Nintendo64.MappingEntry.Name.None:
+                    switch ((uint)physicalAddress)
+                    {
+                        case Nintendo64.SPStatusRegisterAddress:
+                            nintendo64.RCP.RSP.StatusRegister = word;
+                            return;
+                    }
+                    break;
+            }
         }
 
         /// <summary>
