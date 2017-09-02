@@ -75,7 +75,7 @@ namespace N64Emu
                 {
                     if (GPRegisters[i.RS] == GPRegisters[i.RT])
                     {
-                        ProgramCounter += (uint)SignExtend((ushort)(i.Immediate << 2));
+                        ProgramCounter += SignExtend((ushort)(i.Immediate << 2));
 
                         Step();
                     }
@@ -109,9 +109,10 @@ namespace N64Emu
 
         public void Step()
         {
-            Run(ReadWord(new UIntPtr(ProgramCounter)));
-
+            var instruction = ReadWord(new UIntPtr(ProgramCounter));
             ProgramCounter += sizeof(uint);
+
+            Run(instruction);
         }
 
         private uint ReadWord(UIntPtr virtualAddress)
