@@ -82,7 +82,7 @@ namespace N64Emu.CPU
                         ProgramCounter += sizeof(uint);
                 },
                 [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate),
-                [OpCode.SW] = i => WriteWord(MapMemory(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS])), (uint)GPRegisters[i.RT]),
+                [OpCode.SW] = i => WriteWord(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS]), (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i =>
                 {
                     var delaySlotInstruction = ReadWord(new UIntPtr(ProgramCounter));
@@ -132,7 +132,7 @@ namespace N64Emu.CPU
         private uint ReadWord(UIntPtr virtualAddress)
         {
             var physicalAddress = MapMemory(virtualAddress);
-            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => (uint)physicalAddress >= e.StartAddress && (uint)physicalAddress <= e.EndAddress);
+            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
 
             switch (entry.EntryName)
             {
@@ -152,9 +152,10 @@ namespace N64Emu.CPU
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
         }
 
-        private void WriteWord(UIntPtr physicalAddress, uint word)
+        private void WriteWord(UIntPtr virtualAddress, uint word)
         {
-            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => (uint)physicalAddress >= e.StartAddress && (uint)physicalAddress <= e.EndAddress);
+            var physicalAddress = MapMemory(virtualAddress);
+            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
 
             switch (entry.EntryName)
             {

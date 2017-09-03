@@ -1,4 +1,6 @@
-﻿namespace N64Emu
+﻿using System;
+
+namespace N64Emu
 {
     public partial class Nintendo64
     {
@@ -10,6 +12,10 @@
             public uint EndAddress { get; set; }
 
             public Name EntryName { get; set; }
+            #endregion
+
+            #region Methods
+            public bool Contains(UIntPtr address) => (uint)address >= StartAddress && (uint)address <= EndAddress;
             #endregion
 
             #region Enumerations
