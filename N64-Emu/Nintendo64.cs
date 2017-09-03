@@ -31,7 +31,7 @@ namespace N64Emu
 
         public byte[] PIFROM { get; set; }
 
-        public Cartridge Cartridge { get; private set; }
+        public Cartridge Cartridge { get; set; }
         #endregion
 
         #region Constructors
@@ -73,14 +73,6 @@ namespace N64Emu
             {
                 CPU.Step();
             }
-        }
-
-        public void Insert(Cartridge cartridge)
-        {
-            if (Cartridge != null)
-                throw new Exception("Existing game could be running.");
-
-            Cartridge = cartridge;
         }
         #endregion
     }
