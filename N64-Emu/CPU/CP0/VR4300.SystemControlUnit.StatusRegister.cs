@@ -231,9 +231,8 @@ namespace N64Emu.CPU
 
                     private void Set(int shift, bool value)
                     {
-                        var reset = ~(1 << shift);
-                        this.data &= (ushort)reset;
-                        this.data |= (ushort)((value ? 1 : 0) << shift);
+                        data &= (ushort)~(1 << shift);
+                        data |= (ushort)((value ? 1 : 0) << shift);
                     }
                     #endregion
 
