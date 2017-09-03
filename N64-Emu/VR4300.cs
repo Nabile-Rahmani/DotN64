@@ -66,11 +66,7 @@ namespace N64Emu
                 [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
                 [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
-                [OpCode.LW] = i => // 'offset' is Immediate, 'base' is RS.
-                {
-                    var vAddr = SignExtend(i.Immediate) + GPRegisters[i.RS];
-                    GPRegisters[i.RT] = SignExtend(ReadWord(new UIntPtr(vAddr)));
-                },
+                [OpCode.LW] = i => GPRegisters[i.RT] = SignExtend(ReadWord(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS]))),
                 [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
                 [OpCode.BEQL] = i =>
                 {
