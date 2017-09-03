@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
 
 namespace N64Emu
 {
+    using static Helpers.BitHelper;
+
     // Reference: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
     public partial class VR4300
     {
@@ -115,12 +116,6 @@ namespace N64Emu
 
             CP0.PowerOnReset();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ulong SignExtend(ushort value) => (ulong)(short)value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ulong SignExtend(uint value) => (ulong)(int)value;
 
         public void Run(Instruction instruction)
         {

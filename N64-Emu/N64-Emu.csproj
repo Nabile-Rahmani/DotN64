@@ -42,9 +42,11 @@
     <Compile Include="RealityCoprocessor.cs" />
     <Compile Include="RealityCoprocessor.RealitySignalProcessor.cs" />
     <Compile Include="Nintendo64.MappingEntry.cs" />
+    <Compile Include="Helpers\BitHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />
