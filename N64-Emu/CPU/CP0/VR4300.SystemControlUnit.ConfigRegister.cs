@@ -2,7 +2,7 @@
 {
     public partial class VR4300
     {
-        public partial class Coprocessor0
+        public partial class SystemControlUnit
         {
             public class ConfigRegister : Register
             {
@@ -64,7 +64,7 @@
                 #endregion
 
                 #region Constructors
-                public ConfigRegister(Coprocessor0 cp0)
+                public ConfigRegister(SystemControlUnit cp0)
                     : base(cp0)
                 {
                     SetValue(4, (1 << 11) - 1, 0b11001000110);

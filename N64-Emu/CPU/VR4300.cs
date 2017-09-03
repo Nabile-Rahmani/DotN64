@@ -54,7 +54,7 @@ namespace N64Emu.CPU
         /// </summary>
         public float FCR31 { get; set; }
 
-        public Coprocessor0 CP0 { get; } = new Coprocessor0();
+        public SystemControlUnit CP0 { get; } = new SystemControlUnit();
         #endregion
 
         #region Constructors

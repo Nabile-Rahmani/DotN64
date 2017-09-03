@@ -4,7 +4,7 @@ namespace N64Emu.CPU
 {
     public partial class VR4300
     {
-        public partial class Coprocessor0
+        public partial class SystemControlUnit
         {
             public class StatusRegister : Register
             {
@@ -149,7 +149,7 @@ namespace N64Emu.CPU
                 #endregion
 
                 #region Constructors
-                public StatusRegister(Coprocessor0 cp0)
+                public StatusRegister(SystemControlUnit cp0)
                     : base(cp0) { }
                 #endregion
 

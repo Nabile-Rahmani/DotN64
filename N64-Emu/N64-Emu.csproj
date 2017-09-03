@@ -38,11 +38,11 @@
     <Compile Include="CPU\VR4300.OpCode.cs" />
     <Compile Include="RCP\RealityCoprocessor.cs" />
     <Compile Include="RCP\RealityCoprocessor.RealitySignalProcessor.cs" />
-    <Compile Include="CPU\CP0\VR4300.Coprocessor0.cs" />
-    <Compile Include="CPU\CP0\VR4300.Coprocessor0.ConfigRegister.cs" />
-    <Compile Include="CPU\CP0\VR4300.Coprocessor0.Register.cs" />
-    <Compile Include="CPU\CP0\VR4300.Coprocessor0.RegisterIndex.cs" />
-    <Compile Include="CPU\CP0\VR4300.Coprocessor0.StatusRegister.cs" />
+    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.cs" />
+    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.ConfigRegister.cs" />
+    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.Register.cs" />
+    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
+    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

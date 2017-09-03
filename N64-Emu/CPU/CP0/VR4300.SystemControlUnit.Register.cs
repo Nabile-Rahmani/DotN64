@@ -2,12 +2,12 @@
 {
     public partial class VR4300
     {
-        public partial class Coprocessor0
+        public partial class SystemControlUnit
         {
             public abstract class Register
             {
                 #region Fields
-                private readonly Coprocessor0 cp0;
+                private readonly SystemControlUnit cp0;
                 #endregion
 
                 #region Properties
@@ -15,7 +15,7 @@
                 #endregion
 
                 #region Constructors
-                protected Register(Coprocessor0 cp0)
+                protected Register(SystemControlUnit cp0)
                 {
                     this.cp0 = cp0;
                 }

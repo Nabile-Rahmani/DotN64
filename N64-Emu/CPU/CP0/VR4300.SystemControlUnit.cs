@@ -2,7 +2,7 @@
 {
     public partial class VR4300
     {
-        public partial class Coprocessor0
+        public partial class SystemControlUnit
         {
             #region Properties
             public ulong[] Registers { get; } = new ulong[32];
@@ -13,7 +13,7 @@
             #endregion
 
             #region Constructors
-            public Coprocessor0()
+            public SystemControlUnit()
             {
                 Config = new ConfigRegister(this);
                 Status = new StatusRegister(this);
