@@ -2,6 +2,9 @@
 
 namespace N64Emu
 {
+    using CPU;
+    using RCP;
+
     public partial class Nintendo64
     {
         #region Fields

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace N64Emu
+namespace N64Emu.CPU
 {
     public partial class VR4300
     {

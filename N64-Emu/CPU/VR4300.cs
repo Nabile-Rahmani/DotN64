@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
-namespace N64Emu
+namespace N64Emu.CPU
 {
     using static Helpers.BitHelper;
 

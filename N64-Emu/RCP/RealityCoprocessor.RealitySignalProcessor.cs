@@ -1,4 +1,4 @@
-﻿namespace N64Emu
+﻿namespace N64Emu.RCP
 {
     public partial class RealityCoprocessor
     {
