@@ -20,9 +20,9 @@
                 /// <summary>
                 /// Sets coherency algorithm of kseg0.
                 /// </summary>
-                public K0 ConfigK0
+                public CoherencyAlgorithm K0
                 {
-                    get => (K0)GetValue(K0Shift, K0Size);
+                    get => (CoherencyAlgorithm)GetValue(K0Shift, K0Size);
                     set => SetValue(K0Shift, K0Size, (ulong)value);
                 }
 
@@ -38,18 +38,18 @@
                 /// <summary>
                 /// Sets BigEndianMem (endianness).
                 /// </summary>
-                public BE ConfigBE
+                public Endianness BE
                 {
-                    get => (BE)GetValue(BEShift, BESize);
+                    get => (Endianness)GetValue(BEShift, BESize);
                     set => SetValue(BEShift, BESize, (ulong)value);
                 }
 
                 /// <summary>
                 /// Sets transfer data pattern (single/block write request).
                 /// </summary>
-                public EP ConfigEP
+                public TransferDataPattern EP
                 {
-                    get => (EP)GetValue(EPShift, EPSize);
+                    get => (TransferDataPattern)GetValue(EPShift, EPSize);
                     set => SetValue(EPShift, EPSize, (ulong)value);
                 }
 
@@ -74,18 +74,18 @@
                 #endregion
 
                 #region Enumerations
-                public enum K0 : byte
+                public enum CoherencyAlgorithm : byte
                 {
                     CacheUnused = 0b010
                 }
 
-                public enum BE : byte
+                public enum Endianness : byte
                 {
                     LittleEndian,
                     BigEndian
                 }
 
-                public enum EP : byte
+                public enum TransferDataPattern : byte
                 {
                     D = 0,
                     DxxDxx = 6

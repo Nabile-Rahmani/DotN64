@@ -23,8 +23,8 @@
             #region Methods
             public void PowerOnReset()
             {
-                Config.ConfigEP = ConfigRegister.EP.D;
-                Config.ConfigBE = ConfigRegister.BE.BigEndian;
+                Config.EP = ConfigRegister.TransferDataPattern.D;
+                Config.BE = ConfigRegister.Endianness.BigEndian;
             }
             #endregion
         }

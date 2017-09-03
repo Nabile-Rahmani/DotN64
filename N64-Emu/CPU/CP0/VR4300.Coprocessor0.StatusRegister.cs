@@ -57,9 +57,9 @@ namespace N64Emu.CPU
                 /// <summary>
                 /// Specifies and indicates mode bits.
                 /// </summary>
-                public KSU ConfigKSU
+                public Mode KSU
                 {
-                    get => (KSU)GetValue(KSUShift, KSUSize);
+                    get => (Mode)GetValue(KSUShift, KSUSize);
                     set => SetValue(KSUShift, KSUSize, (ulong)value);
                 }
 
@@ -141,9 +141,9 @@ namespace N64Emu.CPU
                 /// <summary>
                 /// Controls the usability of each of the four coprocessor unit numbers.
                 /// </summary>
-                public CU ConfigCU
+                public CoprocessorUsabilities CU
                 {
-                    get => (CU)GetValue(CUShift, CUSize);
+                    get => (CoprocessorUsabilities)GetValue(CUShift, CUSize);
                     set => SetValue(CUShift, CUSize, (ulong)value);
                 }
                 #endregion
@@ -246,7 +246,7 @@ namespace N64Emu.CPU
                 #endregion
 
                 #region Enumerations
-                public enum KSU : byte
+                public enum Mode : byte
                 {
                     Kernel = 0b00,
                     Supervisor = 0b01,
@@ -254,7 +254,7 @@ namespace N64Emu.CPU
                 }
 
                 [Flags]
-                public enum CU : byte
+                public enum CoprocessorUsabilities : byte
                 {
                     None = 0,
                     CP0 = 1 << 0,
