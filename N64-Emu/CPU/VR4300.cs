@@ -99,7 +99,7 @@ namespace N64Emu.CPU
                 [OpCode.BNE] = i =>
                 {
                     if (GPRegisters[i.RS] != GPRegisters[i.RT])
-                        ProgramCounter += SignExtend(i.Immediate);
+                        ProgramCounter += SignExtend((uint)i.Immediate << 2);
                 }
             };
         }
