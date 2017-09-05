@@ -74,7 +74,7 @@ namespace N64Emu.CPU
 
                     if (GPRegisters[i.RS] == GPRegisters[i.RT])
                     {
-                        ProgramCounter += SignExtend((ushort)(i.Immediate << 2));
+                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
 
                         Run(delaySlotInstruction);
                     }
@@ -89,7 +89,7 @@ namespace N64Emu.CPU
 
                     if (GPRegisters[i.RS] != GPRegisters[i.RT])
                     {
-                        ProgramCounter += SignExtend((ushort)(i.Immediate << 2));
+                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
 
                         Run(delaySlotInstruction);
                     }
@@ -99,7 +99,7 @@ namespace N64Emu.CPU
                 [OpCode.BNE] = i =>
                 {
                     if (GPRegisters[i.RS] != GPRegisters[i.RT])
-                        ProgramCounter += SignExtend((uint)i.Immediate << 2);
+                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
                 }
             };
         }
