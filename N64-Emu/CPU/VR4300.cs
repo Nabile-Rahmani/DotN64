@@ -73,7 +73,8 @@ namespace N64Emu.CPU
                 [OpCode.SW] = i => WriteWord(SignExtend(i.Immediate) + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
-                [OpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT] // Should we discard the upper word and extend the lower one ?
+                [OpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT], // Should we discard the upper word and extend the lower one ?
+                [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt)
             };
         }
         #endregion
@@ -125,42 +126,23 @@ namespace N64Emu.CPU
         private uint ReadWord(ulong virtualAddress)
         {
             var physicalAddress = MapMemory(virtualAddress);
-            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
+            var entry = nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
 
-            switch (entry.EntryName)
-            {
-                case Nintendo64.MappingEntry.Name.None:
-                    switch ((uint)physicalAddress)
-                    {
-                        case Nintendo64.SPStatusRegisterAddress:
-                            return nintendo64.RCP.RSP.StatusRegister;
-                        case Nintendo64.SPDMABusyRegisterAddress:
-                            return nintendo64.RCP.RSP.DMABusyRegister;
-                    }
-                    break;
-                case Nintendo64.MappingEntry.Name.PIFBootROM:
-                    return (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(nintendo64.PIFROM, (int)((uint)physicalAddress - entry.StartAddress)));
-            }
+            if (entry.Contains(physicalAddress))
+                return entry.ReadWord(entry, physicalAddress);
 
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
         }
 
-        private void WriteWord(ulong virtualAddress, uint word)
+        private void WriteWord(ulong virtualAddress, uint value)
         {
             var physicalAddress = MapMemory(virtualAddress);
-            var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
+            var entry = nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
 
-            switch (entry.EntryName)
-            {
-                case Nintendo64.MappingEntry.Name.None:
-                    switch ((uint)physicalAddress)
-                    {
-                        case Nintendo64.SPStatusRegisterAddress:
-                            nintendo64.RCP.RSP.StatusRegister = word;
-                            return;
-                    }
-                    break;
-            }
+            if (!entry.Contains(physicalAddress))
+                throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
+
+            entry.WriteWord(entry, physicalAddress, value);
         }
 
         /// <summary>

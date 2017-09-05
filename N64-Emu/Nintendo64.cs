@@ -1,31 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
 
 namespace N64Emu
 {
     using CPU;
+    using Interfaces.Audio;
+    using Interfaces.Peripheral;
+    using Interfaces.Video;
     using RCP;
 
     public partial class Nintendo64
     {
         #region Fields
-        public static readonly MappingEntry[] MemoryMaps =
-        {
-            new MappingEntry
-            {
-                StartAddress = 0x1FC00000,
-                EndAddress = 0x1FC007BF,
-                EntryName = MappingEntry.Name.PIFBootROM
-            }
-        };
-
-        public const uint SPStatusRegisterAddress = 0x04040010;
-        public const uint SPDMABusyRegisterAddress = 0x04040018;
+        public readonly IReadOnlyList<MappingEntry> MemoryMaps;
         #endregion
 
         #region Properties
         public VR4300 CPU { get; }
 
         public RealityCoprocessor RCP { get; } = new RealityCoprocessor();
+
+        public PeripheralInterface PI { get; } = new PeripheralInterface();
+
+        public VideoInterface VI { get; } = new VideoInterface();
+
+        public AudioInterface AI { get; } = new AudioInterface();
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
@@ -38,6 +38,76 @@ namespace N64Emu
         public Nintendo64()
         {
             CPU = new VR4300(this);
+            MemoryMaps = new[]
+            {
+                new MappingEntry // PIF Boot ROM.
+                {
+                    StartAddress = 0x1FC00000,
+                    EndAddress = 0x1FC007BF,
+                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)((uint)a - e.StartAddress)))
+                },
+                new MappingEntry // SP_IMEM read/write.
+                {
+                    StartAddress = 0x04001000,
+                    EndAddress = 0x04001FFF,
+                    WriteWord = (e, a, v) => { } // What's that for ?
+                },
+                new MappingEntry // PIF (JoyChannel) RAM.
+                {
+                    StartAddress = 0x1FC007C0,
+                    EndAddress = 0x1FC007FF,
+                    ReadWord = (e, a) => 0 // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
+                },
+                new MappingEntry // SP status.
+                {
+                    StartAddress = 0x04040010,
+                    EndAddress = 0x04040013,
+                    ReadWord = (e, a) => RCP.RSP.StatusRegister,
+                    WriteWord = (e, a, v) => RCP.RSP.StatusRegister = v
+                },
+                new MappingEntry // SP DMA busy.
+                {
+                    StartAddress = 0x04040018,
+                    EndAddress = 0x0404001B,
+                    ReadWord = (e, a) => RCP.RSP.DMABusyRegister
+                },
+                new MappingEntry // PI status.
+                {
+                    StartAddress = 0x04600010,
+                    EndAddress = 0x04600013,
+                    WriteWord = (e, a, v) => PI.Status.Data = (byte)v
+                },
+                new MappingEntry // VI vertical intr.
+                {
+                    StartAddress = 0x0440000C,
+                    EndAddress = 0x0440000F,
+                    WriteWord = (e, a, v) => VI.VerticalInterrupt = (ushort)v
+                },
+                new MappingEntry // VI horizontal video.
+                {
+                    StartAddress = 0x04400024,
+                    EndAddress = 0x04400027,
+                    WriteWord = (e, a, v) => VI.HorizontalVideo = v
+                },
+                new MappingEntry // VI current vertical line.
+                {
+                    StartAddress = 0x04400010,
+                    EndAddress = 0x04400010 + sizeof(ushort),
+                    WriteWord = (e, a, v) => VI.CurrentVerticalLine = (ushort)v
+                },
+                new MappingEntry // AI DRAM address.
+                {
+                    StartAddress = 0x04500000,
+                    EndAddress = 0x04500003,
+                    WriteWord = (e, a, v) => AI.DRAMAddress = v
+                },
+                new MappingEntry // AI length.
+                {
+                    StartAddress = 0x04500004,
+                    EndAddress = 0x04500007,
+                    WriteWord = (e, a, v) => AI.TransferLength = v
+                }
+            };
         }
         #endregion
 

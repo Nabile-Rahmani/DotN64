@@ -43,6 +43,11 @@
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.Register.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
+    <Compile Include="Interfaces\Peripheral\PeripheralInterface.cs" />
+    <Compile Include="Interfaces\Peripheral\PeripheralInterface.StatusRegister.cs" />
+    <Compile Include="Interfaces\Video\VideoInterface.cs" />
+    <Compile Include="Interfaces\Video\VideoInterface.HorizontalVideoRegister.cs" />
+    <Compile Include="Interfaces\Audio\AudioInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
@@ -50,6 +55,10 @@
     <Folder Include="CPU\" />
     <Folder Include="RCP\" />
     <Folder Include="CPU\CP0\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Interfaces\Peripheral\" />
+    <Folder Include="Interfaces\Video\" />
+    <Folder Include="Interfaces\Audio\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />

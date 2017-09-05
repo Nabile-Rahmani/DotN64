@@ -25,7 +25,9 @@
             /// <summary>Branch On Not Equal.</summary>
             BNE = 0b000101,
             /// <summary>Add.</summary>
-            ADD = 0b000000
+            ADD = 0b000000,
+            /// <summary>Branch On Equal.</summary>
+            BEQ = 0b000100
         }
     }
 }
