@@ -100,7 +100,8 @@ namespace N64Emu.CPU
                 {
                     if (GPRegisters[i.RS] != GPRegisters[i.RT])
                         ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
-                }
+                },
+                [OpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT] // Should we discard the upper word and extend the lower one ?
             };
         }
         #endregion
