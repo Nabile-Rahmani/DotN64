@@ -56,10 +56,10 @@ namespace N64Emu
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.PRId] = 0x00000B00;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Config] = 0x0006E463;
 
-            Array.Copy(BitConverter.GetBytes(0x01010101), 0, RAM, (uint)CPU.MapMemory(new UIntPtr(0x04300004)), sizeof(int));
-            Array.Copy(Cartridge.ROM, 0, RAM, (uint)CPU.MapMemory(new UIntPtr(0xA4000000)), 0x1000);
+            Array.Copy(BitConverter.GetBytes(0x01010101), 0, RAM, (uint)CPU.MapMemory(0x04300004), sizeof(int));
+            Array.Copy(Cartridge.ROM, 0, RAM, (uint)CPU.MapMemory(0xA4000000), 0x1000);
 
-            CPU.ProgramCounter = (ulong)CPU.MapMemory(new UIntPtr(0xA4000040));
+            CPU.ProgramCounter = CPU.MapMemory(0xA4000040);
         }
 
         public void Initialise()

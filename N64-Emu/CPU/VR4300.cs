@@ -66,11 +66,11 @@ namespace N64Emu.CPU
                 [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
                 [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
-                [OpCode.LW] = i => GPRegisters[i.RT] = SignExtend(ReadWord(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS]))),
+                [OpCode.LW] = i => GPRegisters[i.RT] = SignExtend(ReadWord(SignExtend(i.Immediate) + GPRegisters[i.RS])),
                 [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
                 [OpCode.BEQL] = i =>
                 {
-                    var delaySlotInstruction = ReadWord(new UIntPtr(ProgramCounter));
+                    var delaySlotInstruction = ReadWord(ProgramCounter);
 
                     if (GPRegisters[i.RS] == GPRegisters[i.RT])
                     {
@@ -82,10 +82,10 @@ namespace N64Emu.CPU
                         ProgramCounter += sizeof(uint);
                 },
                 [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate),
-                [OpCode.SW] = i => WriteWord(new UIntPtr(SignExtend(i.Immediate) + GPRegisters[i.RS]), (uint)GPRegisters[i.RT]),
+                [OpCode.SW] = i => WriteWord(SignExtend(i.Immediate) + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i =>
                 {
-                    var delaySlotInstruction = ReadWord(new UIntPtr(ProgramCounter));
+                    var delaySlotInstruction = ReadWord(ProgramCounter);
 
                     if (GPRegisters[i.RS] != GPRegisters[i.RT])
                     {
@@ -124,13 +124,13 @@ namespace N64Emu.CPU
 
         public void Step()
         {
-            var instruction = ReadWord(new UIntPtr(ProgramCounter));
+            var instruction = ReadWord(ProgramCounter);
             ProgramCounter += sizeof(uint);
 
             Run(instruction);
         }
 
-        private uint ReadWord(UIntPtr virtualAddress)
+        private uint ReadWord(ulong virtualAddress)
         {
             var physicalAddress = MapMemory(virtualAddress);
             var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
@@ -153,7 +153,7 @@ namespace N64Emu.CPU
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
         }
 
-        private void WriteWord(UIntPtr virtualAddress, uint word)
+        private void WriteWord(ulong virtualAddress, uint word)
         {
             var physicalAddress = MapMemory(virtualAddress);
             var entry = Nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
@@ -177,16 +177,16 @@ namespace N64Emu.CPU
         /// </summary>
         /// <param name="address">The virtual address.</param>
         /// <returns>The physical address.</returns>
-        public UIntPtr MapMemory(UIntPtr address) // TODO: move to an MMU, and CP0 relations ?
+        public ulong MapMemory(ulong address) // TODO: move to an MMU, and CP0 relations ?
         {
-            switch ((ulong)address >> 29 & 0b111)
+            switch (address >> 29 & 0b111)
             {
                 case 0b100: // kseg0.
-                    return new UIntPtr((ulong)address - 0xFFFFFFFF80000000);
+                    return address - 0xFFFFFFFF80000000;
                 case 0b101: // kseg1.
-                    return new UIntPtr((ulong)address - 0xFFFFFFFFA0000000);
+                    return address - 0xFFFFFFFFA0000000;
                 default:
-                    throw new Exception($"Unknown memory map segment for location 0x{(ulong)address:X}.");
+                    throw new Exception($"Unknown memory map segment for location 0x{address:X}.");
             }
         }
         #endregion
