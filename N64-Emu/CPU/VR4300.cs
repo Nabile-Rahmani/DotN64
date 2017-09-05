@@ -68,39 +68,11 @@ namespace N64Emu.CPU
                 [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
                 [OpCode.LW] = i => GPRegisters[i.RT] = SignExtend(ReadWord(SignExtend(i.Immediate) + GPRegisters[i.RS])),
                 [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
-                [OpCode.BEQL] = i =>
-                {
-                    var delaySlotInstruction = ReadWord(ProgramCounter);
-
-                    if (GPRegisters[i.RS] == GPRegisters[i.RT])
-                    {
-                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
-
-                        Run(delaySlotInstruction);
-                    }
-                    else
-                        ProgramCounter += sizeof(uint);
-                },
+                [OpCode.BEQL] = i => BranchLikely(i, (rs, rt) => rs == rt),
                 [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate),
                 [OpCode.SW] = i => WriteWord(SignExtend(i.Immediate) + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
-                [OpCode.BNEL] = i =>
-                {
-                    var delaySlotInstruction = ReadWord(ProgramCounter);
-
-                    if (GPRegisters[i.RS] != GPRegisters[i.RT])
-                    {
-                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
-
-                        Run(delaySlotInstruction);
-                    }
-                    else
-                        ProgramCounter += sizeof(uint);
-                },
-                [OpCode.BNE] = i =>
-                {
-                    if (GPRegisters[i.RS] != GPRegisters[i.RT])
-                        ProgramCounter += (ulong)((long)(short)i.Immediate & ~((1 << 18) - 1) | (long)i.Immediate << 2);
-                },
+                [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
+                [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
                 [OpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT] // Should we discard the upper word and extend the lower one ?
             };
         }
@@ -128,6 +100,26 @@ namespace N64Emu.CPU
             ProgramCounter += sizeof(uint);
 
             Run(instruction);
+        }
+
+        private void Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
+        {
+            if (condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]))
+                ProgramCounter += (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
+        }
+
+        private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
+        {
+            var delaySlotInstruction = ReadWord(ProgramCounter);
+
+            if (condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]))
+            {
+                ProgramCounter += (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
+
+                Run(delaySlotInstruction);
+            }
+            else
+                ProgramCounter += sizeof(uint);
         }
 
         private uint ReadWord(ulong virtualAddress)
