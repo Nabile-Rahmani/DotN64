@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace N64Emu
@@ -44,13 +45,13 @@ namespace N64Emu
                 {
                     StartAddress = 0x1FC00000,
                     EndAddress = 0x1FC007BF,
-                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)((uint)a - e.StartAddress)))
+                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)(a - e.StartAddress)))
                 },
                 new MappingEntry // SP_IMEM read/write.
                 {
                     StartAddress = 0x04001000,
                     EndAddress = 0x04001FFF,
-                    WriteWord = (e, a, v) => { } // What's that for ?
+                    WriteWord = (e, a, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.IMEM, (int)(a - e.StartAddress), sizeof(uint))
                 },
                 new MappingEntry // PIF (JoyChannel) RAM.
                 {
@@ -106,6 +107,19 @@ namespace N64Emu
                     StartAddress = 0x04500004,
                     EndAddress = 0x04500007,
                     WriteWord = (e, a, v) => AI.TransferLength = v
+                },
+                new MappingEntry // SP_DMEM read/write.
+                {
+                    StartAddress = 0x04000000,
+                    EndAddress = 0x04000FFF,
+                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.RSP.DMEM, (int)(a - e.StartAddress))),
+                    WriteWord = (e, a, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.DMEM, (int)(a - e.StartAddress), sizeof(uint))
+                },
+                new MappingEntry // MI version.
+                {
+                    StartAddress = 0x04300004,
+                    EndAddress = 0x04300007,
+                    WriteWord = (e, a, v) => { }
                 }
             };
         }
@@ -126,10 +140,20 @@ namespace N64Emu
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.PRId] = 0x00000B00;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Config] = 0x0006E463;
 
-            Array.Copy(BitConverter.GetBytes(0x01010101), 0, RAM, (uint)CPU.MapMemory(0x04300004), sizeof(int));
-            Array.Copy(Cartridge.ROM, 0, RAM, (uint)CPU.MapMemory(0xA4000000), 0x1000);
+            uint versionAddress = 0x04300004;
+            var versionEntry = MemoryMaps.First(e => e.Contains(versionAddress));
 
-            CPU.ProgramCounter = CPU.MapMemory(0xA4000040);
+            versionEntry.WriteWord(versionEntry, versionAddress, 0x01010101);
+
+            for (int i = 0; i < 0x1000; i += sizeof(uint))
+            {
+                var dmemAddress = (ulong)(0x04000000 + i);
+                var dmemEntry = MemoryMaps.First(e => e.Contains(dmemAddress));
+
+                dmemEntry.WriteWord(dmemEntry, dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
+            }
+
+            CPU.ProgramCounter = 0xA4000040;
         }
 
         public void Initialise()
