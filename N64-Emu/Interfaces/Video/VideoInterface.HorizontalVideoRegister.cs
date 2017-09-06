@@ -7,8 +7,8 @@
             #region Fields
             private uint data;
 
-            private const int ActiveVideoEndShift = 0, ActiveVideoEndSize = (1 << 9) - 1;
-            private const int ActiveVideoStartShift = 16, ActiveVideoStartSize = (1 << 9) - 1;
+            private const int ActiveVideoEndShift = 0, ActiveVideoEndSize = (1 << 10) - 1;
+            private const int ActiveVideoStartShift = 16, ActiveVideoStartSize = (1 << 10) - 1;
             #endregion
 
             #region Properties

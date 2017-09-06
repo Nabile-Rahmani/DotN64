@@ -10,14 +10,14 @@
         public uint DRAMAddress
         {
             get => dramAddress;
-            set => dramAddress = value & ((1 << 23) - 1);
+            set => dramAddress = value & ((1 << 24) - 1);
         }
 
         private uint transferLength;
         public uint TransferLength
         {
             get => transferLength;
-            set => transferLength = (uint)(value & ((1 << 17) - 1) & ~((1 << 3) - 1)); // "v2.0".
+            set => transferLength = (uint)(value & ((1 << 18) - 1) & ~((1 << 3) - 1)); // "v2.0".
         }
         #endregion
     }

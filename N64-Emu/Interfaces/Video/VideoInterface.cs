@@ -10,7 +10,7 @@
         public ushort VerticalInterrupt
         {
             get => verticalInterrupt;
-            set => verticalInterrupt = (ushort)(value & ((1 << 9) - 1));
+            set => verticalInterrupt = (ushort)(value & ((1 << 10) - 1));
         }
 
         public HorizontalVideoRegister HorizontalVideo { get; set; }
@@ -24,7 +24,7 @@
             get => currentVerticalLine;
             set
             {
-                currentVerticalLine = (ushort)(value & ((1 << 9) - 1));
+                currentVerticalLine = (ushort)(value & ((1 << 10) - 1));
 
                 // TODO: Clear interrupt line.
             }
