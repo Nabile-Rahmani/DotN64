@@ -51,7 +51,7 @@ namespace N64Emu
                 {
                     StartAddress = 0x04001000,
                     EndAddress = 0x04001FFF,
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.IMEM, (int)o, sizeof(uint))
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // PIF (JoyChannel) RAM.
                 {
@@ -63,14 +63,14 @@ namespace N64Emu
                 {
                     StartAddress = 0x04040010,
                     EndAddress = 0x04040013,
-                    Read = o => RCP.RSP.StatusRegister,
-                    Write = (o, v) => RCP.RSP.StatusRegister = v
+                    Read = o => RCP.SP.StatusRegister,
+                    Write = (o, v) => RCP.SP.StatusRegister = v
                 },
                 new MappingEntry // SP DMA busy.
                 {
                     StartAddress = 0x04040018,
                     EndAddress = 0x0404001B,
-                    Read = o => RCP.RSP.DMABusyRegister
+                    Read = o => RCP.SP.DMABusyRegister
                 },
                 new MappingEntry // PI status.
                 {
@@ -112,8 +112,8 @@ namespace N64Emu
                 {
                     StartAddress = 0x04000000,
                     EndAddress = 0x04000FFF,
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.RSP.DMEM, (int)o)),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.DMEM, (int)o, sizeof(uint))
+                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.SP.DMEM, (int)o)),
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // MI version.
                 {

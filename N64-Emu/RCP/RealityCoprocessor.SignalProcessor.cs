@@ -2,7 +2,7 @@
 {
     public partial class RealityCoprocessor
     {
-        public class RealitySignalProcessor
+        public class SignalProcessor
         {
             #region Properties
             public uint StatusRegister { get; set; } = 1;

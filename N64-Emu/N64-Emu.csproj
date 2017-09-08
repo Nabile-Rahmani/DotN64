@@ -37,7 +37,7 @@
     <Compile Include="CPU\VR4300.Instruction.cs" />
     <Compile Include="CPU\VR4300.OpCode.cs" />
     <Compile Include="RCP\RealityCoprocessor.cs" />
-    <Compile Include="RCP\RealityCoprocessor.RealitySignalProcessor.cs" />
+    <Compile Include="RCP\RealityCoprocessor.SignalProcessor.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.ConfigRegister.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.Register.cs" />

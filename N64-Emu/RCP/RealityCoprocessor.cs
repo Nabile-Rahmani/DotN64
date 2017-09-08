@@ -3,7 +3,7 @@
     public partial class RealityCoprocessor
     {
         #region properties
-        public RealitySignalProcessor RSP { get; } = new RealitySignalProcessor();
+        public SignalProcessor SP { get; } = new SignalProcessor();
         #endregion
     }
 }
