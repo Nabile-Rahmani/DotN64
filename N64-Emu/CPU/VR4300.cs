@@ -110,13 +110,13 @@ namespace N64Emu.CPU
 
         private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
-            var delaySlotInstruction = ReadWord(ProgramCounter);
+            var delaySlot = ProgramCounter;
 
             if (condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]))
             {
                 ProgramCounter += (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
 
-                Run(delaySlotInstruction);
+                Run(ReadWord(delaySlot));
             }
             else
                 ProgramCounter += sizeof(uint);
