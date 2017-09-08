@@ -30,8 +30,6 @@ namespace N64Emu
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
-        public byte[] PIFROM { get; set; }
-
         public Cartridge Cartridge { get; set; }
         #endregion
 
@@ -45,7 +43,7 @@ namespace N64Emu
                 {
                     StartAddress = 0x1FC00000,
                     EndAddress = 0x1FC007BF,
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)o))
+                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PI.BootROM, (int)o))
                 },
                 new MappingEntry // SP_IMEM read/write.
                 {
@@ -158,7 +156,7 @@ namespace N64Emu
         {
             CPU.PowerOnReset();
 
-            if (PIFROM == null)
+            if (PI.BootROM == null)
                 RunPIF();
 
             while (true)
