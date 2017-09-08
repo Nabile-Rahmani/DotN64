@@ -45,81 +45,81 @@ namespace N64Emu
                 {
                     StartAddress = 0x1FC00000,
                     EndAddress = 0x1FC007BF,
-                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)(a - e.StartAddress)))
+                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PIFROM, (int)o))
                 },
                 new MappingEntry // SP_IMEM read/write.
                 {
                     StartAddress = 0x04001000,
                     EndAddress = 0x04001FFF,
-                    WriteWord = (e, a, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.IMEM, (int)(a - e.StartAddress), sizeof(uint))
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.IMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // PIF (JoyChannel) RAM.
                 {
                     StartAddress = 0x1FC007C0,
                     EndAddress = 0x1FC007FF,
-                    ReadWord = (e, a) => 0 // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
+                    Read = o => 0 // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
                 },
                 new MappingEntry // SP status.
                 {
                     StartAddress = 0x04040010,
                     EndAddress = 0x04040013,
-                    ReadWord = (e, a) => RCP.RSP.StatusRegister,
-                    WriteWord = (e, a, v) => RCP.RSP.StatusRegister = v
+                    Read = o => RCP.RSP.StatusRegister,
+                    Write = (o, v) => RCP.RSP.StatusRegister = v
                 },
                 new MappingEntry // SP DMA busy.
                 {
                     StartAddress = 0x04040018,
                     EndAddress = 0x0404001B,
-                    ReadWord = (e, a) => RCP.RSP.DMABusyRegister
+                    Read = o => RCP.RSP.DMABusyRegister
                 },
                 new MappingEntry // PI status.
                 {
                     StartAddress = 0x04600010,
                     EndAddress = 0x04600013,
-                    WriteWord = (e, a, v) => PI.Status.Data = (byte)v
+                    Write = (o, v) => PI.Status.Data = (byte)v
                 },
                 new MappingEntry // VI vertical intr.
                 {
                     StartAddress = 0x0440000C,
                     EndAddress = 0x0440000F,
-                    WriteWord = (e, a, v) => VI.VerticalInterrupt = (ushort)v
+                    Write = (o, v) => VI.VerticalInterrupt = (ushort)v
                 },
                 new MappingEntry // VI horizontal video.
                 {
                     StartAddress = 0x04400024,
                     EndAddress = 0x04400027,
-                    WriteWord = (e, a, v) => VI.HorizontalVideo = v
+                    Write = (o, v) => VI.HorizontalVideo = v
                 },
                 new MappingEntry // VI current vertical line.
                 {
                     StartAddress = 0x04400010,
                     EndAddress = 0x04400010 + sizeof(ushort),
-                    WriteWord = (e, a, v) => VI.CurrentVerticalLine = (ushort)v
+                    Write = (o, v) => VI.CurrentVerticalLine = (ushort)v
                 },
                 new MappingEntry // AI DRAM address.
                 {
                     StartAddress = 0x04500000,
                     EndAddress = 0x04500003,
-                    WriteWord = (e, a, v) => AI.DRAMAddress = v
+                    Write = (o, v) => AI.DRAMAddress = v
                 },
                 new MappingEntry // AI length.
                 {
                     StartAddress = 0x04500004,
                     EndAddress = 0x04500007,
-                    WriteWord = (e, a, v) => AI.TransferLength = v
+                    Write = (o, v) => AI.TransferLength = v
                 },
                 new MappingEntry // SP_DMEM read/write.
                 {
                     StartAddress = 0x04000000,
                     EndAddress = 0x04000FFF,
-                    ReadWord = (e, a) => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.RSP.DMEM, (int)(a - e.StartAddress))),
-                    WriteWord = (e, a, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.DMEM, (int)(a - e.StartAddress), sizeof(uint))
+                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.RSP.DMEM, (int)o)),
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.RSP.DMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // MI version.
                 {
                     StartAddress = 0x04300004,
                     EndAddress = 0x04300007,
-                    WriteWord = (e, a, v) => { }
+                    Write = (o, v) => { }
                 }
             };
         }
@@ -141,16 +141,14 @@ namespace N64Emu
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Config] = 0x0006E463;
 
             uint versionAddress = 0x04300004;
-            var versionEntry = MemoryMaps.First(e => e.Contains(versionAddress));
 
-            versionEntry.WriteWord(versionEntry, versionAddress, 0x01010101);
+            MemoryMaps.First(e => e.Contains(versionAddress)).WriteWord(versionAddress, 0x01010101);
 
             for (int i = 0; i < 0x1000; i += sizeof(uint))
             {
                 var dmemAddress = (ulong)(0x04000000 + i);
-                var dmemEntry = MemoryMaps.First(e => e.Contains(dmemAddress));
 
-                dmemEntry.WriteWord(dmemEntry, dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
+                MemoryMaps.First(e => e.Contains(dmemAddress)).WriteWord(dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
             }
 
             CPU.ProgramCounter = 0xA4000040;

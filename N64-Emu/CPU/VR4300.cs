@@ -128,7 +128,7 @@ namespace N64Emu.CPU
             var entry = nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
 
             if (entry.Contains(physicalAddress))
-                return entry.ReadWord(entry, physicalAddress);
+                return entry.ReadWord(physicalAddress);
 
             throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
         }
@@ -141,7 +141,7 @@ namespace N64Emu.CPU
             if (!entry.Contains(physicalAddress))
                 throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
 
-            entry.WriteWord(entry, physicalAddress, value);
+            entry.WriteWord(physicalAddress, value);
         }
 
         /// <summary>

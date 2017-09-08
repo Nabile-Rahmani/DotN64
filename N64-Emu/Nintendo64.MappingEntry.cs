@@ -1,26 +1,27 @@
-﻿namespace N64Emu
+﻿using System;
+
+namespace N64Emu
 {
     public partial class Nintendo64
     {
         public struct MappingEntry
         {
-            #region Fields
-            public delegate T Read<T>(MappingEntry entry, ulong address) where T : struct;
-            public delegate void Write<T>(MappingEntry entry, ulong address, T value) where T : struct;
-            #endregion
-
             #region Properties
             public uint StartAddress { get; set; }
 
             public uint EndAddress { get; set; }
 
-            public Read<uint> ReadWord { get; set; }
+            public Func<ulong, uint> Read { get; set; }
 
-            public Write<uint> WriteWord { get; set; }
+            public Action<ulong, uint> Write { get; set; }
             #endregion
 
             #region Methods
             public bool Contains(ulong address) => (uint)address >= StartAddress && (uint)address <= EndAddress;
+
+            public uint ReadWord(ulong address) => Read(address - StartAddress);
+
+            public void WriteWord(ulong address, uint value) => Write(address - StartAddress, value);
             #endregion
         }
     }
