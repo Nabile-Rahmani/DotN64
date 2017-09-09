@@ -14,6 +14,8 @@
             /// </summary>
             public OpCode OP => (OpCode)(data >> 26);
 
+            public SpecialOpCode SpecialOP => (SpecialOpCode)(data & (1 << 6) - 1);
+
             /// <summary>
             /// 5-bit source register number.
             /// </summary>

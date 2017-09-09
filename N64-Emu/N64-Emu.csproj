@@ -48,6 +48,7 @@
     <Compile Include="Interfaces\Video\VideoInterface.cs" />
     <Compile Include="Interfaces\Video\VideoInterface.HorizontalVideoRegister.cs" />
     <Compile Include="Interfaces\Audio\AudioInterface.cs" />
+    <Compile Include="CPU\VR4300.SpecialOpCode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

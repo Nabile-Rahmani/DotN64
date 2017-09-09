@@ -12,6 +12,7 @@ namespace N64Emu.CPU
         #region Fields
         private readonly Nintendo64 nintendo64;
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
+        private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
         #endregion
 
         #region Properties
@@ -62,6 +63,13 @@ namespace N64Emu.CPU
             this.nintendo64 = nintendo64;
             operations = new Dictionary<OpCode, Action<Instruction>>
             {
+                [OpCode.Special] = i =>
+                {
+                    if (specialOperations.TryGetValue(i.SpecialOP, out var operation))
+                        operation(i);
+                    else
+                        throw new Exception($"Unknown special opcode (0b{Convert.ToString((byte)i.SpecialOP, 2)}) from instruction 0x{(uint)i:X}.");
+                },
                 [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
                 [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
@@ -72,8 +80,19 @@ namespace N64Emu.CPU
                 [OpCode.SW] = i => WriteWord(SignExtend(i.Immediate) + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
-                [OpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT], // Should we discard the upper word and extend the lower one ?
                 [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt)
+            };
+            specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
+            {
+                [SpecialOpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT], // Should we discard the upper word and extend the lower one ?
+                [SpecialOpCode.JR] = i =>
+                {
+                    var temp = GPRegisters[i.RS];
+
+                    Run(ReadWord(ProgramCounter));
+
+                    ProgramCounter = temp;
+                }
             };
         }
         #endregion
