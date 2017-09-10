@@ -89,11 +89,8 @@ namespace N64Emu.CPU
                 [SpecialOpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT], // Should we discard the upper word and extend the lower one ?
                 [SpecialOpCode.JR] = i =>
                 {
-                    var temp = GPRegisters[i.RS];
-
-                    Run(ReadWord(ProgramCounter));
-
-                    ProgramCounter = temp;
+                    delaySlot = ProgramCounter;
+                    ProgramCounter = GPRegisters[i.RS];
                 }
             };
         }
@@ -135,14 +132,12 @@ namespace N64Emu.CPU
 
         private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
+            delaySlot = ProgramCounter;
             var target = (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
             var result = condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]);
 
             if (result)
-            {
-                delaySlot = ProgramCounter;
-                ProgramCounter += target;
-            }
+                ProgramCounter = delaySlot.Value + target;
 
             return result;
         }
@@ -150,7 +145,7 @@ namespace N64Emu.CPU
         private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
             if (!Branch(instruction, condition))
-                ProgramCounter += Instruction.Size;
+                delaySlot = null;
         }
 
         private uint ReadWord(ulong virtualAddress)
