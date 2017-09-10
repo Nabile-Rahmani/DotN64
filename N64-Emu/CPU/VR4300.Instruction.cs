@@ -6,6 +6,8 @@
         {
             #region Fields
             private uint data;
+
+            public const int Size = sizeof(uint);
             #endregion
 
             #region Properties

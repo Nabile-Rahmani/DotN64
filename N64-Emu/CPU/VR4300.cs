@@ -13,6 +13,8 @@ namespace N64Emu.CPU
         private readonly Nintendo64 nintendo64;
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
+
+        private ulong? delaySlot;
         #endregion
 
         #region Properties
@@ -115,30 +117,40 @@ namespace N64Emu.CPU
 
         public void Step()
         {
-            var instruction = ReadWord(ProgramCounter);
-            ProgramCounter += sizeof(uint);
+            Instruction instruction;
+
+            if (!delaySlot.HasValue)
+            {
+                instruction = ReadWord(ProgramCounter);
+                ProgramCounter += Instruction.Size;
+            }
+            else
+            {
+                instruction = ReadWord(delaySlot.Value);
+                delaySlot = null;
+            }
 
             Run(instruction);
         }
 
-        private void Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
+        private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
-            if (condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]))
-                ProgramCounter += (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
+            var target = (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
+            var result = condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]);
+
+            if (result)
+            {
+                delaySlot = ProgramCounter;
+                ProgramCounter += target;
+            }
+
+            return result;
         }
 
         private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
-            var delaySlot = ProgramCounter;
-
-            if (condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]))
-            {
-                ProgramCounter += (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
-
-                Run(ReadWord(delaySlot));
-            }
-            else
-                ProgramCounter += sizeof(uint);
+            if (!Branch(instruction, condition))
+                ProgramCounter += Instruction.Size;
         }
 
         private uint ReadWord(ulong virtualAddress)
