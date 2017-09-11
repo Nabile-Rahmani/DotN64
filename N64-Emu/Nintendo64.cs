@@ -50,7 +50,7 @@ namespace N64Emu
                     StartAddress = 0x04001000,
                     EndAddress = 0x04001FFF,
                     Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.SP.IMEM, (int)o)),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)v)), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // PIF (JoyChannel) RAM.
                 {
@@ -112,7 +112,7 @@ namespace N64Emu
                     StartAddress = 0x04000000,
                     EndAddress = 0x04000FFF,
                     Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.SP.DMEM, (int)o)),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)v)), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
                 },
                 new MappingEntry // MI version.
                 {
