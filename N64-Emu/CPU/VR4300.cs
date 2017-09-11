@@ -91,7 +91,9 @@ namespace N64Emu.CPU
                 {
                     delaySlot = ProgramCounter;
                     ProgramCounter = GPRegisters[i.RS];
-                }
+                },
+                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = SignExtend((uint)GPRegisters[i.RT] >> i.SA),
+                [SpecialOpCode.OR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] | GPRegisters[i.RT]
             };
         }
         #endregion
