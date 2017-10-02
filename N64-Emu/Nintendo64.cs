@@ -8,6 +8,7 @@ namespace N64Emu
     using CPU;
     using Interfaces.Audio;
     using Interfaces.Peripheral;
+    using Interfaces.Serial;
     using Interfaces.Video;
     using RCP;
 
@@ -24,6 +25,8 @@ namespace N64Emu
 
         public PeripheralInterface PI { get; } = new PeripheralInterface();
 
+        public SerialInterface SI { get; } = new SerialInterface();
+
         public VideoInterface VI { get; } = new VideoInterface();
 
         public AudioInterface AI { get; } = new AudioInterface();
@@ -39,86 +42,64 @@ namespace N64Emu
             CPU = new VR4300(this);
             MemoryMaps = new[]
             {
-                new MappingEntry // PIF Boot ROM.
+                new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
                 {
-                    StartAddress = 0x1FC00000,
-                    EndAddress = 0x1FC007BF,
                     Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PI.BootROM, (int)o))
                 },
-                new MappingEntry // SP_IMEM read/write.
+                new MappingEntry(0x04001000, 0x04001FFF) // SP_IMEM read/write.
                 {
-                    StartAddress = 0x04001000,
-                    EndAddress = 0x04001FFF,
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.SP.IMEM, (int)o)),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)v)), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
+                    Read = o => BitConverter.ToUInt32(RCP.SP.IMEM, (int)o),
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
                 },
-                new MappingEntry // PIF (JoyChannel) RAM.
+                new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
                 {
-                    StartAddress = 0x1FC007C0,
-                    EndAddress = 0x1FC007FF,
-                    Read = o => 0 // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
+                    Read = o => BitConverter.ToUInt32(PI.RAM, (int)o) // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
                 },
-                new MappingEntry // SP status.
+                new MappingEntry(0x04040010, 0x04040013) // SP status.
                 {
-                    StartAddress = 0x04040010,
-                    EndAddress = 0x04040013,
                     Read = o => RCP.SP.StatusRegister,
                     Write = (o, v) => RCP.SP.StatusRegister = v
                 },
-                new MappingEntry // SP DMA busy.
+                new MappingEntry(0x04040018, 0x0404001B) // SP DMA busy.
                 {
-                    StartAddress = 0x04040018,
-                    EndAddress = 0x0404001B,
                     Read = o => RCP.SP.DMABusyRegister
                 },
-                new MappingEntry // PI status.
+                new MappingEntry(0x04600010, 0x04600013) // PI status.
                 {
-                    StartAddress = 0x04600010,
-                    EndAddress = 0x04600013,
                     Write = (o, v) => PI.Status.Data = (byte)v
                 },
-                new MappingEntry // VI vertical intr.
+                new MappingEntry(0x0440000C, 0x0440000F) // VI vertical intr.
                 {
-                    StartAddress = 0x0440000C,
-                    EndAddress = 0x0440000F,
                     Write = (o, v) => VI.VerticalInterrupt = (ushort)v
                 },
-                new MappingEntry // VI horizontal video.
+                new MappingEntry(0x04400024, 0x04400027) // VI horizontal video.
                 {
-                    StartAddress = 0x04400024,
-                    EndAddress = 0x04400027,
                     Write = (o, v) => VI.HorizontalVideo = v
                 },
-                new MappingEntry // VI current vertical line.
+                new MappingEntry(0x04400010, 0x04400010 + sizeof(ushort)) // VI current vertical line.
                 {
-                    StartAddress = 0x04400010,
-                    EndAddress = 0x04400010 + sizeof(ushort),
                     Write = (o, v) => VI.CurrentVerticalLine = (ushort)v
                 },
-                new MappingEntry // AI DRAM address.
+                new MappingEntry(0x04500000, 0x04500003) // AI DRAM address.
                 {
-                    StartAddress = 0x04500000,
-                    EndAddress = 0x04500003,
                     Write = (o, v) => AI.DRAMAddress = v
                 },
-                new MappingEntry // AI length.
+                new MappingEntry(0x04500004, 0x04500007) // AI length.
                 {
-                    StartAddress = 0x04500004,
-                    EndAddress = 0x04500007,
                     Write = (o, v) => AI.TransferLength = v
                 },
-                new MappingEntry // SP_DMEM read/write.
+                new MappingEntry(0x04000000, 0x04000FFF) // SP_DMEM read/write.
                 {
-                    StartAddress = 0x04000000,
-                    EndAddress = 0x04000FFF,
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(RCP.SP.DMEM, (int)o)),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)v)), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
+                    Read = o => BitConverter.ToUInt32(RCP.SP.DMEM, (int)o),
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
                 },
-                new MappingEntry // MI version.
+                new MappingEntry(0x04300004, 0x04300007) // MI version.
                 {
-                    StartAddress = 0x04300004,
-                    EndAddress = 0x04300007,
                     Write = (o, v) => { }
+                },
+                new MappingEntry(0x04800018, 0x0480001B) // SI status.
+                {
+                    Read = o => SI.Status.Data
                 }
             };
         }

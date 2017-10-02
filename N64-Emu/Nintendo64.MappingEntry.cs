@@ -16,6 +16,15 @@ namespace N64Emu
             public Action<ulong, uint> Write { get; set; }
             #endregion
 
+            #region Constructors
+            public MappingEntry(uint startAddress, uint endAddress)
+                : this()
+            {
+                StartAddress = startAddress;
+                EndAddress = endAddress;
+            }
+            #endregion
+
             #region Methods
             public bool Contains(ulong address) => (uint)address >= StartAddress && (uint)address <= EndAddress;
 

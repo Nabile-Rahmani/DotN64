@@ -49,6 +49,8 @@
     <Compile Include="Interfaces\Video\VideoInterface.HorizontalVideoRegister.cs" />
     <Compile Include="Interfaces\Audio\AudioInterface.cs" />
     <Compile Include="CPU\VR4300.SpecialOpCode.cs" />
+    <Compile Include="Interfaces\Serial\SerialInterface.cs" />
+    <Compile Include="Interfaces\Serial\SerialInterface.StatusRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
@@ -60,6 +62,7 @@
     <Folder Include="Interfaces\Peripheral\" />
     <Folder Include="Interfaces\Video\" />
     <Folder Include="Interfaces\Audio\" />
+    <Folder Include="Interfaces\Serial\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />
