@@ -50,6 +50,7 @@
     <Compile Include="SI\SerialInterface.StatusRegister.cs" />
     <Compile Include="VI\VideoInterface.cs" />
     <Compile Include="VI\VideoInterface.HorizontalVideoRegister.cs" />
+    <Compile Include="PI\PeripheralInterface.Domain.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

@@ -8,6 +8,12 @@
         public byte[] BootROM { get; set; }
 
         public byte[] RAM { get; } = new byte[64];
+
+        public Domain[] Domains { get; } = new[]
+        {
+            new Domain(),
+            new Domain()
+        };
         #endregion
     }
 }

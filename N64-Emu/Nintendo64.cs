@@ -5,11 +5,11 @@ using System.Net;
 
 namespace N64Emu
 {
-    using CPU;
-    using RCP;
-    using PI;
-    using SI;
     using AI;
+    using CPU;
+    using PI;
+    using RCP;
+    using SI;
     using VI;
 
     public class Nintendo64
@@ -100,6 +100,26 @@ namespace N64Emu
                 new MappingEntry(0x04800018, 0x0480001B) // SI status.
                 {
                     Read = o => SI.Status.Data
+                },
+                new MappingEntry(0x04600014, 0x04600017) // PI dom1 latency.
+                {
+                    Write = (o, v) => PI.Domains[0].Latency = (byte)v
+                },
+                new MappingEntry(0x04600018, 0x0460001B) // PI dom1 pulse width.
+                {
+                    Write = (o, v) => PI.Domains[0].PulseWidth = (byte)v
+                },
+                new MappingEntry(0x0460001C, 0x0460001F) // PI dom1 page size.
+                {
+                    Write = (o, v) => PI.Domains[0].PageSize = (byte)v
+                },
+                new MappingEntry(0x04600020, 0x04600023) // PI dom1 release.
+                {
+                    Write = (o, v) => PI.Domains[0].Release = (byte)v
+                },
+                new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
+                {
+                    Read = o => BitConverter.ToUInt32(Cartridge.ROM, (int)o)
                 }
             };
             CPU = new VR4300(memoryMaps);
