@@ -30,7 +30,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Nintendo64.cs" />
     <Compile Include="Cartridge.cs" />
-    <Compile Include="Nintendo64.MappingEntry.cs" />
     <Compile Include="Helpers\BitHelper.cs" />
     <Compile Include="CPU\VR4300.cs" />
     <Compile Include="CPU\VR4300.GPRegisterIndex.cs" />
@@ -51,6 +50,7 @@
     <Compile Include="CPU\VR4300.SpecialOpCode.cs" />
     <Compile Include="Interfaces\Serial\SerialInterface.cs" />
     <Compile Include="Interfaces\Serial\SerialInterface.StatusRegister.cs" />
+    <Compile Include="MappingEntry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

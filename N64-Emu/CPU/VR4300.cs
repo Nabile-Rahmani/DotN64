@@ -10,7 +10,7 @@ namespace N64Emu.CPU
     public partial class VR4300
     {
         #region Fields
-        private readonly Nintendo64 nintendo64;
+        private readonly IReadOnlyList<MappingEntry> memoryMaps;
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
 
@@ -60,9 +60,9 @@ namespace N64Emu.CPU
         #endregion
 
         #region Constructors
-        public VR4300(Nintendo64 nintendo64)
+        public VR4300(IReadOnlyList<MappingEntry> memoryMaps)
         {
-            this.nintendo64 = nintendo64;
+            this.memoryMaps = memoryMaps;
             operations = new Dictionary<OpCode, Action<Instruction>>
             {
                 [OpCode.Special] = i =>
@@ -150,26 +150,26 @@ namespace N64Emu.CPU
                 delaySlot = null;
         }
 
-        private uint ReadWord(ulong virtualAddress)
+        private uint ReadWord(ulong address)
         {
-            var physicalAddress = MapMemory(virtualAddress);
-            var entry = nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
+            address = MapMemory(address);
+            var entry = memoryMaps.FirstOrDefault(e => e.Contains(address));
 
-            if (entry.Contains(physicalAddress))
-                return entry.ReadWord(physicalAddress);
+            if (entry.Contains(address))
+                return entry.ReadWord(address);
 
-            throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
+            throw new Exception($"Unknown physical address: 0x{address:X}.");
         }
 
-        private void WriteWord(ulong virtualAddress, uint value)
+        private void WriteWord(ulong address, uint value)
         {
-            var physicalAddress = MapMemory(virtualAddress);
-            var entry = nintendo64.MemoryMaps.FirstOrDefault(e => e.Contains(physicalAddress));
+            address = MapMemory(address);
+            var entry = memoryMaps.FirstOrDefault(e => e.Contains(address));
 
-            if (!entry.Contains(physicalAddress))
-                throw new Exception($"Unknown physical address: 0x{(uint)physicalAddress:X}.");
+            if (!entry.Contains(address))
+                throw new Exception($"Unknown physical address: 0x{address:X}.");
 
-            entry.WriteWord(physicalAddress, value);
+            entry.WriteWord(address, value);
         }
 
         /// <summary>

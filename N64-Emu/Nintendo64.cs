@@ -12,10 +12,10 @@ namespace N64Emu
     using Interfaces.Video;
     using RCP;
 
-    public partial class Nintendo64
+    public class Nintendo64
     {
         #region Fields
-        public readonly IReadOnlyList<MappingEntry> MemoryMaps;
+        private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
@@ -39,8 +39,7 @@ namespace N64Emu
         #region Constructors
         public Nintendo64()
         {
-            CPU = new VR4300(this);
-            MemoryMaps = new[]
+            memoryMaps = new[]
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
                 {
@@ -102,6 +101,7 @@ namespace N64Emu
                     Read = o => SI.Status.Data
                 }
             };
+            CPU = new VR4300(memoryMaps);
         }
         #endregion
 
@@ -122,13 +122,13 @@ namespace N64Emu
 
             uint versionAddress = 0x04300004;
 
-            MemoryMaps.First(e => e.Contains(versionAddress)).WriteWord(versionAddress, 0x01010101);
+            memoryMaps.First(e => e.Contains(versionAddress)).WriteWord(versionAddress, 0x01010101);
 
             for (int i = 0; i < 0x1000; i += sizeof(uint))
             {
                 var dmemAddress = (ulong)(0x04000000 + i);
 
-                MemoryMaps.First(e => e.Contains(dmemAddress)).WriteWord(dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
+                memoryMaps.First(e => e.Contains(dmemAddress)).WriteWord(dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
             }
 
             CPU.ProgramCounter = 0xA4000040;
