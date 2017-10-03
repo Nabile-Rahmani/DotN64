@@ -30,7 +30,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Nintendo64.cs" />
     <Compile Include="Cartridge.cs" />
-    <Compile Include="Helpers\BitHelper.cs" />
     <Compile Include="CPU\VR4300.cs" />
     <Compile Include="CPU\VR4300.GPRegisterIndex.cs" />
     <Compile Include="CPU\VR4300.Instruction.cs" />
@@ -54,7 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
-    <Folder Include="Helpers\" />
     <Folder Include="CPU\" />
     <Folder Include="RCP\" />
     <Folder Include="CPU\CP0\" />

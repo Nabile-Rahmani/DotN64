@@ -4,8 +4,6 @@ using System.Linq;
 
 namespace N64Emu.CPU
 {
-    using static Helpers.BitHelper;
-
     // Reference: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
     public partial class VR4300
     {
@@ -75,11 +73,11 @@ namespace N64Emu.CPU
                 [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
                 [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
-                [OpCode.LW] = i => GPRegisters[i.RT] = SignExtend(ReadWord(SignExtend(i.Immediate) + GPRegisters[i.RS])),
-                [OpCode.ANDI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate & (ushort)GPRegisters[i.RS]),
+                [OpCode.LW] = i => GPRegisters[i.RT] = (ulong)(int)(ReadWord((ulong)(short)i.Immediate + GPRegisters[i.RS])),
+                [OpCode.ANDI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] & i.Immediate,
                 [OpCode.BEQL] = i => BranchLikely(i, (rs, rt) => rs == rt),
-                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + SignExtend(i.Immediate),
-                [OpCode.SW] = i => WriteWord(SignExtend(i.Immediate) + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
+                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + (ulong)(short)i.Immediate,
+                [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
                 [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt)
@@ -92,7 +90,7 @@ namespace N64Emu.CPU
                     delaySlot = ProgramCounter;
                     ProgramCounter = GPRegisters[i.RS];
                 },
-                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = SignExtend((uint)GPRegisters[i.RT] >> i.SA),
+                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = (ulong)(int)((uint)GPRegisters[i.RT] >> i.SA),
                 [SpecialOpCode.OR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] | GPRegisters[i.RT]
             };
         }
@@ -134,12 +132,13 @@ namespace N64Emu.CPU
 
         private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
-            delaySlot = ProgramCounter;
-            var target = (ulong)((long)(short)instruction.Immediate & ~((1 << 18) - 1) | (long)instruction.Immediate << 2);
             var result = condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]);
 
             if (result)
-                ProgramCounter = delaySlot.Value + target;
+            {
+                delaySlot = ProgramCounter;
+                ProgramCounter += (ulong)(short)instruction.Immediate << 2;
+            }
 
             return result;
         }
@@ -147,7 +146,7 @@ namespace N64Emu.CPU
         private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
         {
             if (!Branch(instruction, condition))
-                delaySlot = null;
+                ProgramCounter += Instruction.Size;
         }
 
         private uint ReadWord(ulong address)

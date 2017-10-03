@@ -52,7 +52,8 @@ namespace N64Emu
                 },
                 new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
                 {
-                    Read = o => BitConverter.ToUInt32(PI.RAM, (int)o) // Somehow it expects something in particular from the very last bytes to be correctly set to continue execution.
+                    Read = o => BitConverter.ToUInt32(PI.RAM, (int)o),
+                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, PI.RAM, (int)o, sizeof(uint))
                 },
                 new MappingEntry(0x04040010, 0x04040013) // SP status.
                 {
