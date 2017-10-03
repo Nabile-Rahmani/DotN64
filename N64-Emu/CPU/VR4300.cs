@@ -149,44 +149,39 @@ namespace N64Emu.CPU
                 ProgramCounter += Instruction.Size;
         }
 
-        private uint ReadWord(ulong address)
-        {
-            address = MapMemory(address);
-            var entry = memoryMaps.FirstOrDefault(e => e.Contains(address));
+        private uint ReadWord(ulong address) => MapMemory(ref address).ReadWord(address);
 
-            if (entry.Contains(address))
-                return entry.ReadWord(address);
-
-            throw new Exception($"Unknown physical address: 0x{address:X}.");
-        }
-
-        private void WriteWord(ulong address, uint value)
-        {
-            address = MapMemory(address);
-            var entry = memoryMaps.FirstOrDefault(e => e.Contains(address));
-
-            if (!entry.Contains(address))
-                throw new Exception($"Unknown physical address: 0x{address:X}.");
-
-            entry.WriteWord(address, value);
-        }
+        private void WriteWord(ulong address, uint value) => MapMemory(ref address).WriteWord(address, value);
 
         /// <summary>
         /// Translates a virtual address into a physical address.
         /// See: datasheet#5.2.4 Table 5-3.
         /// </summary>
-        /// <param name="address">The virtual address.</param>
-        /// <returns>The physical address.</returns>
-        public ulong MapMemory(ulong address) // TODO: move to an MMU, and CP0 relations ?
+        /// <param name="address">The virtual address to translate into a physical address.</param>
+        /// <returns>The memory map entry associated with the address.</returns>
+        public MappingEntry MapMemory(ref ulong address) // TODO: move to an MMU, and CP0 relations ?
         {
             switch (address >> 29 & 0b111)
             {
                 case 0b100: // kseg0.
-                    return address - 0xFFFFFFFF80000000;
+                    address -= 0xFFFFFFFF80000000;
+                    break;
                 case 0b101: // kseg1.
-                    return address - 0xFFFFFFFFA0000000;
+                    address -= 0xFFFFFFFFA0000000;
+                    break;
                 default:
                     throw new Exception($"Unknown memory map segment for location 0x{address:X}.");
+            }
+
+            try
+            {
+                var value = address;
+
+                return memoryMaps.First(e => e.Contains(value));
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new Exception($"Unknown physical address: 0x{address:X}.", e);
             }
         }
         #endregion
