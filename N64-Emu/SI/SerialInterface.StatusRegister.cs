@@ -1,22 +1,15 @@
-﻿namespace N64Emu.Interfaces.Peripheral
+﻿namespace N64Emu.SI
 {
-    public partial class PeripheralInterface
+    public partial class SerialInterface
     {
         public class StatusRegister
         {
             #region Properties
-            private byte data;
-            public byte Data
+            private uint data;
+            public uint Data
             {
                 get => data;
-                set
-                {
-                    if ((value & 1) != 0)
-                        ResetController();
-
-                    if ((value >> 1 & 1) != 0)
-                        ClearInterrupt();
-                }
+                set => Interrupt = false;
             }
 
             public bool DMABusy
@@ -25,16 +18,22 @@
                 set => Set(0, value);
             }
 
-            public bool IOBusy
+            public bool IOReadBusy
             {
                 get => Get(1);
                 set => Set(1, value);
             }
 
-            public bool Error
+            public bool DMAError
             {
-                get => Get(2);
-                set => Set(2, value);
+                get => Get(3);
+                set => Set(3, value);
+            }
+
+            public bool Interrupt
+            {
+                get => Get(12);
+                set => Set(12, value);
             }
             #endregion
 
@@ -46,10 +45,6 @@
                 data &= (byte)~((1 << shift) - 1);
                 data |= (byte)((value ? 1 : 0) << shift);
             }
-
-            private void ResetController() { }
-
-            private void ClearInterrupt() { }
             #endregion
         }
     }

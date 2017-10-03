@@ -1,4 +1,4 @@
-﻿namespace N64Emu.Interfaces.Serial
+﻿namespace N64Emu.SI
 {
     public partial class SerialInterface
     {

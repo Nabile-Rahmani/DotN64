@@ -1,4 +1,4 @@
-﻿namespace N64Emu.Interfaces.Peripheral
+﻿namespace N64Emu.PI
 {
     public partial class PeripheralInterface
     {

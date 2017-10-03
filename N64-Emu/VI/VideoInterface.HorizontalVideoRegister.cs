@@ -1,4 +1,4 @@
-﻿namespace N64Emu.Interfaces.Video
+﻿namespace N64Emu.VI
 {
     public partial class VideoInterface
     {

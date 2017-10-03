@@ -42,15 +42,15 @@
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.Register.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
     <Compile Include="CPU\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
-    <Compile Include="Interfaces\Peripheral\PeripheralInterface.cs" />
-    <Compile Include="Interfaces\Peripheral\PeripheralInterface.StatusRegister.cs" />
-    <Compile Include="Interfaces\Video\VideoInterface.cs" />
-    <Compile Include="Interfaces\Video\VideoInterface.HorizontalVideoRegister.cs" />
-    <Compile Include="Interfaces\Audio\AudioInterface.cs" />
     <Compile Include="CPU\VR4300.SpecialOpCode.cs" />
-    <Compile Include="Interfaces\Serial\SerialInterface.cs" />
-    <Compile Include="Interfaces\Serial\SerialInterface.StatusRegister.cs" />
     <Compile Include="MappingEntry.cs" />
+    <Compile Include="AI\AudioInterface.cs" />
+    <Compile Include="PI\PeripheralInterface.cs" />
+    <Compile Include="PI\PeripheralInterface.StatusRegister.cs" />
+    <Compile Include="SI\SerialInterface.cs" />
+    <Compile Include="SI\SerialInterface.StatusRegister.cs" />
+    <Compile Include="VI\VideoInterface.cs" />
+    <Compile Include="VI\VideoInterface.HorizontalVideoRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
@@ -58,11 +58,10 @@
     <Folder Include="CPU\" />
     <Folder Include="RCP\" />
     <Folder Include="CPU\CP0\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Interfaces\Peripheral\" />
-    <Folder Include="Interfaces\Video\" />
-    <Folder Include="Interfaces\Audio\" />
-    <Folder Include="Interfaces\Serial\" />
+    <Folder Include="AI\" />
+    <Folder Include="PI\" />
+    <Folder Include="SI\" />
+    <Folder Include="VI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />

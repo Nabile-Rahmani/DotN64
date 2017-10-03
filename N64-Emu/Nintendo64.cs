@@ -6,11 +6,11 @@ using System.Net;
 namespace N64Emu
 {
     using CPU;
-    using Interfaces.Audio;
-    using Interfaces.Peripheral;
-    using Interfaces.Serial;
-    using Interfaces.Video;
     using RCP;
+    using PI;
+    using SI;
+    using AI;
+    using VI;
 
     public class Nintendo64
     {
@@ -27,9 +27,9 @@ namespace N64Emu
 
         public SerialInterface SI { get; } = new SerialInterface();
 
-        public VideoInterface VI { get; } = new VideoInterface();
-
         public AudioInterface AI { get; } = new AudioInterface();
+
+        public VideoInterface VI { get; } = new VideoInterface();
 
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
@@ -75,7 +75,7 @@ namespace N64Emu
                 {
                     Write = (o, v) => VI.HorizontalVideo = v
                 },
-                new MappingEntry(0x04400010, 0x04400010 + sizeof(ushort)) // VI current vertical line.
+                new MappingEntry(0x04400010, 0x04400013) // VI current vertical line.
                 {
                     Write = (o, v) => VI.CurrentVerticalLine = (ushort)v
                 },

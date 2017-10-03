@@ -1,4 +1,4 @@
-﻿namespace N64Emu.Interfaces.Audio
+﻿namespace N64Emu.AI
 {
     public class AudioInterface
     {
