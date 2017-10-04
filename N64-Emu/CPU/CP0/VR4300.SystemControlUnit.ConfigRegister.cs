@@ -1,4 +1,7 @@
-﻿namespace N64Emu.CPU
+﻿using System;
+using System.Collections.Specialized;
+
+namespace N64Emu.CPU
 {
     public partial class VR4300
     {
@@ -7,11 +10,14 @@
             public class ConfigRegister : Register
             {
                 #region Fields
-                private const int K0Shift = 0, K0Size = (1 << 3) - 1;
-                private const int CUShift = 3, CUSize = (1 << 1) - 1;
-                private const int BEShift = 15, BESize = (1 << 1) - 1;
-                private const int EPShift = 24, EPSize = (1 << 4) - 1;
-                private const int ECShift = 28, ECSize = (1 << 3) - 1;
+                private static readonly BitVector32.Section k0 = BitVector32.CreateSection((1 << 3) - 1),
+                cu = BitVector32.CreateSection(1, k0),
+                constant1 = BitVector32.CreateSection((1 << 11) - 1, cu),
+                be = BitVector32.CreateSection(1, constant1),
+                constant2 = BitVector32.CreateSection((1 << 8) - 1, be),
+                ep = BitVector32.CreateSection((1 << 4) - 1, constant2),
+                ec = BitVector32.CreateSection((1 << 3) - 1, ep),
+                constant3 = BitVector32.CreateSection(1, ec);
                 #endregion
 
                 #region Properties
@@ -22,8 +28,8 @@
                 /// </summary>
                 public CoherencyAlgorithm K0
                 {
-                    get => (CoherencyAlgorithm)GetValue(K0Shift, K0Size);
-                    set => SetValue(K0Shift, K0Size, (ulong)value);
+                    get => (CoherencyAlgorithm)this[k0];
+                    set => this[k0] = (int)value;
                 }
 
                 /// <summary>
@@ -31,8 +37,8 @@
                 /// </summary>
                 public bool CU
                 {
-                    get => GetBoolean(CUShift, CUSize);
-                    set => SetValue(CUShift, CUSize, value);
+                    get => Convert.ToBoolean(this[cu]);
+                    set => this[cu] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -40,8 +46,8 @@
                 /// </summary>
                 public Endianness BE
                 {
-                    get => (Endianness)GetValue(BEShift, BESize);
-                    set => SetValue(BEShift, BESize, (ulong)value);
+                    get => (Endianness)this[be];
+                    set => this[be] = (int)value;
                 }
 
                 /// <summary>
@@ -49,8 +55,8 @@
                 /// </summary>
                 public TransferDataPattern EP
                 {
-                    get => (TransferDataPattern)GetValue(EPShift, EPSize);
-                    set => SetValue(EPShift, EPSize, (ulong)value);
+                    get => (TransferDataPattern)this[ep];
+                    set => this[ep] = (int)value;
                 }
 
                 /// <summary>
@@ -58,8 +64,8 @@
                 /// </summary>
                 public byte EC
                 {
-                    get => (byte)GetValue(ECShift, ECSize);
-                    set => SetValue(ECShift, ECSize, value);
+                    get => (byte)this[ec];
+                    set => this[ec] = value;
                 }
                 #endregion
 
@@ -67,9 +73,9 @@
                 public ConfigRegister(SystemControlUnit cp0)
                     : base(cp0)
                 {
-                    SetValue(4, (1 << 11) - 1, 0b11001000110);
-                    SetValue(16, (1 << 8) - 1, 0b00000110);
-                    SetValue(31, (1 << 1) - 1, 0);
+                    this[constant1] = 0b11001000110;
+                    this[constant2] = 0b00000110;
+                    this[constant3] = 0;
                 }
                 #endregion
 

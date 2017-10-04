@@ -1,4 +1,6 @@
-﻿namespace N64Emu.CPU
+﻿using System.Collections.Specialized;
+
+namespace N64Emu.CPU
 {
     public partial class VR4300
     {
@@ -11,6 +13,14 @@
                 #endregion
 
                 #region Properties
+                private BitVector32 Bits => new BitVector32((int)Data);
+
+                protected ulong Data
+                {
+                    get => cp0.Registers[(int)Index];
+                    set => cp0.Registers[(int)Index] = value;
+                }
+
                 protected abstract RegisterIndex Index { get; }
                 #endregion
 
@@ -21,18 +31,28 @@
                 }
                 #endregion
 
-                #region Methods
-                protected ulong GetValue(int shift, ulong size) => cp0.Registers[(int)Index] >> shift & size;
-
-                protected bool GetBoolean(int shift, ulong size) => GetValue(shift, size) != 0;
-
-                protected void SetValue(int shift, ulong size, ulong value)
+                #region Indexers
+                protected int this[BitVector32.Section section]
                 {
-                    cp0.Registers[(int)Index] &= ~(size << shift);
-                    cp0.Registers[(int)Index] |= (value & size) << shift;
+                    get => Bits[section];
+                    set
+                    {
+                        var bits = Bits;
+                        bits[section] = value;
+                        Data = (ulong)bits.Data;
+                    }
                 }
 
-                protected void SetValue(int shift, ulong size, bool value) => SetValue(shift, size, value ? size : 0);
+                protected bool this[int mask]
+                {
+                    get => Bits[mask];
+                    set
+                    {
+                        var bits = Bits;
+                        bits[mask] = value;
+                        Data = (ulong)bits.Data;
+                    }
+                }
                 #endregion
             }
         }

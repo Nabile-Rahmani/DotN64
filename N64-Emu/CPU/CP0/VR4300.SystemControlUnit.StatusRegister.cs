@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 
 namespace N64Emu.CPU
 {
@@ -9,19 +10,19 @@ namespace N64Emu.CPU
             public class StatusRegister : Register
             {
                 #region Fields
-                private const int IEShift = 0, IESize = (1 << 1) - 1;
-                private const int EXLShift = 1, EXLSize = (1 << 1) - 1;
-                private const int ERLShift = 2, ERLSize = (1 << 1) - 1;
-                private const int KSUShift = 3, KSUSize = (1 << 2) - 1;
-                private const int UXShift = 5, UXSize = (1 << 1) - 1;
-                private const int SXShift = 6, SXSize = (1 << 1) - 1;
-                private const int KXShift = 7, KXSize = (1 << 1) - 1;
-                private const int IMShift = 8, IMSize = (1 << 8) - 1;
-                private const int DSShift = 16, DSSize = (1 << 9) - 1;
-                private const int REShift = 25, RESize = (1 << 1) - 1;
-                private const int FRShift = 26, FRSize = (1 << 1) - 1;
-                private const int RPShift = 27, RPSize = (1 << 1) - 1;
-                private const int CUShift = 28, CUSize = (1 << 4) - 1;
+                private static readonly BitVector32.Section ie = BitVector32.CreateSection(1),
+                exl = BitVector32.CreateSection(1, ie),
+                erl = BitVector32.CreateSection(1, exl),
+                ksu = BitVector32.CreateSection((1 << 2) - 1, erl),
+                ux = BitVector32.CreateSection(1, ksu),
+                sx = BitVector32.CreateSection(1, ux),
+                kx = BitVector32.CreateSection(1, sx),
+                im = BitVector32.CreateSection((1 << 8) - 1, kx),
+                ds = BitVector32.CreateSection((1 << 9) - 1, im),
+                re = BitVector32.CreateSection(1, ds),
+                fr = BitVector32.CreateSection(1, re),
+                rp = BitVector32.CreateSection(1, fr),
+                cu = BitVector32.CreateSection((1 << 4) - 1, rp);
                 #endregion
 
                 #region Properties
@@ -32,8 +33,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool IE
                 {
-                    get => GetBoolean(IEShift, IESize);
-                    set => SetValue(IEShift, IESize, value);
+                    get => Convert.ToBoolean(this[ie]);
+                    set => this[ie] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -41,8 +42,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool EXL
                 {
-                    get => GetBoolean(EXLShift, EXLSize);
-                    set => SetValue(EXLShift, EXLSize, value);
+                    get => Convert.ToBoolean(this[exl]);
+                    set => this[exl] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -50,8 +51,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool ERL
                 {
-                    get => GetBoolean(ERLShift, ERLSize);
-                    set => SetValue(ERLShift, ERLSize, value);
+                    get => Convert.ToBoolean(this[erl]);
+                    set => this[erl] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -59,8 +60,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public Mode KSU
                 {
-                    get => (Mode)GetValue(KSUShift, KSUSize);
-                    set => SetValue(KSUShift, KSUSize, (ulong)value);
+                    get => (Mode)this[ksu];
+                    set => this[ksu] = (int)value;
                 }
 
                 /// <summary>
@@ -69,8 +70,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool UX
                 {
-                    get => GetBoolean(UXShift, UXSize);
-                    set => SetValue(UXShift, UXSize, value);
+                    get => Convert.ToBoolean(this[ux]);
+                    set => this[ux] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -79,8 +80,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool SX
                 {
-                    get => GetBoolean(SXShift, SXSize);
-                    set => SetValue(SXShift, SXSize, value);
+                    get => Convert.ToBoolean(this[sx]);
+                    set => this[sx] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -89,8 +90,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool KX
                 {
-                    get => GetBoolean(KXShift, KXSize);
-                    set => SetValue(KXShift, KXSize, value);
+                    get => Convert.ToBoolean(this[kx]);
+                    set => this[kx] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -98,8 +99,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public byte IM
                 {
-                    get => (byte)GetValue(IMShift, IMSize);
-                    set => SetValue(IMShift, IMSize, value);
+                    get => (byte)this[im];
+                    set => this[im] = value;
                 }
 
                 /// <summary>
@@ -107,8 +108,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public DiagnosticStatus DS
                 {
-                    get => (DiagnosticStatus)GetValue(DSShift, DSSize);
-                    set => SetValue(DSShift, DSSize, value);
+                    get => (DiagnosticStatus)this[ds];
+                    set => this[ds] = value;
                 }
 
                 /// <summary>
@@ -116,8 +117,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool RE
                 {
-                    get => GetBoolean(REShift, RESize);
-                    set => SetValue(REShift, RESize, value);
+                    get => Convert.ToBoolean(this[re]);
+                    set => this[re] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -125,8 +126,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool FR
                 {
-                    get => GetBoolean(FRShift, FRSize);
-                    set => SetValue(FRShift, FRSize, value);
+                    get => Convert.ToBoolean(this[fr]);
+                    set => this[fr] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -134,8 +135,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public bool RP
                 {
-                    get => GetBoolean(RPShift, RPSize);
-                    set => SetValue(RPShift, RPSize, value);
+                    get => Convert.ToBoolean(this[rp]);
+                    set => this[rp] = Convert.ToInt32(value);
                 }
 
                 /// <summary>
@@ -143,8 +144,8 @@ namespace N64Emu.CPU
                 /// </summary>
                 public CoprocessorUsabilities CU
                 {
-                    get => (CoprocessorUsabilities)GetValue(CUShift, CUSize);
-                    set => SetValue(CUShift, CUSize, (ulong)value);
+                    get => (CoprocessorUsabilities)this[cu];
+                    set => this[cu] = (int)value;
                 }
                 #endregion
 
@@ -157,26 +158,36 @@ namespace N64Emu.CPU
                 public struct DiagnosticStatus
                 {
                     #region Fields
-                    private ushort data;
+                    private BitVector32 bits;
+
+                    private static readonly int de = BitVector32.CreateMask(),
+                    ce = BitVector32.CreateMask(de),
+                    ch = BitVector32.CreateMask(ce),
+                    constant1 = BitVector32.CreateMask(ch),
+                    sr = BitVector32.CreateMask(constant1),
+                    ts = BitVector32.CreateMask(sr),
+                    bev = BitVector32.CreateMask(ts),
+                    constant2 = BitVector32.CreateMask(bev),
+                    its = BitVector32.CreateMask(constant2);
                     #endregion
 
                     #region Properties
                     /// <summary>
-                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by thehardware of the VR4300.
+                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by the hardware of the VR4300.
                     /// </summary>
                     public bool DE
                     {
-                        get => Get(0);
-                        set => Set(0, value);
+                        get => bits[de];
+                        set => bits[de] = value;
                     }
 
                     /// <summary>
-                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by thehardware of the VR4300.
+                    /// These bits are defined to maintain compatibility with the VR4200, and is not used by the hardware of the VR4300.
                     /// </summary>
                     public bool CE
                     {
-                        get => Get(1);
-                        set => Set(1, value);
+                        get => bits[ce];
+                        set => bits[ce] = value;
                     }
 
                     /// <summary>
@@ -184,8 +195,8 @@ namespace N64Emu.CPU
                     /// </summary>
                     public bool CH
                     {
-                        get => Get(2);
-                        set => Set(2, value);
+                        get => bits[ch];
+                        set => bits[ch] = value;
                     }
 
                     /// <summary>
@@ -193,8 +204,8 @@ namespace N64Emu.CPU
                     /// </summary>
                     public bool SR
                     {
-                        get => Get(4);
-                        set => Set(4, value);
+                        get => bits[sr];
+                        set => bits[sr] = value;
                     }
 
                     /// <summary>
@@ -202,8 +213,8 @@ namespace N64Emu.CPU
                     /// </summary>
                     public bool TS
                     {
-                        get => Get(5);
-                        set => Set(5, value);
+                        get => bits[ts];
+                        set => bits[ts] = value;
                     }
 
                     /// <summary>
@@ -212,8 +223,8 @@ namespace N64Emu.CPU
                     /// <value>Boostrap if true, otherwise Normal.</value>
                     public bool BEV
                     {
-                        get => Get(6);
-                        set => Set(6, value);
+                        get => bits[bev];
+                        set => bits[bev] = value;
                     }
 
                     /// <summary>
@@ -221,25 +232,15 @@ namespace N64Emu.CPU
                     /// </summary>
                     public bool ITS
                     {
-                        get => Get(8);
-                        set => Set(8, value);
-                    }
-                    #endregion
-
-                    #region Methods
-                    private bool Get(int shift) => (data >> shift & 1) != 0;
-
-                    private void Set(int shift, bool value)
-                    {
-                        data &= (ushort)~(1 << shift);
-                        data |= (ushort)((value ? 1 : 0) << shift);
+                        get => bits[its];
+                        set => bits[its] = value;
                     }
                     #endregion
 
                     #region Operators
-                    public static implicit operator DiagnosticStatus(ushort value) => new DiagnosticStatus { data = value };
+                    public static implicit operator DiagnosticStatus(ushort data) => new DiagnosticStatus { bits = new BitVector32(data) };
 
-                    public static implicit operator ushort(DiagnosticStatus status) => status.data;
+                    public static implicit operator ushort(DiagnosticStatus status) => (ushort)status.bits.Data;
                     #endregion
                 }
                 #endregion
