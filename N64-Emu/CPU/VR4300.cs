@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace N64Emu.CPU
 {
@@ -8,7 +7,6 @@ namespace N64Emu.CPU
     public partial class VR4300
     {
         #region Fields
-        private readonly IReadOnlyList<MappingEntry> memoryMaps;
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
 
@@ -54,13 +52,13 @@ namespace N64Emu.CPU
         /// </summary>
         public float FCR31 { get; set; }
 
-        public SystemControlUnit CP0 { get; } = new SystemControlUnit();
+        public SystemControlUnit CP0 { get; }
         #endregion
 
         #region Constructors
         public VR4300(IReadOnlyList<MappingEntry> memoryMaps)
         {
-            this.memoryMaps = memoryMaps;
+            CP0 = new SystemControlUnit(memoryMaps);
             operations = new Dictionary<OpCode, Action<Instruction>>
             {
                 [OpCode.Special] = i =>
@@ -149,41 +147,9 @@ namespace N64Emu.CPU
                 ProgramCounter += Instruction.Size;
         }
 
-        private uint ReadWord(ulong address) => MapMemory(ref address).ReadWord(address);
+        private uint ReadWord(ulong address) => CP0.Map(ref address).ReadWord(address);
 
-        private void WriteWord(ulong address, uint value) => MapMemory(ref address).WriteWord(address, value);
-
-        /// <summary>
-        /// Translates a virtual address into a physical address.
-        /// See: datasheet#5.2.4 Table 5-3.
-        /// </summary>
-        /// <param name="address">The virtual address to translate into a physical address.</param>
-        /// <returns>The memory map entry associated with the address.</returns>
-        public MappingEntry MapMemory(ref ulong address) // TODO: move to an MMU, and CP0 relations ?
-        {
-            switch (address >> 29 & 0b111)
-            {
-                case 0b100: // kseg0.
-                    address -= 0xFFFFFFFF80000000;
-                    break;
-                case 0b101: // kseg1.
-                    address -= 0xFFFFFFFFA0000000;
-                    break;
-                default:
-                    throw new Exception($"Unknown memory map segment for location 0x{address:X}.");
-            }
-
-            try
-            {
-                var value = address;
-
-                return memoryMaps.First(e => e.Contains(value));
-            }
-            catch (InvalidOperationException e)
-            {
-                throw new Exception($"Unknown physical address: 0x{address:X}.", e);
-            }
-        }
+        private void WriteWord(ulong address, uint value) => CP0.Map(ref address).WriteWord(address, value);
         #endregion
     }
 }
