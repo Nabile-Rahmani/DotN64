@@ -120,6 +120,11 @@ namespace N64Emu
                 new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                 {
                     Read = o => BitConverter.ToUInt32(Cartridge.ROM, (int)o)
+                },
+                new MappingEntry(0x04100000, 0x041FFFFF, false) // DP command registers.
+                {
+                    Read = RCP.DP.ReadWord,
+                    Write = RCP.DP.WriteWord
                 }
             };
             CPU = new VR4300(memoryMaps);

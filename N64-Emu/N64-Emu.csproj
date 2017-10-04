@@ -51,6 +51,7 @@
     <Compile Include="VI\VideoInterface.cs" />
     <Compile Include="VI\VideoInterface.HorizontalVideoRegister.cs" />
     <Compile Include="PI\PeripheralInterface.Domain.cs" />
+    <Compile Include="RCP\RealityCoprocessor.DisplayProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />

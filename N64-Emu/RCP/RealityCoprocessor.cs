@@ -2,8 +2,10 @@
 {
     public partial class RealityCoprocessor
     {
-        #region properties
+        #region Properties
         public SignalProcessor SP { get; } = new SignalProcessor();
+
+        public DisplayProcessor DP { get; } = new DisplayProcessor();
         #endregion
     }
 }
