@@ -1,27 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace N64Emu.SI
+namespace N64Emu.MI
 {
-    public partial class SerialInterface
+    public class MIPSInterface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
-        #region Properties
-        public StatusRegister Status { get; } = new StatusRegister();
-        #endregion
-
         #region Constructors
-        public SerialInterface()
+        public MIPSInterface()
         {
             memoryMaps = new[]
             {
-                new MappingEntry(0x04800018, 0x0480001B) // SI status.
+                new MappingEntry(0x04300004, 0x04300007) // MI version.
                 {
-                    Read = o => (uint)Status.Bits.Data,
-                    Write = (o, v) => Status.Interrupt = false
+                    Write = (o, v) => { }
                 }
             };
         }

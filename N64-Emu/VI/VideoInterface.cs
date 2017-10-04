@@ -1,7 +1,14 @@
-﻿namespace N64Emu.VI
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace N64Emu.VI
 {
     public partial class VideoInterface
     {
+        #region Fields
+        private readonly IReadOnlyList<MappingEntry> memoryMaps;
+        #endregion
+
         #region Properties
         private ushort verticalInterrupt;
         /// <summary>
@@ -29,6 +36,33 @@
                 // TODO: Clear interrupt line.
             }
         }
+        #endregion
+
+        #region Constructors
+        public VideoInterface()
+        {
+            memoryMaps = new[]
+            {
+                new MappingEntry(0x0440000C, 0x0440000F) // VI vertical intr.
+                {
+                    Write = (o, v) => VerticalInterrupt = (ushort)v
+                },
+                new MappingEntry(0x04400024, 0x04400027) // VI horizontal video.
+                {
+                    Write = (o, v) => HorizontalVideo = v
+                },
+                new MappingEntry(0x04400010, 0x04400013) // VI current vertical line.
+                {
+                    Write = (o, v) => CurrentVerticalLine = (ushort)v
+                }
+            };
+        }
+        #endregion
+
+        #region Methods
+        public uint ReadWord(ulong address) => memoryMaps.First(e => e.Contains(address)).ReadWord(address);
+
+        public void WriteWord(ulong address, uint value) => memoryMaps.First(e => e.Contains(address)).WriteWord(address, value);
         #endregion
     }
 }

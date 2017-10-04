@@ -1,55 +1,40 @@
-﻿namespace N64Emu.PI
+﻿using System.Collections.Specialized;
+
+namespace N64Emu.PI
 {
     public partial class PeripheralInterface
     {
         public class StatusRegister
         {
-            #region Properties
-            private byte data;
-            public byte Data
-            {
-                get => data;
-                set
-                {
-                    if ((value & 1) != 0)
-                        ResetController();
+            #region Fields
+            private static readonly int dmaBusy = BitVector32.CreateMask(),
+            ioBusy = BitVector32.CreateMask(dmaBusy),
+            error = BitVector32.CreateMask(ioBusy);
+            public static readonly int ResetControllerMask = BitVector32.CreateMask(),
+            ClearInterruptMask = BitVector32.CreateMask(ResetControllerMask);
+            #endregion
 
-                    if ((value >> 1 & 1) != 0)
-                        ClearInterrupt();
-                }
-            }
+            #region Properties
+            private BitVector32 bits;
+            public BitVector32 Bits => bits;
 
             public bool DMABusy
             {
-                get => Get(0);
-                set => Set(0, value);
+                get => bits[dmaBusy];
+                set => bits[dmaBusy] = value;
             }
 
             public bool IOBusy
             {
-                get => Get(1);
-                set => Set(1, value);
+                get => bits[ioBusy];
+                set => bits[ioBusy] = value;
             }
 
             public bool Error
             {
-                get => Get(2);
-                set => Set(2, value);
+                get => bits[error];
+                set => bits[error] = value;
             }
-            #endregion
-
-            #region Methods
-            private bool Get(int shift) => (Data >> shift & 1) != 0;
-
-            private void Set(int shift, bool value)
-            {
-                data &= (byte)~((1 << shift) - 1);
-                data |= (byte)((value ? 1 : 0) << shift);
-            }
-
-            private void ResetController() { }
-
-            private void ClearInterrupt() { }
             #endregion
         }
     }

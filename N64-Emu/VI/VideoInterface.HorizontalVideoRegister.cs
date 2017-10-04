@@ -1,14 +1,17 @@
-﻿namespace N64Emu.VI
+﻿using System.Collections.Specialized;
+
+namespace N64Emu.VI
 {
     public partial class VideoInterface
     {
         public struct HorizontalVideoRegister
         {
             #region Fields
-            private uint data;
+            private BitVector32 bits;
 
-            private const int ActiveVideoEndShift = 0, ActiveVideoEndSize = (1 << 10) - 1;
-            private const int ActiveVideoStartShift = 16, ActiveVideoStartSize = (1 << 10) - 1;
+            private static readonly BitVector32.Section activeVideoEnd = BitVector32.CreateSection((1 << 10) - 1),
+            unknown1 = BitVector32.CreateSection((1 << 6) - 1, activeVideoEnd),
+            activeVideoStart = BitVector32.CreateSection((1 << 10) - 1, unknown1);
             #endregion
 
             #region Properties
@@ -17,8 +20,8 @@
             /// </summary>
             public ushort ActiveVideoEnd
             {
-                get => (ushort)Get(ActiveVideoEndShift, ActiveVideoEndSize);
-                set => Set(ActiveVideoEndShift, ActiveVideoEndSize, value);
+                get => (ushort)bits[activeVideoEnd];
+                set => bits[activeVideoEnd] = value;
             }
 
             /// <summary>
@@ -26,25 +29,15 @@
             /// </summary>
             public ushort ActiveVideoStart
             {
-                get => (ushort)Get(ActiveVideoStartShift, ActiveVideoStartSize);
-                set => Set(ActiveVideoStartShift, ActiveVideoStartSize, value);
-            }
-            #endregion
-
-            #region Methods
-            private uint Get(int shift, uint size) => data >> shift & size;
-
-            private void Set(int shift, uint size, uint value)
-            {
-                data &= ~(size << shift);
-                data |= (value & size) << shift;
+                get => (ushort)bits[activeVideoStart];
+                set => bits[activeVideoStart] = value;
             }
             #endregion
 
             #region Operators
-            public static implicit operator HorizontalVideoRegister(uint value) => new HorizontalVideoRegister { data = value };
+            public static implicit operator HorizontalVideoRegister(uint data) => new HorizontalVideoRegister { bits = new BitVector32((int)data) };
 
-            public static implicit operator uint(HorizontalVideoRegister register) => register.data;
+            public static implicit operator uint(HorizontalVideoRegister register) => (uint)register.bits.Data;
             #endregion
         }
     }

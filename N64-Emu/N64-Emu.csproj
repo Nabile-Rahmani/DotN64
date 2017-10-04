@@ -52,6 +52,7 @@
     <Compile Include="VI\VideoInterface.HorizontalVideoRegister.cs" />
     <Compile Include="PI\PeripheralInterface.Domain.cs" />
     <Compile Include="RCP\RealityCoprocessor.DisplayProcessor.cs" />
+    <Compile Include="MI\MIPSInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
@@ -62,6 +63,7 @@
     <Folder Include="PI\" />
     <Folder Include="SI\" />
     <Folder Include="VI\" />
+    <Folder Include="MI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />

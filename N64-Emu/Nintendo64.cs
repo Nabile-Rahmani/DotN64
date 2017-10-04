@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace N64Emu
 {
     using AI;
     using CPU;
+    using MI;
     using PI;
     using RCP;
     using SI;
@@ -31,6 +31,8 @@ namespace N64Emu
 
         public VideoInterface VI { get; } = new VideoInterface();
 
+        public MIPSInterface MI { get; } = new MIPSInterface();
+
         public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
 
         public Cartridge Cartridge { get; set; }
@@ -41,81 +43,45 @@ namespace N64Emu
         {
             memoryMaps = new[]
             {
-                new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
+                new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(PI.BootROM, (int)o))
+                    Read = PI.ReadWord,
+                    Write = PI.WriteWord
                 },
-                new MappingEntry(0x04001000, 0x04001FFF) // SP_IMEM read/write.
+                new MappingEntry(0x1FC007C0, 0x1FC007FF, false) // PIF (JoyChannel) RAM.
                 {
-                    Read = o => BitConverter.ToUInt32(RCP.SP.IMEM, (int)o),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.IMEM, (int)o, sizeof(uint))
+                    Read = PI.ReadWord,
+                    Write = PI.WriteWord
                 },
-                new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
+                new MappingEntry(0x04600000, 0x046FFFFF, false) // Peripheral interface (PI) registers.
                 {
-                    Read = o => BitConverter.ToUInt32(PI.RAM, (int)o),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, PI.RAM, (int)o, sizeof(uint))
+                    Read = PI.ReadWord,
+                    Write = PI.WriteWord
                 },
-                new MappingEntry(0x04040010, 0x04040013) // SP status.
+                new MappingEntry(0x04000000, 0x040FFFFF, false) // SP registers.
                 {
-                    Read = o => RCP.SP.StatusRegister,
-                    Write = (o, v) => RCP.SP.StatusRegister = v
+                    Read = RCP.SP.ReadWord,
+                    Write = RCP.SP.WriteWord
                 },
-                new MappingEntry(0x04040018, 0x0404001B) // SP DMA busy.
+                new MappingEntry(0x04400000, 0x044FFFFF, false) // Video interface (VI) registers.
                 {
-                    Read = o => RCP.SP.DMABusyRegister
+                    Read = VI.ReadWord,
+                    Write = VI.WriteWord
                 },
-                new MappingEntry(0x04600010, 0x04600013) // PI status.
+                new MappingEntry(0x04500000, 0x045FFFFF, false) // Audio interface (AI) registers.
                 {
-                    Write = (o, v) => PI.Status.Data = (byte)v
+                    Read = AI.ReadWord,
+                    Write = AI.WriteWord
                 },
-                new MappingEntry(0x0440000C, 0x0440000F) // VI vertical intr.
+                new MappingEntry(0x04300000, 0x043FFFFF, false) // MIPS interface (MI) registers.
                 {
-                    Write = (o, v) => VI.VerticalInterrupt = (ushort)v
+                    Read = MI.ReadWord,
+                    Write = MI.WriteWord
                 },
-                new MappingEntry(0x04400024, 0x04400027) // VI horizontal video.
+                new MappingEntry(0x04800000, 0x048FFFFF, false) // Serial interface (SI) registers.
                 {
-                    Write = (o, v) => VI.HorizontalVideo = v
-                },
-                new MappingEntry(0x04400010, 0x04400013) // VI current vertical line.
-                {
-                    Write = (o, v) => VI.CurrentVerticalLine = (ushort)v
-                },
-                new MappingEntry(0x04500000, 0x04500003) // AI DRAM address.
-                {
-                    Write = (o, v) => AI.DRAMAddress = v
-                },
-                new MappingEntry(0x04500004, 0x04500007) // AI length.
-                {
-                    Write = (o, v) => AI.TransferLength = v
-                },
-                new MappingEntry(0x04000000, 0x04000FFF) // SP_DMEM read/write.
-                {
-                    Read = o => BitConverter.ToUInt32(RCP.SP.DMEM, (int)o),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RCP.SP.DMEM, (int)o, sizeof(uint))
-                },
-                new MappingEntry(0x04300004, 0x04300007) // MI version.
-                {
-                    Write = (o, v) => { }
-                },
-                new MappingEntry(0x04800018, 0x0480001B) // SI status.
-                {
-                    Read = o => SI.Status.Data
-                },
-                new MappingEntry(0x04600014, 0x04600017) // PI dom1 latency.
-                {
-                    Write = (o, v) => PI.Domains[0].Latency = (byte)v
-                },
-                new MappingEntry(0x04600018, 0x0460001B) // PI dom1 pulse width.
-                {
-                    Write = (o, v) => PI.Domains[0].PulseWidth = (byte)v
-                },
-                new MappingEntry(0x0460001C, 0x0460001F) // PI dom1 page size.
-                {
-                    Write = (o, v) => PI.Domains[0].PageSize = (byte)v
-                },
-                new MappingEntry(0x04600020, 0x04600023) // PI dom1 release.
-                {
-                    Write = (o, v) => PI.Domains[0].Release = (byte)v
+                    Read = SI.ReadWord,
+                    Write = SI.WriteWord
                 },
                 new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                 {
