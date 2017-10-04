@@ -18,6 +18,8 @@
 
             public SpecialOpCode SpecialOP => (SpecialOpCode)(data & (1 << 6) - 1);
 
+            public RegImmOpCode RegImmOP => (RegImmOpCode)RT;
+
             /// <summary>
             /// 5-bit source register number.
             /// </summary>

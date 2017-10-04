@@ -4,7 +4,8 @@
     {
         public enum OpCode : byte
         {
-            Special = 0b000000,
+            SPECIAL = 0b000000,
+            REGIMM = 0b000001,
             /// <summary>Load Upper Immediate.</summary>
             LUI = 0b001111,
             /// <summary>Move To System Control Coprocessor.</summary>
@@ -26,7 +27,9 @@
             /// <summary>Branch On Not Equal.</summary>
             BNE = 0b000101,
             /// <summary>Branch On Equal.</summary>
-            BEQ = 0b000100
+            BEQ = 0b000100,
+            /// <summary>Add Immediate.</summary>
+            ADDI = 0b001000,
         }
     }
 }

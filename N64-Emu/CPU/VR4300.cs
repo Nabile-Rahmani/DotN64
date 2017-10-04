@@ -9,6 +9,7 @@ namespace N64Emu.CPU
         #region Fields
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
+        private readonly IReadOnlyDictionary<RegImmOpCode, Action<Instruction>> regImmOperations;
 
         private ulong? delaySlot;
         #endregion
@@ -61,12 +62,19 @@ namespace N64Emu.CPU
             CP0 = new SystemControlUnit(memoryMaps);
             operations = new Dictionary<OpCode, Action<Instruction>>
             {
-                [OpCode.Special] = i =>
+                [OpCode.SPECIAL] = i =>
                 {
                     if (specialOperations.TryGetValue(i.SpecialOP, out var operation))
                         operation(i);
                     else
                         throw new Exception($"Unknown special opcode (0b{Convert.ToString((byte)i.SpecialOP, 2)}) from instruction 0x{(uint)i:X}.");
+                },
+                [OpCode.REGIMM] = i =>
+                {
+                    if (regImmOperations.TryGetValue(i.RegImmOP, out var operation))
+                        operation(i);
+                    else
+                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString((byte)i.RegImmOP, 2)}) from instruction 0x{(uint)i:X}.");
                 },
                 [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
@@ -78,7 +86,8 @@ namespace N64Emu.CPU
                 [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
-                [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt)
+                [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt),
+                [OpCode.ADDI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + (ulong)(short)i.Immediate
             };
             specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
             {
@@ -88,8 +97,28 @@ namespace N64Emu.CPU
                     delaySlot = ProgramCounter;
                     ProgramCounter = GPRegisters[i.RS];
                 },
-                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = (ulong)(int)((uint)GPRegisters[i.RT] >> i.SA),
-                [SpecialOpCode.OR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] | GPRegisters[i.RT]
+                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] >> i.SA),
+                [SpecialOpCode.OR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] | GPRegisters[i.RT],
+                [SpecialOpCode.MULTU] = i =>
+                {
+                    var result = (uint)GPRegisters[i.RS] * (uint)GPRegisters[i.RT];
+                    LORegister = (ulong)(int)result;
+                    HIRegister = (ulong)(int)(result >> 32);
+                },
+                [SpecialOpCode.MFLO] = i => GPRegisters[i.RD] = LORegister,
+                [SpecialOpCode.SLL] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] << i.SA),
+                [SpecialOpCode.SUBU] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RS] - GPRegisters[i.RT]),
+                [SpecialOpCode.XOR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] ^ GPRegisters[i.RT],
+                [SpecialOpCode.MFHI] = i => GPRegisters[i.RD] = HIRegister,
+                [SpecialOpCode.ADDU] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RS] + GPRegisters[i.RT]),
+                [SpecialOpCode.SLTU] = i => GPRegisters[i.RD] = (ulong)(GPRegisters[i.RS] < GPRegisters[i.RT] ? 1 : 0),
+                [SpecialOpCode.SLLV] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] << (int)(GPRegisters[i.RS] & ((1 << 5) - 1))),
+                [SpecialOpCode.SRLV] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] >> (int)(GPRegisters[i.RS] & ((1 << 5) - 1))),
+                [SpecialOpCode.AND] = i => GPRegisters[i.RD] = GPRegisters[i.RS] & GPRegisters[i.RT]
+            };
+            regImmOperations = new Dictionary<RegImmOpCode, Action<Instruction>>
+            {
+                [RegImmOpCode.BGEZAL] = i => Branch(i, (rs, rt) => rs >= 0, true)
             };
         }
         #endregion
@@ -128,9 +157,12 @@ namespace N64Emu.CPU
             Run(instruction);
         }
 
-        private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition)
+        private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition, bool storeLink = false)
         {
             var result = condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]);
+
+            if (storeLink)
+                GPRegisters[31] = ProgramCounter + Instruction.Size;
 
             if (result)
             {

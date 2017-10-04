@@ -53,6 +53,7 @@
     <Compile Include="PI\PeripheralInterface.Domain.cs" />
     <Compile Include="RCP\RealityCoprocessor.DisplayProcessor.cs" />
     <Compile Include="MI\MIPSInterface.cs" />
+    <Compile Include="CPU\VR4300.RegImmOpCode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
