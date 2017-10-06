@@ -94,28 +94,73 @@ namespace N64Emu
 
         #region Methods
         /// <summary>
-        /// Runs the PIF ROM.
-        /// See: http://www.emulation64.com/ultra64/bootn64.html
+        /// Emulates the PIF ROM.
         /// </summary>
         private void RunPIF()
         {
-            CPU.GPR[(int)VR4300.GPRIndex.s4] = 0x1;
-            CPU.GPR[(int)VR4300.GPRIndex.s6] = 0x3F;
-            CPU.GPR[(int)VR4300.GPRIndex.sp] = 0xA4001FF0;
-            CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Random] = 0x0000001F;
-            CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Status] = 0x70400004;
-            CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.PRId] = 0x00000B00;
-            CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Config] = 0x0006E463;
-            //MI.Version = 0x01010101; // Register not implemented, so it is discarded anyways.
+            // Replicating the memory writes to properly initialise the subsystems.
+            var writes = new uint[,]
+            {
+                { 0x4040010, 0xA },
+                { 0x4600010, 0x3 },
+                { 0x440000C, 0x3FF },
+                { 0x4400024, 0x0 },
+                { 0x4400010, 0x0 },
+                { 0x4500000, 0x0 },
+                { 0x4500004, 0x0 },
+                { 0x1FC007FC, 0x10 },
+                { 0x4600014, 0xFF },
+                { 0x4600018, 0xFF },
+                { 0x460001C, 0xF },
+                { 0x4600020, 0x3 },
+                { 0x4600014, 0x40 },
+                { 0x4600018, 0xFF803712 },
+                { 0x460001C, 0xFFFF8037 },
+                { 0x4600020, 0xFFFFF803 },
+                { 0x1FC007F0, 0x969A },
+                { 0x1FC007F4, 0x39703352 },
+                { 0x1FC007FC, 0x30 },
+                { 0x1FC007FC, 0x70 }
+            };
 
-            for (int i = 0; i < 0x1000; i += sizeof(uint))
+            for (int i = 0; i < writes.GetLength(0); i++)
+            {
+                var address = writes[i, 0] + 0xFFFFFFFFA0000000; // The constant converts them back to virtual addresses.
+
+                CPU.CP0.Map(ref address).WriteWord(address, writes[i, 1]);
+            }
+
+            for (int i = 0; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
             {
                 var dmemAddress = (ulong)(0xA4000000 + i);
 
                 CPU.CP0.Map(ref dmemAddress).WriteWord(dmemAddress, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, i)));
             }
 
-            CPU.PC = 0xA4000040;
+            // Restoring CPU state.
+            CPU.CP0.Registers[12] = 0x34000000;
+            CPU.CP0.Registers[16] = 0x6E463;
+            CPU.GPR[1] = 0x1;
+            CPU.GPR[2] = 0x6459969A;
+            CPU.GPR[3] = 0x6459969A;
+            CPU.GPR[4] = 0x969A;
+            CPU.GPR[5] = 0x39703352;
+            CPU.GPR[6] = 0xFFFFFFFFA4001F0C;
+            CPU.GPR[7] = 0xFFFFFFFFA4001F08;
+            CPU.GPR[8] = 0x70;
+            CPU.GPR[10] = 0x40;
+            CPU.GPR[11] = 0xFFFFFFFFA4000040;
+            CPU.GPR[12] = 0xFFFFFFFFD19AE574;
+            CPU.GPR[13] = 0x4A459BAE;
+            CPU.GPR[14] = 0xFFFFFFFFE8EAD626;
+            CPU.GPR[15] = 0x6459969A;
+            CPU.GPR[20] = 0x1;
+            CPU.GPR[25] = 0x453CA37B;
+            CPU.GPR[29] = 0xFFFFFFFFA4001FF0;
+            CPU.GPR[31] = 0xFFFFFFFFA4001550;
+            CPU.HI = 0x6459969A;
+            CPU.LO = 0x6459969A;
+            CPU.PC = 0xFFFFFFFFA4000040;
         }
 
         public void PowerOn()
