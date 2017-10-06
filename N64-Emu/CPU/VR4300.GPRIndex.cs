@@ -2,7 +2,7 @@
 {
     public partial class VR4300
     {
-        public enum GPRegisterIndex : byte
+        public enum GPRIndex : byte
         {
             r0,
             at,

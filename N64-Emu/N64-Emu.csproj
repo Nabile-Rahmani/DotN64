@@ -31,7 +31,7 @@
     <Compile Include="Nintendo64.cs" />
     <Compile Include="Cartridge.cs" />
     <Compile Include="CPU\VR4300.cs" />
-    <Compile Include="CPU\VR4300.GPRegisterIndex.cs" />
+    <Compile Include="CPU\VR4300.GPRIndex.cs" />
     <Compile Include="CPU\VR4300.Instruction.cs" />
     <Compile Include="CPU\VR4300.OpCode.cs" />
     <Compile Include="RCP\RealityCoprocessor.cs" />

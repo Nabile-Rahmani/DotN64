@@ -104,9 +104,9 @@ namespace N64Emu
         /// </summary>
         private void RunPIF()
         {
-            CPU.GPRegisters[(int)VR4300.GPRegisterIndex.s4] = 0x1;
-            CPU.GPRegisters[(int)VR4300.GPRegisterIndex.s6] = 0x3F;
-            CPU.GPRegisters[(int)VR4300.GPRegisterIndex.sp] = 0xA4001FF0;
+            CPU.GPR[(int)VR4300.GPRIndex.s4] = 0x1;
+            CPU.GPR[(int)VR4300.GPRIndex.s6] = 0x3F;
+            CPU.GPR[(int)VR4300.GPRIndex.sp] = 0xA4001FF0;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Random] = 0x0000001F;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Status] = 0x70400004;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.PRId] = 0x00000B00;
@@ -123,10 +123,10 @@ namespace N64Emu
                 memoryMaps.First(e => e.Contains(dmemAddress)).WriteWord(dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
             }
 
-            CPU.ProgramCounter = 0xA4000040;
+            CPU.PC = 0xA4000040;
         }
 
-        public void Initialise()
+        public void PowerOn()
         {
             CPU.PowerOnReset();
 

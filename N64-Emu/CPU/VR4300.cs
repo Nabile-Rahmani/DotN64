@@ -10,46 +10,49 @@ namespace N64Emu.CPU
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
         private readonly IReadOnlyDictionary<RegImmOpCode, Action<Instruction>> regImmOperations;
-
         private ulong? delaySlot;
+
+        private delegate bool BranchCondition(ulong rs, ulong rt);
         #endregion
 
         #region Properties
         /// <summary>
-        /// General purpose registers.
+        /// 32 64-bit general purpose registers.
         /// </summary>
-        public ulong[] GPRegisters { get; } = new ulong[32];
+        public ulong[] GPR { get; } = new ulong[32];
 
         /// <summary>
-        /// Floating-point operation registers.
+        /// 32 64-bit floating-point operation registers.
         /// </summary>
-        public double[] FPRegisters { get; } = new double[32];
-
-        public ulong ProgramCounter { get; set; }
+        public double[] FPR { get; } = new double[32];
 
         /// <summary>
-        /// Integer multiply and divide high-order double word result.
+        /// 64-bit Program Counter.
         /// </summary>
-        public ulong HIRegister { get; set; }
+        public ulong PC { get; set; }
 
         /// <summary>
-        /// Integer multiply and divide low-order double word result.
+        /// 64-bit HI register, containing the integer multiply and divide high-order doubleword result.
         /// </summary>
-        public ulong LORegister { get; set; }
+        public ulong HI { get; set; }
 
         /// <summary>
-        /// Load/Link 1-bit register.
+        /// 64-bit LO register, containing the integer multiply and divide low-order doubleword result.
         /// </summary>
-        public bool LLBitRegister { get; set; }
+        public ulong LO { get; set; }
 
         /// <summary>
-        /// Implementation/Revision register.
+        /// 1-bit Load/Link LLBit register.
         /// </summary>
-        /// <value>The FCR.</value>
+        public bool LLBit { get; set; }
+
+        /// <summary>
+        /// 32-bit floating-point Implementation/Revision register.
+        /// </summary>
         public float FCR0 { get; set; }
 
         /// <summary>
-        /// Control/Status register.
+        /// 32-bit floating-point Control/Status register.
         /// </summary>
         public float FCR31 { get; set; }
 
@@ -64,57 +67,57 @@ namespace N64Emu.CPU
             {
                 [OpCode.SPECIAL] = i =>
                 {
-                    if (specialOperations.TryGetValue(i.SpecialOP, out var operation))
+                    if (specialOperations.TryGetValue((SpecialOpCode)i.Funct, out var operation))
                         operation(i);
                     else
-                        throw new Exception($"Unknown special opcode (0b{Convert.ToString((byte)i.SpecialOP, 2)}) from instruction 0x{(uint)i:X}.");
+                        throw new Exception($"Unknown special opcode (0b{Convert.ToString(i.Funct, 2)}) from instruction 0x{(uint)i:X}.");
                 },
                 [OpCode.REGIMM] = i =>
                 {
-                    if (regImmOperations.TryGetValue(i.RegImmOP, out var operation))
+                    if (regImmOperations.TryGetValue((RegImmOpCode)i.RT, out var operation))
                         operation(i);
                     else
-                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString((byte)i.RegImmOP, 2)}) from instruction 0x{(uint)i:X}.");
+                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString(i.RT, 2)}) from instruction 0x{(uint)i:X}.");
                 },
-                [OpCode.LUI] = i => GPRegisters[i.RT] = (ulong)(i.Immediate << 16),
-                [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPRegisters[i.RT],
-                [OpCode.ORI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] | i.Immediate,
-                [OpCode.LW] = i => GPRegisters[i.RT] = (ulong)(int)(ReadWord((ulong)(short)i.Immediate + GPRegisters[i.RS])),
-                [OpCode.ANDI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] & i.Immediate,
+                [OpCode.LUI] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
+                [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPR[i.RT],
+                [OpCode.ORI] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
+                [OpCode.LW] = i => GPR[i.RT] = (ulong)(int)(ReadWord((ulong)(short)i.Immediate + GPR[i.RS])),
+                [OpCode.ANDI] = i => GPR[i.RT] = GPR[i.RS] & i.Immediate,
                 [OpCode.BEQL] = i => BranchLikely(i, (rs, rt) => rs == rt),
-                [OpCode.ADDIU] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + (ulong)(short)i.Immediate,
-                [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPRegisters[i.RS], (uint)GPRegisters[i.RT]),
+                [OpCode.ADDIU] = i => GPR[i.RT] = GPR[i.RS] + (ulong)(short)i.Immediate,
+                [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
                 [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt),
-                [OpCode.ADDI] = i => GPRegisters[i.RT] = GPRegisters[i.RS] + (ulong)(short)i.Immediate
+                [OpCode.ADDI] = i => GPR[i.RT] = GPR[i.RS] + (ulong)(short)i.Immediate
             };
             specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
             {
-                [SpecialOpCode.ADD] = i => GPRegisters[i.RD] = GPRegisters[i.RS] + GPRegisters[i.RT], // Should we discard the upper word and extend the lower one ?
+                [SpecialOpCode.ADD] = i => GPR[i.RD] = GPR[i.RS] + GPR[i.RT], // Should we discard the upper word and extend the lower one ?
                 [SpecialOpCode.JR] = i =>
                 {
-                    delaySlot = ProgramCounter;
-                    ProgramCounter = GPRegisters[i.RS];
+                    delaySlot = PC;
+                    PC = GPR[i.RS];
                 },
-                [SpecialOpCode.SRL] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] >> i.SA),
-                [SpecialOpCode.OR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] | GPRegisters[i.RT],
+                [SpecialOpCode.SRL] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> i.SA),
+                [SpecialOpCode.OR] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
                 [SpecialOpCode.MULTU] = i =>
                 {
-                    var result = (uint)GPRegisters[i.RS] * (uint)GPRegisters[i.RT];
-                    LORegister = (ulong)(int)result;
-                    HIRegister = (ulong)(int)(result >> 32);
+                    var result = (uint)GPR[i.RS] * (uint)GPR[i.RT];
+                    LO = (ulong)(int)result;
+                    HI = (ulong)(int)(result >> 32);
                 },
-                [SpecialOpCode.MFLO] = i => GPRegisters[i.RD] = LORegister,
-                [SpecialOpCode.SLL] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] << i.SA),
-                [SpecialOpCode.SUBU] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RS] - GPRegisters[i.RT]),
-                [SpecialOpCode.XOR] = i => GPRegisters[i.RD] = GPRegisters[i.RS] ^ GPRegisters[i.RT],
-                [SpecialOpCode.MFHI] = i => GPRegisters[i.RD] = HIRegister,
-                [SpecialOpCode.ADDU] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RS] + GPRegisters[i.RT]),
-                [SpecialOpCode.SLTU] = i => GPRegisters[i.RD] = (ulong)(GPRegisters[i.RS] < GPRegisters[i.RT] ? 1 : 0),
-                [SpecialOpCode.SLLV] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] << (int)(GPRegisters[i.RS] & ((1 << 5) - 1))),
-                [SpecialOpCode.SRLV] = i => GPRegisters[i.RD] = (ulong)(int)(GPRegisters[i.RT] >> (int)(GPRegisters[i.RS] & ((1 << 5) - 1))),
-                [SpecialOpCode.AND] = i => GPRegisters[i.RD] = GPRegisters[i.RS] & GPRegisters[i.RT]
+                [SpecialOpCode.MFLO] = i => GPR[i.RD] = LO,
+                [SpecialOpCode.SLL] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << i.SA),
+                [SpecialOpCode.SUBU] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
+                [SpecialOpCode.XOR] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
+                [SpecialOpCode.MFHI] = i => GPR[i.RD] = HI,
+                [SpecialOpCode.ADDU] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] + GPR[i.RT]),
+                [SpecialOpCode.SLTU] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
+                [SpecialOpCode.SLLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [SpecialOpCode.SRLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [SpecialOpCode.AND] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT]
             };
             regImmOperations = new Dictionary<RegImmOpCode, Action<Instruction>>
             {
@@ -126,7 +129,7 @@ namespace N64Emu.CPU
         #region Methods
         public void PowerOnReset()
         {
-            ProgramCounter = 0xFFFFFFFFBFC00000;
+            PC = 0xFFFFFFFFBFC00000;
 
             CP0.PowerOnReset();
         }
@@ -145,8 +148,8 @@ namespace N64Emu.CPU
 
             if (!delaySlot.HasValue)
             {
-                instruction = ReadWord(ProgramCounter);
-                ProgramCounter += Instruction.Size;
+                instruction = ReadWord(PC);
+                PC += Instruction.Size;
             }
             else
             {
@@ -157,26 +160,26 @@ namespace N64Emu.CPU
             Run(instruction);
         }
 
-        private bool Branch(Instruction instruction, Func<ulong, ulong, bool> condition, bool storeLink = false)
+        private bool Branch(Instruction instruction, BranchCondition condition, bool storeLink = false)
         {
-            var result = condition(GPRegisters[instruction.RS], GPRegisters[instruction.RT]);
+            var result = condition(GPR[instruction.RS], GPR[instruction.RT]);
 
             if (storeLink)
-                GPRegisters[31] = ProgramCounter + Instruction.Size;
+                GPR[31] = PC + Instruction.Size;
 
             if (result)
             {
-                delaySlot = ProgramCounter;
-                ProgramCounter += (ulong)(short)instruction.Immediate << 2;
+                delaySlot = PC;
+                PC += (ulong)(short)instruction.Immediate << 2;
             }
 
             return result;
         }
 
-        private void BranchLikely(Instruction instruction, Func<ulong, ulong, bool> condition)
+        private void BranchLikely(Instruction instruction, BranchCondition condition)
         {
             if (!Branch(instruction, condition))
-                ProgramCounter += Instruction.Size;
+                PC += Instruction.Size;
         }
 
         private uint ReadWord(ulong address) => CP0.Map(ref address).ReadWord(address);

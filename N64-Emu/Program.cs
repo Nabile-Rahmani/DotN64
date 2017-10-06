@@ -23,7 +23,7 @@ namespace N64Emu
                 }
             }
 
-            nintendo64.Initialise();
+            nintendo64.PowerOn();
         }
     }
 }
