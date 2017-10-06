@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 
 namespace N64Emu
 {
@@ -14,10 +13,6 @@ namespace N64Emu
 
     public class Nintendo64
     {
-        #region Fields
-        private readonly IReadOnlyList<MappingEntry> memoryMaps;
-        #endregion
-
         #region Properties
         public VR4300 CPU { get; }
 
@@ -41,7 +36,7 @@ namespace N64Emu
         #region Constructors
         public Nintendo64()
         {
-            memoryMaps = new[]
+            var memoryMaps = new[]
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
@@ -85,7 +80,7 @@ namespace N64Emu
                 },
                 new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                 {
-                    Read = o => BitConverter.ToUInt32(Cartridge.ROM, (int)o)
+                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, (int)o))
                 },
                 new MappingEntry(0x04100000, 0x041FFFFF, false) // DP command registers.
                 {
@@ -111,16 +106,13 @@ namespace N64Emu
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Status] = 0x70400004;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.PRId] = 0x00000B00;
             CPU.CP0.Registers[(int)VR4300.SystemControlUnit.RegisterIndex.Config] = 0x0006E463;
-
-            uint versionAddress = 0x04300004;
-
-            memoryMaps.First(e => e.Contains(versionAddress)).WriteWord(versionAddress, 0x01010101);
+            //MI.Version = 0x01010101; // Register not implemented, so it is discarded anyways.
 
             for (int i = 0; i < 0x1000; i += sizeof(uint))
             {
-                var dmemAddress = (ulong)(0x04000000 + i);
+                var dmemAddress = (ulong)(0xA4000000 + i);
 
-                memoryMaps.First(e => e.Contains(dmemAddress)).WriteWord(dmemAddress, BitConverter.ToUInt32(Cartridge.ROM, i));
+                CPU.CP0.Map(ref dmemAddress).WriteWord(dmemAddress, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, i)));
             }
 
             CPU.PC = 0xA4000040;
