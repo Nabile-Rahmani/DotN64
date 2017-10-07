@@ -10,6 +10,8 @@ namespace N64Emu.PI
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
+
+        private const int CICStatusOffset = 60;
         #endregion
 
         #region Properties
@@ -38,7 +40,13 @@ namespace N64Emu.PI
                 new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
                 {
                     Read = o => BitConverter.ToUInt32(RAM, (int)o),
-                    Write = (o, v) => Array.Copy(BitConverter.GetBytes(v), 0, RAM, (int)o, sizeof(uint))
+                    Write = (o, v) =>
+                    {
+                        Array.Copy(BitConverter.GetBytes(v), 0, RAM, (int)o, sizeof(uint));
+
+                        if (o == CICStatusOffset && RAM[o] == (byte)CICStatus.Waiting) // The boot ROM waits for the PIF's CIC check to be OK.
+                            RAM[o] = (byte)CICStatus.OK; // We tell it it's OK by having the loaded word that gets ANDI'd match the immediate value 128, storing non-zero which allows us to exit the BEQL loop.
+                    }
                 },
                 new MappingEntry(0x04600010, 0x04600013) // PI status.
                 {
