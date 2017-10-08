@@ -108,19 +108,12 @@ namespace N64Emu
                 { 0x4400010, 0x0 },
                 { 0x4500000, 0x0 },
                 { 0x4500004, 0x0 },
-                { 0x1FC007FC, 0x10 },
-                { 0x4600014, 0xFF },
-                { 0x4600018, 0xFF },
-                { 0x460001C, 0xF },
-                { 0x4600020, 0x3 },
-                { 0x4600014, 0x40 },
+                { 0x4600014, 0x40 }, // These four are likely cartridge-specific (PI domain 1 values).
                 { 0x4600018, 0xFF803712 },
                 { 0x460001C, 0xFFFF8037 },
                 { 0x4600020, 0xFFFFF803 },
-                { 0x1FC007F0, 0x969A },
-                { 0x1FC007F4, 0x39703352 },
-                { 0x1FC007FC, 0x30 },
-                { 0x1FC007FC, 0x70 }
+                // Omitted the CIC result.
+                { 0x1FC007FC, 0xC0 }
             };
 
             for (int i = 0; i < writes.GetLength(0); i++)
@@ -143,11 +136,10 @@ namespace N64Emu
             CPU.GPR[1] = 0x1;
             CPU.GPR[2] = 0x6459969A;
             CPU.GPR[3] = 0x6459969A;
-            CPU.GPR[4] = 0x969A;
-            CPU.GPR[5] = 0x39703352;
+            // Omitted the CIC result.
             CPU.GPR[6] = 0xFFFFFFFFA4001F0C;
             CPU.GPR[7] = 0xFFFFFFFFA4001F08;
-            CPU.GPR[8] = 0x70;
+            CPU.GPR[8] = 0xC0;
             CPU.GPR[10] = 0x40;
             CPU.GPR[11] = 0xFFFFFFFFA4000040;
             CPU.GPR[12] = 0xFFFFFFFFD19AE574;
