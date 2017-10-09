@@ -1,3 +1,3 @@
-# N64-Emu
+# .N⁶⁴
 
-![build status](https://nabile.duckdns.org/CI/Badges?user=Nabile&repo=N64-Emu&branch=master) ([log](https://nabile.duckdns.org/CI/Logs?user=Nabile&repo=N64-Emu&branch=master))
+![build status](https://nabile.duckdns.org/CI/Badges?user=Nabile&repo=DotN64&branch=master) ([log](https://nabile.duckdns.org/CI/Logs?user=Nabile&repo=DotN64&branch=master))
