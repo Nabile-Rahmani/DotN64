@@ -16,11 +16,13 @@
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -55,9 +57,9 @@
     <Compile Include="MI\MIPSInterface.cs" />
     <Compile Include="CPU\VR4300.RegImmOpCode.cs" />
     <Compile Include="PI\PeripheralInterface.CICStatus.cs" />
+    <Compile Include="Extensions\MappingEntryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Documentation\" />
     <Folder Include="CPU\" />
     <Folder Include="RCP\" />
     <Folder Include="CPU\CP0\" />
@@ -66,9 +68,7 @@
     <Folder Include="SI\" />
     <Folder Include="VI\" />
     <Folder Include="MI\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Documentation\U10504EJ7V0UMJ1.pdf" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

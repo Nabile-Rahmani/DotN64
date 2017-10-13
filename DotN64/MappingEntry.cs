@@ -5,9 +5,9 @@ namespace DotN64
     public struct MappingEntry
     {
         #region Properties
-        public uint StartAddress { get; set; }
+        public ulong StartAddress { get; set; }
 
-        public uint EndAddress { get; set; }
+        public ulong EndAddress { get; set; }
 
         public Func<ulong, uint> Read { get; set; }
 
@@ -27,7 +27,7 @@ namespace DotN64
         #endregion
 
         #region Methods
-        public bool Contains(ulong address) => (uint)address >= StartAddress && (uint)address <= EndAddress;
+        public bool Contains(ulong address) => address >= StartAddress && address <= EndAddress;
 
         public uint ReadWord(ulong address) => Read(OffsetAddress ? address - StartAddress : address);
 

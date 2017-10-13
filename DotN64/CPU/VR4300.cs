@@ -82,38 +82,38 @@ namespace DotN64.CPU
                 [OpCode.LUI] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPR[i.RT],
                 [OpCode.ORI] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
-                [OpCode.LW] = i => GPR[i.RT] = (ulong)(int)(ReadWord((ulong)(short)i.Immediate + GPR[i.RS])),
-                [OpCode.ANDI] = i => GPR[i.RT] = GPR[i.RS] & i.Immediate,
+                [OpCode.LW] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [OpCode.ANDI] = i => GPR[i.RT] = (ulong)(i.Immediate & (ushort)GPR[i.RS]),
                 [OpCode.BEQL] = i => BranchLikely(i, (rs, rt) => rs == rt),
-                [OpCode.ADDIU] = i => GPR[i.RT] = GPR[i.RS] + (ulong)(short)i.Immediate,
+                [OpCode.ADDIU] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
                 [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
                 [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt),
-                [OpCode.ADDI] = i => GPR[i.RT] = GPR[i.RS] + (ulong)(short)i.Immediate
+                [OpCode.ADDI] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate)
             };
             specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
             {
-                [SpecialOpCode.ADD] = i => GPR[i.RD] = GPR[i.RS] + GPR[i.RT], // Should we discard the upper word and extend the lower one ?
+                [SpecialOpCode.ADD] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [SpecialOpCode.JR] = i =>
                 {
                     delaySlot = PC;
                     PC = GPR[i.RS];
                 },
-                [SpecialOpCode.SRL] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> i.SA),
+                [SpecialOpCode.SRL] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
                 [SpecialOpCode.OR] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
                 [SpecialOpCode.MULTU] = i =>
                 {
-                    var result = (uint)GPR[i.RS] * (uint)GPR[i.RT];
+                    var result = (ulong)(uint)GPR[i.RS] * (ulong)(uint)GPR[i.RT];
                     LO = (ulong)(int)result;
                     HI = (ulong)(int)(result >> 32);
                 },
                 [SpecialOpCode.MFLO] = i => GPR[i.RD] = LO,
-                [SpecialOpCode.SLL] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << i.SA),
+                [SpecialOpCode.SLL] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] << i.SA),
                 [SpecialOpCode.SUBU] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
                 [SpecialOpCode.XOR] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
                 [SpecialOpCode.MFHI] = i => GPR[i.RD] = HI,
-                [SpecialOpCode.ADDU] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] + GPR[i.RT]),
+                [SpecialOpCode.ADDU] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [SpecialOpCode.SLTU] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
                 [SpecialOpCode.SLLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
                 [SpecialOpCode.SRLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),

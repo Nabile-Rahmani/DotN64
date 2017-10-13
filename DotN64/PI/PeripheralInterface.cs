@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Net;
 
 namespace DotN64.PI
 {
+    using Extensions;
+
     public partial class PeripheralInterface
     {
         #region Fields
@@ -42,7 +43,13 @@ namespace DotN64.PI
                     Read = o => BitConverter.ToUInt32(RAM, (int)o),
                     Write = (o, v) =>
                     {
-                        Array.Copy(BitConverter.GetBytes(v), 0, RAM, (int)o, sizeof(uint));
+                        unsafe
+                        {
+                            fixed (byte* data = &RAM[(int)o])
+                            {
+                                *(uint*)data = v;
+                            }
+                        }
 
                         if (o == CICStatusOffset && RAM[o] == (byte)CICStatus.Waiting) // The boot ROM waits for the PIF's CIC check to be OK.
                             RAM[o] = (byte)CICStatus.OK; // We tell it it's OK by having the loaded word that gets ANDI'd match the immediate value 128, storing non-zero which allows us to exit the BEQL loop.
@@ -87,9 +94,9 @@ namespace DotN64.PI
 
         private void ResetController() { /* TODO: Implement. */ }
 
-        public uint ReadWord(ulong address) => memoryMaps.First(e => e.Contains(address)).ReadWord(address);
+        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
 
-        public void WriteWord(ulong address, uint value) => memoryMaps.First(e => e.Contains(address)).WriteWord(address, value);
+        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

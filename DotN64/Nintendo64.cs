@@ -28,8 +28,6 @@ namespace DotN64
 
         public MIPSInterface MI { get; } = new MIPSInterface();
 
-        public byte[] RAM { get; } = new byte[4 * 1024 * 1024]; // 4 MB of base memory (excludes the expansion pack).
-
         public Cartridge Cartridge { get; set; }
         #endregion
 
@@ -123,9 +121,9 @@ namespace DotN64
                 CPU.CP0.Map(ref address).WriteWord(address, writes[i, 1]);
             }
 
-            for (int i = 0; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
+            for (int i = 0x40; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
             {
-                var dmemAddress = (ulong)(0xA4000000 + i);
+                var dmemAddress = 0xFFFFFFFFA4000000 + (uint)i;
 
                 CPU.CP0.Map(ref dmemAddress).WriteWord(dmemAddress, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, i)));
             }

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace DotN64.RCP
 {
+    using Extensions;
+
     public partial class RealityCoprocessor
     {
         public class DisplayProcessor
@@ -25,9 +26,9 @@ namespace DotN64.RCP
             #endregion
 
             #region Methods
-            public uint ReadWord(ulong address) => memoryMaps.First(e => e.Contains(address)).ReadWord(address);
+            public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
 
-            public void WriteWord(ulong address, uint value) => memoryMaps.First(e => e.Contains(address)).WriteWord(address, value);
+            public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
             #endregion
         }
     }

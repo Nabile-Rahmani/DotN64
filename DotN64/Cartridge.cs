@@ -22,7 +22,7 @@ namespace DotN64
             (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x14))
         };
 
-        public string ImageName => Encoding.ASCII.GetString(ROM, 0x20, 0x33 - 0x20);
+        public string ImageName => Encoding.ASCII.GetString(ROM, 0x20, 0x34 - 0x20);
 
         public byte ManufacturerID => ROM[0x3B];
 

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DotN64.CPU
 {
+    using Extensions;
+
     public partial class VR4300
     {
         public partial class SystemControlUnit
@@ -56,16 +57,7 @@ namespace DotN64.CPU
                         throw new Exception($"Unknown memory map segment for location 0x{address:X}.");
                 }
 
-                try
-                {
-                    var value = address;
-
-                    return memoryMaps.First(e => e.Contains(value));
-                }
-                catch (InvalidOperationException e)
-                {
-                    throw new Exception($"Unknown physical address: 0x{address:X}.", e);
-                }
+                return memoryMaps.GetEntry(address);
             }
             #endregion
         }

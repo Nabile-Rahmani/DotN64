@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace DotN64.SI
 {
+    using Extensions;
+
     public partial class SerialInterface
     {
         #region Fields
@@ -28,9 +29,9 @@ namespace DotN64.SI
         #endregion
 
         #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.First(e => e.Contains(address)).ReadWord(address);
+        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
 
-        public void WriteWord(ulong address, uint value) => memoryMaps.First(e => e.Contains(address)).WriteWord(address, value);
+        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }
