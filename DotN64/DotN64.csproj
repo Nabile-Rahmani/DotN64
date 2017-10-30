@@ -58,6 +58,10 @@
     <Compile Include="CPU\VR4300.RegImmOpCode.cs" />
     <Compile Include="PI\PeripheralInterface.CICStatus.cs" />
     <Compile Include="Extensions\MappingEntryExtensions.cs" />
+    <Compile Include="RI\RDRAMInterface.cs" />
+    <Compile Include="RI\RDRAMInterface.ConfigRegister.cs" />
+    <Compile Include="RI\RDRAMInterface.ModeRegister.cs" />
+    <Compile Include="MI\MIPSInterface.InitModeRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -69,6 +73,7 @@
     <Folder Include="VI\" />
     <Folder Include="MI\" />
     <Folder Include="Extensions\" />
+    <Folder Include="RI\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

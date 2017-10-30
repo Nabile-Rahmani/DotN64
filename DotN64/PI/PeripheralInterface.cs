@@ -57,7 +57,7 @@ namespace DotN64.PI
                 },
                 new MappingEntry(0x04600010, 0x04600013) // PI status.
                 {
-                    Read = o => (uint)Status.Bits.Data,
+                    Read = o => Status,
                     Write = (o, v) =>
                     {
                         var bits = new BitVector32((int)v);

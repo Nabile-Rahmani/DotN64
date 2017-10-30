@@ -4,9 +4,11 @@ namespace DotN64.PI
 {
     public partial class PeripheralInterface
     {
-        public class StatusRegister
+        public struct StatusRegister
         {
             #region Fields
+            private BitVector32 bits;
+
             private static readonly int dmaBusy = BitVector32.CreateMask(),
             ioBusy = BitVector32.CreateMask(dmaBusy),
             error = BitVector32.CreateMask(ioBusy);
@@ -15,9 +17,6 @@ namespace DotN64.PI
             #endregion
 
             #region Properties
-            private BitVector32 bits;
-            public BitVector32 Bits => bits;
-
             public bool DMABusy
             {
                 get => bits[dmaBusy];
@@ -35,6 +34,12 @@ namespace DotN64.PI
                 get => bits[error];
                 set => bits[error] = value;
             }
+            #endregion
+
+            #region Operators
+            public static implicit operator StatusRegister(uint data) => new StatusRegister { bits = new BitVector32((int)data) };
+
+            public static implicit operator uint(StatusRegister register) => (uint)register.bits.Data;
             #endregion
         }
     }

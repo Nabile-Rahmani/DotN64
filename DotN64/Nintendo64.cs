@@ -8,6 +8,7 @@ namespace DotN64
     using MI;
     using PI;
     using RCP;
+    using RI;
     using SI;
     using VI;
 
@@ -27,6 +28,8 @@ namespace DotN64
         public VideoInterface VI { get; } = new VideoInterface();
 
         public MIPSInterface MI { get; } = new MIPSInterface();
+
+        public RDRAMInterface RI { get; } = new RDRAMInterface();
 
         public Cartridge Cartridge { get; set; }
         #endregion
@@ -84,6 +87,11 @@ namespace DotN64
                 {
                     Read = RCP.DP.ReadWord,
                     Write = RCP.DP.WriteWord
+                },
+                new MappingEntry(0x04700000, 0x047FFFFF, false) // RDRAM interface (RI) registers.
+                {
+                    Read = RI.ReadWord,
+                    Write = RI.WriteWord
                 }
             };
             CPU = new VR4300(memoryMaps);
