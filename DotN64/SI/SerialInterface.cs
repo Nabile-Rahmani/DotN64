@@ -11,7 +11,7 @@ namespace DotN64.SI
         #endregion
 
         #region Properties
-        public StatusRegister Status { get; } = new StatusRegister();
+        public StatusRegister Status { get; set; }
         #endregion
 
         #region Constructors
@@ -21,8 +21,8 @@ namespace DotN64.SI
             {
                 new MappingEntry(0x04800018, 0x0480001B) // SI status.
                 {
-                    Read = o => (uint)Status.Bits.Data,
-                    Write = (o, v) => Status.Interrupt = false
+                    Read = o => (uint)Status,
+                    Write = (o, v) => Status &= ~StatusRegister.Interrupt
                 }
             };
         }

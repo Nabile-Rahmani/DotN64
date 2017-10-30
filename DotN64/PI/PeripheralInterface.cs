@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Net;
 
 namespace DotN64.PI
@@ -12,11 +11,12 @@ namespace DotN64.PI
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
 
-        private const int CICStatusOffset = 60;
+        private const byte CICStatusOffset = 60;
+        private const byte ResetControllerStatus = 1 << 0, ClearInterruptStatus = 1 << 1;
         #endregion
 
         #region Properties
-        public StatusRegister Status { get; } = new StatusRegister();
+        public StatusRegister Status { get; set; }
 
         public byte[] BootROM { get; set; }
 
@@ -57,15 +57,13 @@ namespace DotN64.PI
                 },
                 new MappingEntry(0x04600010, 0x04600013) // PI status.
                 {
-                    Read = o => Status,
+                    Read = o => (uint)Status,
                     Write = (o, v) =>
                     {
-                        var bits = new BitVector32((int)v);
-
-                        if (bits[StatusRegister.ResetControllerMask])
+                        if ((v & ResetControllerStatus) != 0)
                             ResetController();
 
-                        if (bits[StatusRegister.ClearInterruptMask])
+                        if ((v & ClearInterruptStatus) != 0)
                             ClearInterrupt();
                     }
                 },
