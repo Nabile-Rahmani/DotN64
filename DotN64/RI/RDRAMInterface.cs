@@ -11,11 +11,13 @@ namespace DotN64.RI
         #endregion
 
         #region Properties
-        public byte Select { get; set; }
+        public byte Select { get; set; } = 0x14;
 
-        public ConfigRegister Config { get; set; }
+        public ConfigRegister Config { get; set; } = 0x40;
 
-        public ModeRegister Mode { get; set; }
+        public ModeRegister Mode { get; set; } = 0x0E;
+
+        public RefreshRegister Refresh { get; set; } = 0x00063634;
         #endregion
 
         #region Constructors
@@ -39,6 +41,9 @@ namespace DotN64.RI
                 new MappingEntry(0x04700000, 0x04700003) // RI mode.
                 {
                     Write = (o, v) => Mode = v
+                },
+                new MappingEntry(0x04700010, 0x04700013) // RI refresh.
+                {
                 }
             };
         }

@@ -62,6 +62,7 @@
     <Compile Include="RI\RDRAMInterface.ConfigRegister.cs" />
     <Compile Include="RI\RDRAMInterface.ModeRegister.cs" />
     <Compile Include="MI\MIPSInterface.InitModeRegister.cs" />
+    <Compile Include="RI\RDRAMInterface.RefreshRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
