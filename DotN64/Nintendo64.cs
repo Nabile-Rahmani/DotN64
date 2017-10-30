@@ -92,6 +92,11 @@ namespace DotN64
                 {
                     Read = RI.ReadWord,
                     Write = RI.WriteWord
+                },
+                new MappingEntry(0x00000000, 0x03EFFFFF, false) // RDRAM memory.
+                {
+                    Read = RI.ReadWord,
+                    Write = RI.WriteWord
                 }
             };
             CPU = new VR4300(memoryMaps);

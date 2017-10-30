@@ -30,6 +30,8 @@
             BEQ = 0b000100,
             /// <summary>Add Immediate.</summary>
             ADDI = 0b001000,
+            /// <summary>Cache Operation.</summary>
+            CACHE = 0b101111
         }
     }
 }

@@ -90,7 +90,8 @@ namespace DotN64.CPU
                 [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
                 [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt),
-                [OpCode.ADDI] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate)
+                [OpCode.ADDI] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
+                [OpCode.CACHE] = i => { /* TODO: Implement and compare the performance if it's a concern. */ }
             };
             specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
             {

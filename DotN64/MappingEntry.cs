@@ -32,6 +32,8 @@ namespace DotN64
         public uint ReadWord(ulong address) => Read(OffsetAddress ? address - StartAddress : address);
 
         public void WriteWord(ulong address, uint value) => Write(OffsetAddress ? address - StartAddress : address, value);
+
+        public override string ToString() => $"[0x{StartAddress:X16}..0x{EndAddress:X16}] - {(Read != null ? "R" : "-")}{(Write != null ? "W" : "-")}";
         #endregion
     }
 }

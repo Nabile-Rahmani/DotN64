@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotN64.RI
 {
@@ -18,6 +19,8 @@ namespace DotN64.RI
         public ModeRegister Mode { get; set; } = 0x0E;
 
         public RefreshRegister Refresh { get; set; } = 0x00063634;
+
+        public byte[] RAM { get; } = new byte[0x00400000]; // The base system has 4 MB of RAM installed.
         #endregion
 
         #region Constructors
@@ -44,6 +47,20 @@ namespace DotN64.RI
                 },
                 new MappingEntry(0x04700010, 0x04700013) // RI refresh.
                 {
+                },
+                new MappingEntry(0x00000000, 0x03EFFFFF) // RDRAM memory.
+                {
+                    Read = o => BitConverter.ToUInt32(RAM, (int)o),
+                    Write = (o, v) =>
+                    {
+                        unsafe
+                        {
+                            fixed (byte* data = &RAM[(int)o])
+                            {
+                                *(uint*)data = v;
+                            }
+                        }
+                    }
                 }
             };
         }
