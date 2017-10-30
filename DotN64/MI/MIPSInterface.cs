@@ -33,8 +33,8 @@ namespace DotN64.MI
                         mode.InitMode &= bits[InitModeRegister.ClearInitModeSection] == 0;
                         mode.InitMode |= bits[InitModeRegister.SetInitModeSection] != 0;
 
-                        mode.EbusTestMode &= bits[InitModeRegister.ClearEbusTestModeSection] == 0;
-                        mode.EbusTestMode |= bits[InitModeRegister.SetEbusTestModeSection] != 0;
+                        mode.EBusTestMode &= bits[InitModeRegister.ClearEbusTestModeSection] == 0;
+                        mode.EBusTestMode |= bits[InitModeRegister.SetEbusTestModeSection] != 0;
 
                         if (bits[InitModeRegister.ClearDPInterruptSection] != 0)
                             throw new NotImplementedException("Clear DP interrupt.");

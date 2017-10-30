@@ -27,6 +27,21 @@ namespace DotN64.PI
             new Domain(),
             new Domain()
         };
+
+        /// <summary>
+        /// Starting RDRAM address.
+        /// </summary>
+        public uint DRAMAddress { get; set; }
+
+        /// <summary>
+        /// Starting AD16 address.
+        /// </summary>
+        public uint PBusAddress { get; set; }
+
+        /// <summary>
+        /// Write data length.
+        /// </summary>
+        public uint WriteLength { get; set; }
         #endregion
 
         #region Constructors
@@ -82,6 +97,18 @@ namespace DotN64.PI
                 new MappingEntry(0x04600020, 0x04600023) // PI dom1 release.
                 {
                     Write = (o, v) => Domains[0].Release = (byte)v
+                },
+                new MappingEntry(0x04600000, 0x04600003) // PI DRAM address.
+                {
+                    Write = (o, v) => DRAMAddress = v & ((1 << 24) - 1)
+                },
+                new MappingEntry(0x04600004, 0x04600007) // PI pbus (cartridge) address.
+                {
+                    Write = (o, v) => PBusAddress = v
+                },
+                new MappingEntry(0x0460000C, 0x0460000F) // PI write length.
+                {
+                    Write = (o, v) => WriteLength = v & ((1 << 24) - 1)
                 }
             };
         }

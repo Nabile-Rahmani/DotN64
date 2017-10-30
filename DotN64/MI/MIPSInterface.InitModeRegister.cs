@@ -19,8 +19,8 @@ namespace DotN64.MI
             ClearRDRAMRegSection = BitVector32.CreateSection(1, ClearDPInterruptSection),
             SetRDRAMRegModeSection = BitVector32.CreateSection(1, ClearRDRAMRegSection);
             private static readonly BitVector32.Section initModeSection = BitVector32.CreateSection(1, InitLengthSection),
-            ebusTestModeSection = BitVector32.CreateSection(1, initModeSection),
-            rdramRegModeSection = BitVector32.CreateSection(1, ebusTestModeSection);
+            eBusTestModeSection = BitVector32.CreateSection(1, initModeSection),
+            rdramRegModeSection = BitVector32.CreateSection(1, eBusTestModeSection);
             #endregion
 
             #region Properties
@@ -36,10 +36,10 @@ namespace DotN64.MI
                 set => bits[initModeSection] = Convert.ToInt32(value);
             }
 
-            public bool EbusTestMode
+            public bool EBusTestMode
             {
-                get => Convert.ToBoolean(bits[ebusTestModeSection]);
-                set => bits[ebusTestModeSection] = Convert.ToInt32(value);
+                get => Convert.ToBoolean(bits[eBusTestModeSection]);
+                set => bits[eBusTestModeSection] = Convert.ToInt32(value);
             }
 
             public bool RDRAMRegMode
