@@ -2,15 +2,15 @@
 
 namespace DotN64.VI
 {
-    using Extensions;
-
-    public partial class VideoInterface
+    public partial class VideoInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         private ushort verticalInterrupt;
         /// <summary>
         /// Interrupt when current half-line = V_INTR.
@@ -58,12 +58,6 @@ namespace DotN64.VI
                 }
             };
         }
-        #endregion
-
-        #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

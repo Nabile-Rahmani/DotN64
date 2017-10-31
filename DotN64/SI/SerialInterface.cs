@@ -2,15 +2,15 @@
 
 namespace DotN64.SI
 {
-    using Extensions;
-
-    public partial class SerialInterface
+    public partial class SerialInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         public StatusRegister Status { get; set; }
         #endregion
 
@@ -26,12 +26,6 @@ namespace DotN64.SI
                 }
             };
         }
-        #endregion
-
-        #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

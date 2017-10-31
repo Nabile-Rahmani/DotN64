@@ -2,15 +2,15 @@
 
 namespace DotN64.AI
 {
-    using Extensions;
-
-    public class AudioInterface
+    public class AudioInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         private uint dramAddress;
         /// <summary>
         /// Starting RDRAM address (8B-aligned).
@@ -44,12 +44,6 @@ namespace DotN64.AI
                 }
             };
         }
-        #endregion
-
-        #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

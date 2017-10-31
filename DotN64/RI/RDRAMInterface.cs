@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace DotN64.RI
 {
-    using Extensions;
-
-    public partial class RDRAMInterface
+    public partial class RDRAMInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         public byte Select { get; set; } = 0x14;
 
         public ConfigRegister Config { get; set; } = 0x40;
@@ -64,12 +64,6 @@ namespace DotN64.RI
                 }
             };
         }
-        #endregion
-
-        #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

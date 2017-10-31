@@ -4,9 +4,7 @@ using System.Net;
 
 namespace DotN64.PI
 {
-    using Extensions;
-
-    public partial class PeripheralInterface
+    public partial class PeripheralInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
@@ -16,6 +14,8 @@ namespace DotN64.PI
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         public StatusRegister Status { get; set; }
 
         public byte[] BootROM { get; set; }
@@ -118,10 +118,6 @@ namespace DotN64.PI
         private void ClearInterrupt() { /* TODO: Implement. */ }
 
         private void ResetController() { /* TODO: Implement. */ }
-
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

@@ -4,15 +4,15 @@ using System.Collections.Specialized;
 
 namespace DotN64.MI
 {
-    using Extensions;
-
-    public partial class MIPSInterface
+    public partial class MIPSInterface : Interface
     {
         #region Fields
         private readonly IReadOnlyList<MappingEntry> memoryMaps;
         #endregion
 
         #region Properties
+        protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+
         public InitModeRegister InitMode { get; set; }
         #endregion
 
@@ -47,12 +47,6 @@ namespace DotN64.MI
                 }
             };
         }
-        #endregion
-
-        #region Methods
-        public uint ReadWord(ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
-
-        public void WriteWord(ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }
