@@ -32,15 +32,6 @@ namespace DotN64.CPU
 
             #region Methods
             /// <summary>
-            /// Cold reset.
-            /// </summary>
-            public void Reset()
-            {
-                Config.EP = ConfigRegister.TransferDataPattern.D;
-                Config.BE = ConfigRegister.Endianness.BigEndian;
-            }
-
-            /// <summary>
             /// Translates a virtual address into a physical address.
             /// See: datasheet#5.2.4 Table 5-3.
             /// </summary>

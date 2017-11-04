@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace DotN64.CPU
 {
-    // Reference: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
+    /// <summary>
+    /// The NEC VR4300 CPU, designed by MIPS Technologies.
+    /// Datasheet: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
+    /// </summary>
     public partial class VR4300
     {
         #region Fields
@@ -11,6 +14,8 @@ namespace DotN64.CPU
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
         private readonly IReadOnlyDictionary<RegImmOpCode, Action<Instruction>> regImmOperations;
         private ulong? delaySlot;
+
+        private const ulong ResetVector = 0xFFFFFFFFBFC00000;
 
         private delegate bool BranchCondition(ulong rs, ulong rt);
         #endregion
@@ -57,6 +62,17 @@ namespace DotN64.CPU
         public float FCR31 { get; set; }
 
         public SystemControlUnit CP0 { get; }
+
+        private byte divMode;
+        /// <summary>
+        /// Internal operating frequency mode.
+        /// See: datasheet#2.2.2 Table 2-2.
+        /// </summary>
+        public byte DivMode
+        {
+            get => divMode;
+            set => divMode = (byte)(value & ((1 << 2) - 1));
+        }
         #endregion
 
         #region Constructors
@@ -130,12 +146,25 @@ namespace DotN64.CPU
         #region Methods
         /// <summary>
         /// Cold reset.
+        /// See: datasheet#6.4.4.
         /// </summary>
         public void Reset()
         {
-            PC = 0xFFFFFFFFBFC00000;
+            PC = ResetVector;
 
-            CP0.Reset();
+            var ds = CP0.Status.DS;
+
+            ds.TS = ds.SR = CP0.Status.RP = false;
+            CP0.Config.EP = 0;
+
+            CP0.Status.ERL = ds.BEV = true;
+            CP0.Config.BE = (SystemControlUnit.ConfigRegister.Endianness)1;
+
+            CP0.Registers[(int)SystemControlUnit.RegisterIndex.Random] = 31;
+
+            CP0.Config.EC = DivMode;
+
+            CP0.Status.DS = ds;
         }
 
         public void Run(Instruction instruction)

@@ -7,6 +7,9 @@ namespace DotN64.CPU
     {
         public partial class SystemControlUnit
         {
+            /// <summary>
+            /// See: datasheet#6.3.5.
+            /// </summary>
             public class StatusRegister : Register
             {
                 #region Fields

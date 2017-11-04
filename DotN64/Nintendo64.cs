@@ -99,15 +99,15 @@ namespace DotN64
                     Write = RI.WriteWord
                 }
             };
-            CPU = new VR4300(memoryMaps);
+            CPU = new VR4300(memoryMaps)
+            {
+                DivMode = 0b01 // Assuming this value as the CPU is clocked at 93.75 MHz, and the RCP would be clocked at 93.75 / 3 * 2 = 62.5 MHz.
+            };
         }
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Emulates the PIF ROM.
-        /// </summary>
-        private void RunPIF()
+        private void EmulatePIFBootROM()
         {
             // Replicating the memory writes to properly initialise the subsystems.
             var writes = new uint[,]
@@ -171,7 +171,7 @@ namespace DotN64
             CPU.Reset();
 
             if (PI.BootROM == null)
-                RunPIF();
+                EmulatePIFBootROM();
 
             while (true)
             {
