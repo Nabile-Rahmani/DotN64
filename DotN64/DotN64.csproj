@@ -32,19 +32,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Nintendo64.cs" />
     <Compile Include="Cartridge.cs" />
-    <Compile Include="CPU\VR4300.cs" />
-    <Compile Include="CPU\VR4300.GPRIndex.cs" />
-    <Compile Include="CPU\VR4300.Instruction.cs" />
-    <Compile Include="CPU\VR4300.OpCode.cs" />
     <Compile Include="RCP\RealityCoprocessor.cs" />
-    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.cs" />
-    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.ConfigRegister.cs" />
-    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.Register.cs" />
-    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
-    <Compile Include="CPU\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
-    <Compile Include="CPU\VR4300.SpecialOpCode.cs" />
     <Compile Include="MappingEntry.cs" />
-    <Compile Include="CPU\VR4300.RegImmOpCode.cs" />
     <Compile Include="Extensions\MappingEntryExtensions.cs" />
     <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.cs" />
     <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.cs" />
@@ -64,11 +53,21 @@
     <Compile Include="RCP\SI\RealityCoprocessor.SerialInterface.StatusRegister.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.HorizontalVideoRegister.cs" />
+    <Compile Include="CPU\VR4300\VR4300.cs" />
+    <Compile Include="CPU\VR4300\VR4300.GPRIndex.cs" />
+    <Compile Include="CPU\VR4300\VR4300.Instruction.cs" />
+    <Compile Include="CPU\VR4300\VR4300.OpCode.cs" />
+    <Compile Include="CPU\VR4300\VR4300.RegImmOpCode.cs" />
+    <Compile Include="CPU\VR4300\VR4300.SpecialOpCode.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.ConfigRegister.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.Register.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
     <Folder Include="RCP\" />
-    <Folder Include="CPU\CP0\" />
     <Folder Include="Extensions\" />
     <Folder Include="RCP\AI\" />
     <Folder Include="RCP\MI\" />
@@ -78,6 +77,8 @@
     <Folder Include="RCP\VI\" />
     <Folder Include="RCP\DP\" />
     <Folder Include="RCP\SP\" />
+    <Folder Include="CPU\VR4300\" />
+    <Folder Include="CPU\VR4300\CP0\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
