@@ -8,8 +8,19 @@ namespace DotN64.RCP
     {
         public abstract class Interface
         {
+            #region Fields
+            protected readonly RealityCoprocessor rcp;
+            #endregion
+
             #region Properties
             protected abstract IReadOnlyList<MappingEntry> MemoryMaps { get; }
+            #endregion
+
+            #region Constructors
+            protected Interface(RealityCoprocessor rcp)
+            {
+                this.rcp = rcp;
+            }
             #endregion
 
             #region Methods

@@ -21,12 +21,11 @@ namespace DotN64.RCP
             public ModeRegister Mode { get; set; } = 0x0E;
 
             public RefreshRegister Refresh { get; set; } = 0x00063634;
-
-            public byte[] RAM { get; } = new byte[0x00400000]; // The base system has 4 MB of RAM installed.
             #endregion
 
             #region Constructors
-            public RDRAMInterface()
+            public RDRAMInterface(RealityCoprocessor rcp)
+                : base(rcp)
             {
                 memoryMaps = new[]
                 {
@@ -52,12 +51,12 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x00000000, 0x03EFFFFF) // RDRAM memory.
                     {
-                        Read = o => BitConverter.ToUInt32(RAM, (int)o),
+                        Read = o => BitConverter.ToUInt32(rcp.Nintendo64.RAM, (int)o),
                         Write = (o, v) =>
                         {
                             unsafe
                             {
-                                fixed (byte* data = &RAM[(int)o])
+                                fixed (byte* data = &rcp.Nintendo64.RAM[(int)o])
                                 {
                                     *(uint*)data = v;
                                 }

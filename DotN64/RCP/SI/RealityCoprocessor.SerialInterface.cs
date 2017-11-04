@@ -17,7 +17,8 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public SerialInterface()
+            public SerialInterface(RealityCoprocessor rcp)
+                : base(rcp)
             {
                 memoryMaps = new[]
                 {

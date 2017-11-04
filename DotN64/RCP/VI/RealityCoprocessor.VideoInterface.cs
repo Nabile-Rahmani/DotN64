@@ -42,7 +42,8 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public VideoInterface()
+            public VideoInterface(RealityCoprocessor rcp)
+                : base(rcp)
             {
                 memoryMaps = new[]
                 {

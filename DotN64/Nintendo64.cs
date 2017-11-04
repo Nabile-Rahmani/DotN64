@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Collections.Generic;
 
 namespace DotN64
 {
@@ -9,9 +8,13 @@ namespace DotN64
     public class Nintendo64
     {
         #region Properties
+        public IReadOnlyList<MappingEntry> MemoryMaps { get; }
+
         public VR4300 CPU { get; }
 
-        public RealityCoprocessor RCP { get; } = new RealityCoprocessor();
+        public RealityCoprocessor RCP { get; }
+
+        public byte[] RAM { get; } = new byte[0x00400000]; // The base system has 4 MB of RAM installed.
 
         public Cartridge Cartridge { get; set; }
         #endregion
@@ -19,7 +22,8 @@ namespace DotN64
         #region Constructors
         public Nintendo64()
         {
-            var memoryMaps = new[]
+            RCP = new RealityCoprocessor(this);
+            MemoryMaps = new[]
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
@@ -61,9 +65,9 @@ namespace DotN64
                     Read = RCP.SI.ReadWord,
                     Write = RCP.SI.WriteWord
                 },
-                new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
+                new MappingEntry(0x10000000, 0x1FBFFFFF, false) // Cartridge Domain 1 Address 2.
                 {
-                    Read = o => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, (int)o))
+                    Read = RCP.PI.ReadWord
                 },
                 new MappingEntry(0x04100000, 0x041FFFFF, false) // DP command registers.
                 {
@@ -81,7 +85,7 @@ namespace DotN64
                     Write = RCP.RI.WriteWord
                 }
             };
-            CPU = new VR4300(memoryMaps)
+            CPU = new VR4300(MemoryMaps)
             {
                 DivMode = 0b01 // Assuming this value as the CPU is clocked at 93.75 MHz, and the RCP would be clocked at 93.75 / 3 * 2 = 62.5 MHz.
             };
@@ -89,71 +93,12 @@ namespace DotN64
         #endregion
 
         #region Methods
-        private void EmulatePIFBootROM()
-        {
-            // Replicating the memory writes to properly initialise the subsystems.
-            var writes = new uint[,]
-            {
-                { 0x4040010, 0xA },
-                { 0x4600010, 0x3 },
-                { 0x440000C, 0x3FF },
-                { 0x4400024, 0x0 },
-                { 0x4400010, 0x0 },
-                { 0x4500000, 0x0 },
-                { 0x4500004, 0x0 },
-                { 0x4600014, 0x40 }, // These four are likely cartridge-specific (PI domain 1 values).
-                { 0x4600018, 0xFF803712 },
-                { 0x460001C, 0xFFFF8037 },
-                { 0x4600020, 0xFFFFF803 },
-                // Omitted the CIC result.
-                { 0x1FC007FC, 0xC0 }
-            };
-
-            for (int i = 0; i < writes.GetLength(0); i++)
-            {
-                var address = writes[i, 0] + 0xFFFFFFFFA0000000; // The constant converts them back to virtual addresses.
-
-                CPU.CP0.Map(ref address).WriteWord(address, writes[i, 1]);
-            }
-
-            for (int i = 0x40; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
-            {
-                var dmemAddress = 0xFFFFFFFFA4000000 + (uint)i;
-
-                CPU.CP0.Map(ref dmemAddress).WriteWord(dmemAddress, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(Cartridge.ROM, i)));
-            }
-
-            // Restoring CPU state.
-            CPU.CP0.Registers[12] = 0x34000000;
-            CPU.CP0.Registers[16] = 0x6E463;
-            CPU.GPR[1] = 0x1;
-            CPU.GPR[2] = 0x6459969A;
-            CPU.GPR[3] = 0x6459969A;
-            // Omitted the CIC result.
-            CPU.GPR[6] = 0xFFFFFFFFA4001F0C;
-            CPU.GPR[7] = 0xFFFFFFFFA4001F08;
-            CPU.GPR[8] = 0xC0;
-            CPU.GPR[10] = 0x40;
-            CPU.GPR[11] = 0xFFFFFFFFA4000040;
-            CPU.GPR[12] = 0xFFFFFFFFD19AE574;
-            CPU.GPR[13] = 0x4A459BAE;
-            CPU.GPR[14] = 0xFFFFFFFFE8EAD626;
-            CPU.GPR[15] = 0x6459969A;
-            CPU.GPR[20] = 0x1;
-            CPU.GPR[25] = 0x453CA37B;
-            CPU.GPR[29] = 0xFFFFFFFFA4001FF0;
-            CPU.GPR[31] = 0xFFFFFFFFA4001550;
-            CPU.HI = 0x6459969A;
-            CPU.LO = 0x6459969A;
-            CPU.PC = 0xFFFFFFFFA4000040;
-        }
-
         public void PowerOn()
         {
             CPU.Reset();
 
             if (RCP.PI.BootROM == null)
-                EmulatePIFBootROM();
+                RCP.PI.EmulateBootROM();
 
             while (true)
             {

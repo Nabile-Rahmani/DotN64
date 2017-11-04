@@ -32,7 +32,8 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public AudioInterface()
+            public AudioInterface(RealityCoprocessor rcp)
+                : base(rcp)
             {
                 memoryMaps = new[]
                 {

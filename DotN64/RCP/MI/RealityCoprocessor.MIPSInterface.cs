@@ -19,7 +19,8 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public MIPSInterface()
+            public MIPSInterface(RealityCoprocessor rcp)
+                : base(rcp)
             {
                 memoryMaps = new[]
                 {
