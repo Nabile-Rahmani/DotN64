@@ -15,7 +15,7 @@ namespace DotN64
                 switch (arg)
                 {
                     case "--pif-rom":
-                        nintendo64.PI.BootROM = File.ReadAllBytes(args[++i]);
+                        nintendo64.RCP.PI.BootROM = File.ReadAllBytes(args[++i]);
                         break;
                     default:
                         nintendo64.Cartridge = Cartridge.FromFile(new FileInfo(arg));

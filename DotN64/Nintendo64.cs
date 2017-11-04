@@ -3,14 +3,8 @@ using System.Net;
 
 namespace DotN64
 {
-    using AI;
     using CPU;
-    using MI;
-    using PI;
     using RCP;
-    using RI;
-    using SI;
-    using VI;
 
     public class Nintendo64
     {
@@ -18,18 +12,6 @@ namespace DotN64
         public VR4300 CPU { get; }
 
         public RealityCoprocessor RCP { get; } = new RealityCoprocessor();
-
-        public PeripheralInterface PI { get; } = new PeripheralInterface();
-
-        public SerialInterface SI { get; } = new SerialInterface();
-
-        public AudioInterface AI { get; } = new AudioInterface();
-
-        public VideoInterface VI { get; } = new VideoInterface();
-
-        public MIPSInterface MI { get; } = new MIPSInterface();
-
-        public RDRAMInterface RI { get; } = new RDRAMInterface();
 
         public Cartridge Cartridge { get; set; }
         #endregion
@@ -41,18 +23,18 @@ namespace DotN64
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
-                    Read = PI.ReadWord,
-                    Write = PI.WriteWord
+                    Read = RCP.PI.ReadWord,
+                    Write = RCP.PI.WriteWord
                 },
                 new MappingEntry(0x1FC007C0, 0x1FC007FF, false) // PIF (JoyChannel) RAM.
                 {
-                    Read = PI.ReadWord,
-                    Write = PI.WriteWord
+                    Read = RCP.PI.ReadWord,
+                    Write = RCP.PI.WriteWord
                 },
                 new MappingEntry(0x04600000, 0x046FFFFF, false) // Peripheral interface (PI) registers.
                 {
-                    Read = PI.ReadWord,
-                    Write = PI.WriteWord
+                    Read = RCP.PI.ReadWord,
+                    Write = RCP.PI.WriteWord
                 },
                 new MappingEntry(0x04000000, 0x040FFFFF, false) // SP registers.
                 {
@@ -61,23 +43,23 @@ namespace DotN64
                 },
                 new MappingEntry(0x04400000, 0x044FFFFF, false) // Video interface (VI) registers.
                 {
-                    Read = VI.ReadWord,
-                    Write = VI.WriteWord
+                    Read = RCP.VI.ReadWord,
+                    Write = RCP.VI.WriteWord
                 },
                 new MappingEntry(0x04500000, 0x045FFFFF, false) // Audio interface (AI) registers.
                 {
-                    Read = AI.ReadWord,
-                    Write = AI.WriteWord
+                    Read = RCP.AI.ReadWord,
+                    Write = RCP.AI.WriteWord
                 },
                 new MappingEntry(0x04300000, 0x043FFFFF, false) // MIPS interface (MI) registers.
                 {
-                    Read = MI.ReadWord,
-                    Write = MI.WriteWord
+                    Read = RCP.MI.ReadWord,
+                    Write = RCP.MI.WriteWord
                 },
                 new MappingEntry(0x04800000, 0x048FFFFF, false) // Serial interface (SI) registers.
                 {
-                    Read = SI.ReadWord,
-                    Write = SI.WriteWord
+                    Read = RCP.SI.ReadWord,
+                    Write = RCP.SI.WriteWord
                 },
                 new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                 {
@@ -90,13 +72,13 @@ namespace DotN64
                 },
                 new MappingEntry(0x04700000, 0x047FFFFF, false) // RDRAM interface (RI) registers.
                 {
-                    Read = RI.ReadWord,
-                    Write = RI.WriteWord
+                    Read = RCP.RI.ReadWord,
+                    Write = RCP.RI.WriteWord
                 },
                 new MappingEntry(0x00000000, 0x03EFFFFF, false) // RDRAM memory.
                 {
-                    Read = RI.ReadWord,
-                    Write = RI.WriteWord
+                    Read = RCP.RI.ReadWord,
+                    Write = RCP.RI.WriteWord
                 }
             };
             CPU = new VR4300(memoryMaps)
@@ -170,7 +152,7 @@ namespace DotN64
         {
             CPU.Reset();
 
-            if (PI.BootROM == null)
+            if (RCP.PI.BootROM == null)
                 EmulatePIFBootROM();
 
             while (true)
