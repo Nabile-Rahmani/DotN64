@@ -9,15 +9,15 @@ namespace DotN64
 
         public ulong EndAddress { get; set; }
 
+        public bool OffsetAddress { get; set; }
+
         public Func<ulong, uint> Read { get; set; }
 
         public Action<ulong, uint> Write { get; set; }
-
-        public bool OffsetAddress { get; set; }
         #endregion
 
         #region Constructors
-        public MappingEntry(uint startAddress, uint endAddress, bool offsetAddress = true)
+        public MappingEntry(ulong startAddress, ulong endAddress, bool offsetAddress = true)
             : this()
         {
             StartAddress = startAddress;

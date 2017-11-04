@@ -24,13 +24,6 @@ namespace DotN64.CPU
                 protected abstract RegisterIndex Index { get; }
                 #endregion
 
-                #region Constructors
-                protected Register(SystemControlUnit cp0)
-                {
-                    this.cp0 = cp0;
-                }
-                #endregion
-
                 #region Indexers
                 protected int this[BitVector32.Section section]
                 {
@@ -52,6 +45,13 @@ namespace DotN64.CPU
                         bits[mask] = value;
                         Data = (ulong)bits.Data;
                     }
+                }
+                #endregion
+
+                #region Constructors
+                protected Register(SystemControlUnit cp0)
+                {
+                    this.cp0 = cp0;
                 }
                 #endregion
             }

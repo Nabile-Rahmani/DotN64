@@ -13,9 +13,9 @@ namespace DotN64.MI
             public static readonly BitVector32.Section InitLengthSection = BitVector32.CreateSection((1 << 7) - 1),
             ClearInitModeSection = BitVector32.CreateSection(1, InitLengthSection),
             SetInitModeSection = BitVector32.CreateSection(1, ClearInitModeSection),
-            ClearEbusTestModeSection = BitVector32.CreateSection(1, SetInitModeSection),
-            SetEbusTestModeSection = BitVector32.CreateSection(1, ClearEbusTestModeSection),
-            ClearDPInterruptSection = BitVector32.CreateSection(1, SetEbusTestModeSection),
+            ClearEBusTestModeSection = BitVector32.CreateSection(1, SetInitModeSection),
+            SetEBusTestModeSection = BitVector32.CreateSection(1, ClearEBusTestModeSection),
+            ClearDPInterruptSection = BitVector32.CreateSection(1, SetEBusTestModeSection),
             ClearRDRAMRegSection = BitVector32.CreateSection(1, ClearDPInterruptSection),
             SetRDRAMRegModeSection = BitVector32.CreateSection(1, ClearRDRAMRegSection);
             private static readonly BitVector32.Section initModeSection = BitVector32.CreateSection(1, InitLengthSection),

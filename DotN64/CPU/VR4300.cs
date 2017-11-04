@@ -128,11 +128,14 @@ namespace DotN64.CPU
         #endregion
 
         #region Methods
-        public void PowerOnReset()
+        /// <summary>
+        /// Cold reset.
+        /// </summary>
+        public void Reset()
         {
             PC = 0xFFFFFFFFBFC00000;
 
-            CP0.PowerOnReset();
+            CP0.Reset();
         }
 
         public void Run(Instruction instruction)

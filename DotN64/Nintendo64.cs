@@ -168,7 +168,7 @@ namespace DotN64
 
         public void PowerOn()
         {
-            CPU.PowerOnReset();
+            CPU.Reset();
 
             if (PI.BootROM == null)
                 RunPIF();

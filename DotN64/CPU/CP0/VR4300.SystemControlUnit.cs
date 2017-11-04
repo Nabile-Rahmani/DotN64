@@ -31,7 +31,10 @@ namespace DotN64.CPU
             #endregion
 
             #region Methods
-            public void PowerOnReset()
+            /// <summary>
+            /// Cold reset.
+            /// </summary>
+            public void Reset()
             {
                 Config.EP = ConfigRegister.TransferDataPattern.D;
                 Config.BE = ConfigRegister.Endianness.BigEndian;
