@@ -185,7 +185,11 @@ namespace DotN64.Diagnostics
 
             while (DebuggerStatus == Status.Debugging)
             {
-                Console.Write("DotN64-dbg>");
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Black;
+
+                Console.Write($"{nameof(DotN64)}-dbg▶️");
+                Console.ResetColor();
 
                 var input = Console.ReadLine().Trim();
 
@@ -234,7 +238,10 @@ namespace DotN64.Diagnostics
                     case Status.Running:
                         if (breakpoints.Contains(nintendo64.CPU.PC))
                         {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+
                             Console.WriteLine("Hit a breakpoint; entering debug prompt.");
+                            Console.ResetColor();
                             Debug();
                         }
 
