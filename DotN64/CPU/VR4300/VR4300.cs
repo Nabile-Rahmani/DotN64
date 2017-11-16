@@ -13,7 +13,6 @@ namespace DotN64.CPU
         private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
         private readonly IReadOnlyDictionary<RegImmOpCode, Action<Instruction>> regImmOperations;
-        private ulong? delaySlot;
 
         private const ulong ResetVector = 0xFFFFFFFFBFC00000;
 
@@ -73,6 +72,8 @@ namespace DotN64.CPU
             get => divMode;
             set => divMode = (byte)(value & ((1 << 2) - 1));
         }
+
+        public ulong? DelaySlot { get; private set; }
         #endregion
 
         #region Constructors
@@ -114,7 +115,7 @@ namespace DotN64.CPU
                 [SpecialOpCode.ADD] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [SpecialOpCode.JR] = i =>
                 {
-                    delaySlot = PC;
+                    DelaySlot = PC;
                     PC = GPR[i.RS];
                 },
                 [SpecialOpCode.SRL] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
@@ -179,15 +180,15 @@ namespace DotN64.CPU
         {
             Instruction instruction;
 
-            if (!delaySlot.HasValue)
+            if (!DelaySlot.HasValue)
             {
                 instruction = ReadWord(PC);
                 PC += Instruction.Size;
             }
             else
             {
-                instruction = ReadWord(delaySlot.Value);
-                delaySlot = null;
+                instruction = ReadWord(DelaySlot.Value);
+                DelaySlot = null;
             }
 
             Run(instruction);
@@ -202,7 +203,7 @@ namespace DotN64.CPU
 
             if (result)
             {
-                delaySlot = PC;
+                DelaySlot = PC;
                 PC += (ulong)(short)instruction.Immediate << 2;
             }
 

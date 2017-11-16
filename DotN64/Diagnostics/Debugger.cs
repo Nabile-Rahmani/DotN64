@@ -152,7 +152,7 @@ namespace DotN64.Diagnostics
         private void Disassemble(ulong? address = null)
         {
             if (!address.HasValue)
-                address = nintendo64.CPU.PC;
+                address = nintendo64.CPU.DelaySlot ?? nintendo64.CPU.PC;
 
             var physicalAddress = address.Value;
             var instruction = nintendo64.CPU.CP0.Map(ref physicalAddress).ReadWord(physicalAddress);
