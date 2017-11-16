@@ -64,6 +64,9 @@
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.Register.cs" />
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.RegisterIndex.cs" />
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.StatusRegister.cs" />
+    <Compile Include="Diagnostics\Debugger.cs" />
+    <Compile Include="Diagnostics\Debugger.Status.cs" />
+    <Compile Include="Diagnostics\Debugger.Command.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -79,6 +82,7 @@
     <Folder Include="RCP\SP\" />
     <Folder Include="CPU\VR4300\" />
     <Folder Include="CPU\VR4300\CP0\" />
+    <Folder Include="Diagnostics\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

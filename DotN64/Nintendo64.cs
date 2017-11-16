@@ -99,7 +99,10 @@ namespace DotN64
 
             if (RCP.PI.BootROM == null)
                 RCP.PI.EmulateBootROM();
+        }
 
+        public void Run()
+        {
             while (true)
             {
                 CPU.Step();
