@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace DotN64
 {
@@ -27,10 +28,13 @@ namespace DotN64
         #endregion
 
         #region Methods
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(ulong address) => address >= StartAddress && address <= EndAddress;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint ReadWord(ulong address) => Read(OffsetAddress ? address - StartAddress : address);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteWord(ulong address, uint value) => Write(OffsetAddress ? address - StartAddress : address, value);
 
         public override string ToString() => $"[0x{StartAddress:X16}..0x{EndAddress:X16}] - {(Read != null ? "R" : "-")}{(Write != null ? "W" : "-")}";

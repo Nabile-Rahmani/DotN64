@@ -6,6 +6,7 @@ using System.Linq;
 namespace DotN64.Diagnostics
 {
     using CPU;
+    using Extensions;
 
     public partial class Debugger
     {
@@ -154,8 +155,8 @@ namespace DotN64.Diagnostics
             if (!address.HasValue)
                 address = nintendo64.CPU.DelaySlot ?? nintendo64.CPU.PC;
 
-            var physicalAddress = address.Value;
-            var instruction = nintendo64.CPU.CP0.Map(ref physicalAddress).ReadWord(physicalAddress);
+            var physicalAddress = nintendo64.CPU.CP0.Map(address.Value);
+            var instruction = nintendo64.MemoryMaps.GetEntry(physicalAddress).ReadWord(physicalAddress);
 
             if (labels.ContainsKey(address.Value))
             {

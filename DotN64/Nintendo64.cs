@@ -3,6 +3,7 @@
 namespace DotN64
 {
     using CPU;
+    using Extensions;
     using RCP;
 
     public class Nintendo64
@@ -85,9 +86,11 @@ namespace DotN64
                     Write = RCP.RI.WriteWord
                 }
             };
-            CPU = new VR4300(MemoryMaps)
+            CPU = new VR4300
             {
-                DivMode = 0b01 // Assuming this value as the CPU is clocked at 93.75 MHz, and the RCP would be clocked at 93.75 / 3 * 2 = 62.5 MHz.
+                DivMode = 0b01, // Assuming this value as the CPU is clocked at 93.75 MHz, and the RCP would be clocked at 93.75 / 3 * 2 = 62.5 MHz.
+                ReadSysAD = a => MemoryMaps.GetEntry(a).ReadWord(a),
+                WriteSysAD = (a, v) => MemoryMaps.GetEntry(a).WriteWord(a, v)
             };
         }
         #endregion

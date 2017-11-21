@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DotN64.CPU
 {
@@ -60,8 +61,6 @@ namespace DotN64.CPU
         /// </summary>
         public float FCR31 { get; set; }
 
-        public SystemControlUnit CP0 { get; }
-
         private byte divMode;
         /// <summary>
         /// Internal operating frequency mode.
@@ -73,13 +72,24 @@ namespace DotN64.CPU
             set => divMode = (byte)(value & ((1 << 2) - 1));
         }
 
+        /// <summary>
+        /// System address/data bus.
+        /// </summary>
+        public Func<ulong, uint> ReadSysAD { get; set; }
+
+        /// <summary>
+        /// System address/data bus.
+        /// </summary>
+        public Action<ulong, uint> WriteSysAD { get; set; }
+
+        public SystemControlUnit CP0 { get; } = new SystemControlUnit();
+
         public ulong? DelaySlot { get; private set; }
         #endregion
 
         #region Constructors
-        public VR4300(IReadOnlyList<MappingEntry> memoryMaps)
+        public VR4300()
         {
-            CP0 = new SystemControlUnit(memoryMaps);
             operations = new Dictionary<OpCode, Action<Instruction>>
             {
                 [OpCode.SPECIAL] = i =>
@@ -87,14 +97,14 @@ namespace DotN64.CPU
                     if (specialOperations.TryGetValue((SpecialOpCode)i.Funct, out var operation))
                         operation(i);
                     else
-                        throw new Exception($"Unknown special opcode (0b{Convert.ToString(i.Funct, 2)}) from instruction 0x{(uint)i:X}.");
+                        throw new Exception($"Unknown special opcode (0b{Convert.ToString(i.Funct, 2)}) from instruction 0x{(uint)i:X8}.");
                 },
                 [OpCode.REGIMM] = i =>
                 {
                     if (regImmOperations.TryGetValue((RegImmOpCode)i.RT, out var operation))
                         operation(i);
                     else
-                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString(i.RT, 2)}) from instruction 0x{(uint)i:X}.");
+                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString(i.RT, 2)}) from instruction 0x{(uint)i:X8}.");
                 },
                 [OpCode.LUI] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
                 [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPR[i.RT],
@@ -173,7 +183,7 @@ namespace DotN64.CPU
             if (operations.TryGetValue(instruction.OP, out var operation))
                 operation(instruction);
             else
-                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:X}.");
+                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:X8}.");
         }
 
         public void Step()
@@ -216,9 +226,11 @@ namespace DotN64.CPU
                 PC += Instruction.Size;
         }
 
-        private uint ReadWord(ulong address) => CP0.Map(ref address).ReadWord(address);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint ReadWord(ulong address) => ReadSysAD(CP0.Map(address));
 
-        private void WriteWord(ulong address, uint value) => CP0.Map(ref address).WriteWord(address, value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void WriteWord(ulong address, uint value) => WriteSysAD(CP0.Map(address), value);
         #endregion
     }
 }
