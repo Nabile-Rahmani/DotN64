@@ -144,7 +144,7 @@ namespace DotN64.RCP
                     { 0x4600018, 0xFF803712 },
                     { 0x460001C, 0xFFFF8037 },
                     { 0x4600020, 0xFFFFF803 },
-                    // Omitted the CIC result.
+                    // Omitted the CIC results.
                     { 0x1FC007FC, 0xC0 }
                 };
 
@@ -165,25 +165,14 @@ namespace DotN64.RCP
                 // Restoring CPU state.
                 rcp.Nintendo64.CPU.CP0.Registers[12] = 0x34000000;
                 rcp.Nintendo64.CPU.CP0.Registers[16] = 0x6E463;
-                rcp.Nintendo64.CPU.GPR[1] = 0x1;
-                rcp.Nintendo64.CPU.GPR[2] = 0x6459969A;
-                rcp.Nintendo64.CPU.GPR[3] = 0x6459969A;
-                // Omitted the CIC result.
                 rcp.Nintendo64.CPU.GPR[6] = 0xFFFFFFFFA4001F0C;
                 rcp.Nintendo64.CPU.GPR[7] = 0xFFFFFFFFA4001F08;
                 rcp.Nintendo64.CPU.GPR[8] = 0xC0;
                 rcp.Nintendo64.CPU.GPR[10] = 0x40;
                 rcp.Nintendo64.CPU.GPR[11] = 0xFFFFFFFFA4000040;
-                rcp.Nintendo64.CPU.GPR[12] = 0xFFFFFFFFD19AE574;
-                rcp.Nintendo64.CPU.GPR[13] = 0x4A459BAE;
-                rcp.Nintendo64.CPU.GPR[14] = 0xFFFFFFFFE8EAD626;
-                rcp.Nintendo64.CPU.GPR[15] = 0x6459969A;
                 rcp.Nintendo64.CPU.GPR[20] = 0x1;
-                rcp.Nintendo64.CPU.GPR[25] = 0x453CA37B;
                 rcp.Nintendo64.CPU.GPR[29] = 0xFFFFFFFFA4001FF0;
                 rcp.Nintendo64.CPU.GPR[31] = 0xFFFFFFFFA4001550;
-                rcp.Nintendo64.CPU.HI = 0x6459969A;
-                rcp.Nintendo64.CPU.LO = 0x6459969A;
                 rcp.Nintendo64.CPU.PC = 0xFFFFFFFFA4000040;
             }
             #endregion
