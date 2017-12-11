@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 
 namespace DotN64.RCP
 {
     using Extensions;
+    using Helpers;
 
     public partial class RealityCoprocessor
     {
         public partial class PeripheralInterface : Interface
         {
             #region Fields
-            private readonly IReadOnlyList<MappingEntry> memoryMaps;
-
             private const byte CICStatusOffset = 60;
             private const byte ResetControllerStatus = 1 << 0, ClearInterruptStatus = 1 << 1;
             #endregion
 
             #region Properties
-            protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
-
             public StatusRegister Status { get; set; }
 
             public byte[] BootROM { get; set; }
@@ -52,7 +48,7 @@ namespace DotN64.RCP
             public PeripheralInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
                     {
@@ -63,13 +59,7 @@ namespace DotN64.RCP
                         Read = o => BitConverter.ToUInt32(RAM, (int)o),
                         Write = (o, v) =>
                         {
-                            unsafe
-                            {
-                                fixed (byte* data = &RAM[(int)o])
-                                {
-                                    *(uint*)data = v;
-                                }
-                            }
+                            BitHelper.Write(RAM, (int)o, v);
 
                             if (o == CICStatusOffset && RAM[o] == (byte)CICStatus.Waiting) // The boot ROM waits for the PIF's CIC check to be OK.
                                 RAM[o] = (byte)CICStatus.OK; // We tell it it's OK by having the loaded word that gets ANDI'd match the immediate value 128, storing non-zero which allows us to exit the BEQL loop.
@@ -80,11 +70,9 @@ namespace DotN64.RCP
                         Read = o => (uint)Status,
                         Write = (o, v) =>
                         {
-                            if ((v & ResetControllerStatus) != 0)
-                                ResetController();
+                            if ((v & ResetControllerStatus) != 0) { /* TODO. */ }
 
-                            if ((v & ClearInterruptStatus) != 0)
-                                ClearInterrupt();
+                            if ((v & ClearInterruptStatus) != 0) { /* TODO. */ }
                         }
                     },
                     new MappingEntry(0x04600014, 0x04600017) // PI dom1 latency.
@@ -113,7 +101,20 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x0460000C, 0x0460000F) // PI write length.
                     {
-                        Write = (o, v) => WriteLength = v & ((1 << 24) - 1)
+                        Write = (o, v) =>
+                        {
+                            WriteLength = v & ((1 << 24) - 1);
+                            Status |= StatusRegister.DMABusy;
+                            var maps = rcp.Nintendo64.MemoryMaps;
+
+                            for (uint i = 0; i < WriteLength + 1; i += sizeof(uint))
+                            {
+                                maps.WriteWord(DRAMAddress + i, maps.ReadWord(PBusAddress + i));
+                            }
+
+                            Status &= ~StatusRegister.DMABusy;
+                            // TODO: Set interrupt.
+                        }
                     },
                     new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                     {
@@ -124,10 +125,6 @@ namespace DotN64.RCP
             #endregion
 
             #region Methods
-            private void ClearInterrupt() { /* TODO: Implement. */ }
-
-            private void ResetController() { /* TODO: Implement. */ }
-
             public void EmulateBootROM()
             {
                 // Replicating the memory writes to properly initialise the subsystems.
@@ -152,14 +149,14 @@ namespace DotN64.RCP
                 {
                     var address = (ulong)writes[i, 0];
 
-                    rcp.Nintendo64.MemoryMaps.GetEntry(address).WriteWord(address, writes[i, 1]);
+                    rcp.Nintendo64.MemoryMaps.WriteWord(address, writes[i, 1]);
                 }
 
                 for (int i = 0x40; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
                 {
                     var address = (ulong)(0x04000000 + i);
 
-                    rcp.Nintendo64.MemoryMaps.GetEntry(address).WriteWord(address, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(rcp.Nintendo64.Cartridge.ROM, i)));
+                    rcp.Nintendo64.MemoryMaps.WriteWord(address, (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(rcp.Nintendo64.Cartridge.ROM, i)));
                 }
 
                 // Restoring CPU state.

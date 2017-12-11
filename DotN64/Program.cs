@@ -9,11 +9,11 @@ namespace DotN64
         private static void Main(string[] args)
         {
             var nintendo64 = new Nintendo64();
-            var debugger = default(Debugger);
+            Debugger debugger = null;
 
             for (int i = 0; i < args.Length; i++)
             {
-                string arg = args[i];
+                var arg = args[i];
 
                 switch (arg)
                 {

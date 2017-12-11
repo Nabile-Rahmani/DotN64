@@ -20,6 +20,12 @@ namespace DotN64.Extensions
 
             throw new Exception($"Unknown physical address: 0x{address:X16}.");
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadWord(this IReadOnlyList<MappingEntry> memoryMaps, ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteWord(this IReadOnlyList<MappingEntry> memoryMaps, ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

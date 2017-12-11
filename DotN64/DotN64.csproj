@@ -27,6 +27,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -67,6 +68,12 @@
     <Compile Include="Diagnostics\Debugger.cs" />
     <Compile Include="Diagnostics\Debugger.Status.cs" />
     <Compile Include="Diagnostics\Debugger.Command.cs" />
+    <Compile Include="Diagnostics\Debugger.InstructionFormat.cs" />
+    <Compile Include="Helpers\BitHelper.cs" />
+    <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.StatusRegister.cs" />
+    <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.StatusRegister.cs" />
+    <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.RDRAMConfigRegister.cs" />
+    <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.RDRAMConfigIndex.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -83,6 +90,7 @@
     <Folder Include="CPU\VR4300\" />
     <Folder Include="CPU\VR4300\CP0\" />
     <Folder Include="Diagnostics\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

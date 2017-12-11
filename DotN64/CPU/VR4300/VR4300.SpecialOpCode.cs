@@ -33,7 +33,9 @@
             /// <summary>Shift Right Logical Variable.</summary>
             SRLV = 0b000110,
             /// <summary>And.</summary>
-            AND = 0b100100
+            AND = 0b100100,
+            /// <summary>Set On Less Than.</summary>
+            SLT = 0b101010
         }
     }
 }

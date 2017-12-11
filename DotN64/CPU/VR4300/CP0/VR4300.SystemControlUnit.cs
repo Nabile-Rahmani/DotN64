@@ -27,7 +27,7 @@ namespace DotN64.CPU
             /// Translates a virtual address into a physical address.
             /// See: datasheet#5.2.4 Table 5-3.
             /// </summary>
-            public ulong Map(ulong address)
+            public ulong Translate(ulong address)
             {
                 switch (address >> 29 & 0b111)
                 {

@@ -23,6 +23,10 @@ namespace DotN64.Diagnostics
                 Action = action;
             }
             #endregion
+
+            #region Methods
+            public override string ToString() => $"{string.Join(", ", Names)}: {Description}";
+            #endregion
         }
     }
 }

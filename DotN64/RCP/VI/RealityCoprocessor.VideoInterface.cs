@@ -6,13 +6,7 @@ namespace DotN64.RCP
     {
         public partial class VideoInterface : Interface
         {
-            #region Fields
-            private readonly IReadOnlyList<MappingEntry> memoryMaps;
-            #endregion
-
             #region Properties
-            protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
-
             private ushort verticalInterrupt;
             /// <summary>
             /// Interrupt when current half-line = V_INTR.
@@ -45,7 +39,7 @@ namespace DotN64.RCP
             public VideoInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x0440000C, 0x0440000F) // VI vertical intr.
                     {

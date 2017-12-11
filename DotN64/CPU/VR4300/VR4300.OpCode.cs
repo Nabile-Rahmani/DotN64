@@ -31,7 +31,19 @@
             /// <summary>Add Immediate.</summary>
             ADDI = 0b001000,
             /// <summary>Cache Operation.</summary>
-            CACHE = 0b101111
+            CACHE = 0b101111,
+            /// <summary>Jump And Link.</summary>
+            JAL = 0b000011,
+            /// <summary>Set On Less Than Immediate.</summary>
+            SLTI = 0b001010,
+            /// <summary>Exclusive Or Immediate.</summary>
+            XORI = 0b001110,
+            /// <summary>Branch On Less Than Or Equal To Zero Likely.</summary>
+            BLEZL = 0b010110,
+            /// <summary>Store Byte.</summary>
+            SB = 0b101000,
+            /// <summary>Load Byte Unsigned.</summary>
+            LBU = 0b100100
         }
     }
 }

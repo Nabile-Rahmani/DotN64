@@ -1,18 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace DotN64.RCP
+﻿namespace DotN64.RCP
 {
     public partial class RealityCoprocessor
     {
         public class AudioInterface : Interface
         {
-            #region Fields
-            private readonly IReadOnlyList<MappingEntry> memoryMaps;
-            #endregion
-
             #region Properties
-            protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
-
             private uint dramAddress;
             /// <summary>
             /// Starting RDRAM address (8B-aligned).
@@ -35,7 +27,7 @@ namespace DotN64.RCP
             public AudioInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x04500000, 0x04500003) // AI DRAM address.
                     {

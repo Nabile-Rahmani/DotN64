@@ -2,8 +2,6 @@
 
 namespace DotN64.RCP
 {
-    using Extensions;
-
     public partial class RealityCoprocessor
     {
         public abstract class Interface
@@ -13,7 +11,7 @@ namespace DotN64.RCP
             #endregion
 
             #region Properties
-            protected abstract IReadOnlyList<MappingEntry> MemoryMaps { get; }
+            public IReadOnlyList<MappingEntry> MemoryMaps { get; protected set; }
             #endregion
 
             #region Constructors
@@ -21,12 +19,6 @@ namespace DotN64.RCP
             {
                 this.rcp = rcp;
             }
-            #endregion
-
-            #region Methods
-            public uint ReadWord(ulong address) => MemoryMaps.GetEntry(address).ReadWord(address);
-
-            public void WriteWord(ulong address, uint value) => MemoryMaps.GetEntry(address).WriteWord(address, value);
             #endregion
         }
     }

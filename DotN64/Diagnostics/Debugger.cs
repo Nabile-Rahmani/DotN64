@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 
 namespace DotN64.Diagnostics
 {
     using CPU;
-    using Extensions;
 
     public partial class Debugger
     {
@@ -15,6 +15,46 @@ namespace DotN64.Diagnostics
         private readonly IReadOnlyCollection<Command> commands;
         private readonly IDictionary<ulong, string> labels = new Dictionary<ulong, string>();
         private readonly IList<ulong> breakpoints = new List<ulong>();
+        private readonly IDictionary<uint, Func<VR4300.Instruction, VR4300, string>> operationFormats = new Dictionary<uint, Func<VR4300.Instruction, VR4300, string>>
+        {
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.ADDI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.ADDIU)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.ANDI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.BEQ)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.BEQL)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.BLEZL)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.BNE)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.BNEL)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.CACHE)] = null,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.JAL)] = InstructionFormat.J,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.LBU)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.LUI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.LW)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.MTC0)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.ORI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.SB)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.SLTI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.SW)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.XORI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.ADD)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.ADDU)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.AND)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.JR)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFHI)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFLO)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MULTU)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.OR)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SLL)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SLLV)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SLT)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SLTU)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SRL)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SRLV)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SUBU)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.XOR)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZAL)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZL)] = InstructionFormat.I
+        };
         #endregion
 
         #region Properties
@@ -30,9 +70,9 @@ namespace DotN64.Diagnostics
                 new Command(new[] { "continue", "c" }, "Continues execution of the CPU.", args => DebuggerStatus = Status.Running),
                 new Command(new[] { "step", "s" }, "Steps the CPU a specified amount of times.", args =>
                 {
-                    var count = args.Length > 0 ? int.Parse(args.First()) : 1;
+                    var count = args.Length > 0 ? BigInteger.Parse(args.First()) : 1;
 
-                    for (var i = 0; i < count; i++)
+                    for (var i = BigInteger.Zero; i < count; i++)
                     {
                         Disassemble();
                         nintendo64.CPU.Step();
@@ -41,18 +81,18 @@ namespace DotN64.Diagnostics
                 new Command(new[] { "goto", "g" }, "Sets the CPU's PC to the specified address.", args => nintendo64.CPU.PC = ulong.Parse(args.First(), NumberStyles.HexNumber)),
                 new Command(new[] { "disassemble", "d" }, "Disassembles instructions from the current PC.", args =>
                 {
-                    var count = args.Length > 0 ? ulong.Parse(args.First()) : 1;
+                    var count = args.Length > 0 ? BigInteger.Parse(args.First()) : 1;
 
-                    for (var i = 0ul; i < count; i++)
+                    for (var i = BigInteger.Zero; i < count; i++)
                     {
-                        Disassemble(nintendo64.CPU.PC + i * VR4300.Instruction.Size);
+                        Disassemble(nintendo64.CPU.PC + (ulong)(i * VR4300.Instruction.Size), false);
                     }
                 }),
                 new Command(new[] { "label", "labels", "l" }, "Shows, adds or removes a label attached to an address.", args =>
                 {
                     var index = 0;
 
-                    switch (args.Length == 0 ? "show" : args[index++])
+                    switch (args.Length > 0 ? args[index++] : "show")
                     {
                         case "add":
                         case "a":
@@ -75,7 +115,6 @@ namespace DotN64.Diagnostics
                                     {
                                         Console.WriteLine($".{pair.Value}: {pair.Key:X16}");
                                     }
-
                                     break;
                                 }
 
@@ -90,7 +129,7 @@ namespace DotN64.Diagnostics
                 {
                     var index = 0;
 
-                    switch (args.Length == 0 ? "show" : args[index++])
+                    switch (args.Length > 0 ? args[index++] : "show")
                     {
                         case "add":
                         case "a":
@@ -120,7 +159,7 @@ namespace DotN64.Diagnostics
                     {
                         foreach (var command in commands)
                         {
-                            Console.WriteLine($"- {string.Join(", ", command.Names)}: {command.Description}");
+                            Console.WriteLine("- " + command);
                         }
                     }
                     else
@@ -128,7 +167,7 @@ namespace DotN64.Diagnostics
                         var commandName = args.First();
                         var command = commands.First(c => c.Names.Contains(commandName));
 
-                        Console.WriteLine($"{string.Join(", ", command.Names)}: {command.Description}");
+                        Console.WriteLine(command);
                     }
                 }),
                 new Command(new[] { "clear" }, "Clears the terminal.", args => Console.Clear())
@@ -137,32 +176,20 @@ namespace DotN64.Diagnostics
         #endregion
 
         #region Methods
-        private string Disassemble(VR4300.Instruction instruction)
-        {
-            switch (instruction.OP)
-            {
-                case VR4300.OpCode.SPECIAL:
-                    return ((VR4300.SpecialOpCode)instruction.Funct).ToString();
-                case VR4300.OpCode.REGIMM:
-                    return ((VR4300.RegImmOpCode)instruction.RT).ToString();
-                default:
-                    return instruction.OP.ToString();
-            }
-        }
+        private string Disassemble(VR4300.Instruction instruction, bool withRegisterContents) => operationFormats.TryGetValue(instruction.ToOpCode(), out var format) && format != null ? format(instruction, withRegisterContents ? nintendo64.CPU : null) : instruction.ToString();
 
-        private void Disassemble(ulong? address = null)
+        private void Disassemble(ulong? address = null, bool withRegisterContents = true)
         {
             if (!address.HasValue)
                 address = nintendo64.CPU.DelaySlot ?? nintendo64.CPU.PC;
 
-            var physicalAddress = nintendo64.CPU.CP0.Map(address.Value);
-            var instruction = nintendo64.MemoryMaps.GetEntry(physicalAddress).ReadWord(physicalAddress);
+            var instruction = nintendo64.CPU.ReadSysAD(nintendo64.CPU.CP0.Translate(address.Value));
 
-            if (labels.ContainsKey(address.Value))
+            if (labels.TryGetValue(address.Value, out var label))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
 
-                Console.WriteLine($".{labels[address.Value]}:");
+                Console.WriteLine($".{label}:");
                 Console.ResetColor();
             }
 
@@ -174,7 +201,7 @@ namespace DotN64.Diagnostics
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            Console.WriteLine($"{(hasBreakpoint ? '●' : ' ')} {address.Value:X16}: {instruction:X8} {Disassemble(instruction)}");
+            Console.WriteLine($"{(hasBreakpoint ? '●' : ' ')} {address.Value:X16}: {instruction:X8} {Disassemble(instruction, withRegisterContents)}");
 
             if (hasBreakpoint)
                 Console.ResetColor();

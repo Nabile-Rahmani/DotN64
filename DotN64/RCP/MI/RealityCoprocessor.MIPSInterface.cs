@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace DotN64.RCP
@@ -8,13 +7,7 @@ namespace DotN64.RCP
     {
         public partial class MIPSInterface : Interface
         {
-            #region Fields
-            private readonly IReadOnlyList<MappingEntry> memoryMaps;
-            #endregion
-
             #region Properties
-            protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
-
             public InitModeRegister InitMode { get; set; }
             #endregion
 
@@ -22,7 +15,7 @@ namespace DotN64.RCP
             public MIPSInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x04300000, 0x04300003) // MI init mode.
                     {
@@ -47,6 +40,10 @@ namespace DotN64.RCP
 
                             InitMode = mode;
                         }
+                    },
+                    new MappingEntry(0x04300004, 0x04300007) // MI version.
+                    {
+                        Read = o => 0 // TODO.
                     }
                 };
             }

@@ -11,9 +11,7 @@ namespace DotN64.CPU
     public partial class VR4300
     {
         #region Fields
-        private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
-        private readonly IReadOnlyDictionary<SpecialOpCode, Action<Instruction>> specialOperations;
-        private readonly IReadOnlyDictionary<RegImmOpCode, Action<Instruction>> regImmOperations;
+        private readonly IReadOnlyDictionary<uint, Action<Instruction>> operations;
 
         private const ulong ResetVector = 0xFFFFFFFFBFC00000;
 
@@ -90,66 +88,64 @@ namespace DotN64.CPU
         #region Constructors
         public VR4300()
         {
-            operations = new Dictionary<OpCode, Action<Instruction>>
+            operations = new Dictionary<uint, Action<Instruction>>
             {
-                [OpCode.SPECIAL] = i =>
+                [Instruction.FromOpCode(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
+                [Instruction.FromOpCode(OpCode.MTC0)] = i => CP0.Registers[i.RD] = GPR[i.RT],
+                [Instruction.FromOpCode(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
+                [Instruction.FromOpCode(OpCode.LW)] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = (ulong)(i.Immediate & (ushort)GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.BEQL)] = i => BranchLikely(i, (rs, rt) => rs == rt),
+                [Instruction.FromOpCode(OpCode.ADDIU)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
+                [Instruction.FromOpCode(OpCode.SW)] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
+                [Instruction.FromOpCode(OpCode.BNEL)] = i => BranchLikely(i, (rs, rt) => rs != rt),
+                [Instruction.FromOpCode(OpCode.BNE)] = i => Branch(i, (rs, rt) => rs != rt),
+                [Instruction.FromOpCode(OpCode.BEQ)] = i => Branch(i, (rs, rt) => rs == rt),
+                [Instruction.FromOpCode(OpCode.ADDI)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
+                [Instruction.FromOpCode(OpCode.CACHE)] = i => { /* TODO: Implement and compare the performance if it's a concern. */ },
+                [Instruction.FromOpCode(OpCode.JAL)] = i =>
                 {
-                    if (specialOperations.TryGetValue((SpecialOpCode)i.Funct, out var operation))
-                        operation(i);
-                    else
-                        throw new Exception($"Unknown special opcode (0b{Convert.ToString(i.Funct, 2)}) from instruction 0x{(uint)i:X8}.");
+                    GPR[31] = PC + Instruction.Size;
+                    DelaySlot = PC;
+                    PC = (PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2);
                 },
-                [OpCode.REGIMM] = i =>
+                [Instruction.FromOpCode(OpCode.SLTI)] = i => GPR[i.RT] = GPR[i.RS] < (ulong)(short)i.Immediate ? (ulong)1 : 0,
+                [Instruction.FromOpCode(OpCode.XORI)] = i => GPR[i.RT] = GPR[i.RS] ^ i.Immediate,
+                [Instruction.FromOpCode(OpCode.BLEZL)] = i => BranchLikely(i, (rs, rt) => rs <= 0),
+                [Instruction.FromOpCode(OpCode.SB)] = i =>
                 {
-                    if (regImmOperations.TryGetValue((RegImmOpCode)i.RT, out var operation))
-                        operation(i);
-                    else
-                        throw new Exception($"Unknown reg imm opcode (0b{Convert.ToString(i.RT, 2)}) from instruction 0x{(uint)i:X8}.");
+                    var address = (ulong)(short)i.Immediate + GPR[i.RS];
+
+                    WriteWord(address, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)GPR[i.RT]);
                 },
-                [OpCode.LUI] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
-                [OpCode.MTC0] = i => CP0.Registers[i.RD] = GPR[i.RT],
-                [OpCode.ORI] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
-                [OpCode.LW] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
-                [OpCode.ANDI] = i => GPR[i.RT] = (ulong)(i.Immediate & (ushort)GPR[i.RS]),
-                [OpCode.BEQL] = i => BranchLikely(i, (rs, rt) => rs == rt),
-                [OpCode.ADDIU] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
-                [OpCode.SW] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
-                [OpCode.BNEL] = i => BranchLikely(i, (rs, rt) => rs != rt),
-                [OpCode.BNE] = i => Branch(i, (rs, rt) => rs != rt),
-                [OpCode.BEQ] = i => Branch(i, (rs, rt) => rs == rt),
-                [OpCode.ADDI] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
-                [OpCode.CACHE] = i => { /* TODO: Implement and compare the performance if it's a concern. */ }
-            };
-            specialOperations = new Dictionary<SpecialOpCode, Action<Instruction>>
-            {
-                [SpecialOpCode.ADD] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
-                [SpecialOpCode.JR] = i =>
+                [Instruction.FromOpCode(OpCode.LBU)] = i => GPR[i.RT] = (byte)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
+                [Instruction.FromOpCode(SpecialOpCode.JR)] = i =>
                 {
                     DelaySlot = PC;
                     PC = GPR[i.RS];
                 },
-                [SpecialOpCode.SRL] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
-                [SpecialOpCode.OR] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
-                [SpecialOpCode.MULTU] = i =>
+                [Instruction.FromOpCode(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
+                [Instruction.FromOpCode(SpecialOpCode.OR)] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
+                [Instruction.FromOpCode(SpecialOpCode.MULTU)] = i =>
                 {
                     var result = (ulong)(uint)GPR[i.RS] * (ulong)(uint)GPR[i.RT];
                     LO = (ulong)(int)result;
                     HI = (ulong)(int)(result >> 32);
                 },
-                [SpecialOpCode.MFLO] = i => GPR[i.RD] = LO,
-                [SpecialOpCode.SLL] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] << i.SA),
-                [SpecialOpCode.SUBU] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
-                [SpecialOpCode.XOR] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
-                [SpecialOpCode.MFHI] = i => GPR[i.RD] = HI,
-                [SpecialOpCode.ADDU] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
-                [SpecialOpCode.SLTU] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
-                [SpecialOpCode.SLLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
-                [SpecialOpCode.SRLV] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
-                [SpecialOpCode.AND] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT]
-            };
-            regImmOperations = new Dictionary<RegImmOpCode, Action<Instruction>>
-            {
-                [RegImmOpCode.BGEZAL] = i => Branch(i, (rs, rt) => rs >= 0, true)
+                [Instruction.FromOpCode(SpecialOpCode.MFLO)] = i => GPR[i.RD] = LO,
+                [Instruction.FromOpCode(SpecialOpCode.SLL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] << i.SA),
+                [Instruction.FromOpCode(SpecialOpCode.SUBU)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
+                [Instruction.FromOpCode(SpecialOpCode.XOR)] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
+                [Instruction.FromOpCode(SpecialOpCode.MFHI)] = i => GPR[i.RD] = HI,
+                [Instruction.FromOpCode(SpecialOpCode.ADDU)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
+                [Instruction.FromOpCode(SpecialOpCode.SLTU)] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
+                [Instruction.FromOpCode(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.FromOpCode(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.FromOpCode(SpecialOpCode.AND)] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT],
+                [Instruction.FromOpCode(SpecialOpCode.SLT)] = i => GPR[i.RD] = GPR[i.RS] < GPR[i.RT] ? (ulong)1 : 0,
+                [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i => Branch(i, (rs, rt) => rs >= 0, true),
+                [Instruction.FromOpCode(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0)
             };
         }
         #endregion
@@ -180,10 +176,10 @@ namespace DotN64.CPU
 
         public void Run(Instruction instruction)
         {
-            if (operations.TryGetValue(instruction.OP, out var operation))
+            if (operations.TryGetValue(instruction.ToOpCode(), out var operation))
                 operation(instruction);
             else
-                throw new Exception($"Unknown opcode (0b{Convert.ToString((byte)instruction.OP, 2)}) from instruction 0x{(uint)instruction:X8}.");
+                throw new Exception($"Unknown opcode from instruction 0x{(uint)instruction:X8}.");
         }
 
         public void Step()
@@ -227,10 +223,10 @@ namespace DotN64.CPU
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private uint ReadWord(ulong address) => ReadSysAD(CP0.Map(address));
+        private uint ReadWord(ulong address) => ReadSysAD(CP0.Translate(address));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteWord(ulong address, uint value) => WriteSysAD(CP0.Map(address), value);
+        private void WriteWord(ulong address, uint value) => WriteSysAD(CP0.Translate(address), value);
         #endregion
     }
 }

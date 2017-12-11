@@ -259,7 +259,6 @@ namespace DotN64.CPU
                 [Flags]
                 public enum CoprocessorUsabilities : byte
                 {
-                    None = 0,
                     CP0 = 1 << 0,
                     CP1 = 1 << 1,
                     CP2 = 1 << 2,

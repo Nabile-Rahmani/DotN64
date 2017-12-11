@@ -1,33 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace DotN64.RCP
 {
+    using Helpers;
+
     public partial class RealityCoprocessor
     {
         public partial class RDRAMInterface : Interface
         {
-            #region Fields
-            private readonly IReadOnlyList<MappingEntry> memoryMaps;
-            #endregion
-
             #region Properties
-            protected override IReadOnlyList<MappingEntry> MemoryMaps => memoryMaps;
+            public byte Select { get; set; }
 
-            public byte Select { get; set; } = 0x14;
+            public ConfigRegister Config { get; set; }
 
-            public ConfigRegister Config { get; set; } = 0x40;
+            public ModeRegister Mode { get; set; }
 
-            public ModeRegister Mode { get; set; } = 0x0E;
+            public RefreshRegister Refresh { get; set; }
 
-            public RefreshRegister Refresh { get; set; } = 0x00063634;
+            public RDRAMConfigRegister[] RDRAMConfigs { get; } = new RDRAMConfigRegister[Enum.GetNames(typeof(RDRAMConfigIndex)).Length];
             #endregion
 
             #region Constructors
             public RDRAMInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x0470000C, 0x0470000F) // RI select.
                     {
@@ -48,22 +45,69 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x04700010, 0x04700013) // RI refresh.
                     {
+                        Read = a => Refresh,
+                        Write = (a, v) => Refresh = v
                     },
                     new MappingEntry(0x00000000, 0x03EFFFFF) // RDRAM memory.
                     {
                         Read = o => BitConverter.ToUInt32(rcp.Nintendo64.RAM, (int)o),
-                        Write = (o, v) =>
+                        Write = (o, v) => BitHelper.Write(rcp.Nintendo64.RAM, (int)o, v)
+                    },
+                    new MappingEntry(0x03F00000, 0x03FFFFFF) // RDRAM registers.
+                    {
+                        Read = o =>
                         {
+                            if (!GetRDRAMRegisterInfo((uint)o, out var register, out var index))
+                                return 0;
+
                             unsafe
                             {
-                                fixed (byte* data = &rcp.Nintendo64.RAM[(int)o])
+                                fixed (void* pointer = &RDRAMConfigs[index.Value])
                                 {
-                                    *(uint*)data = v;
+                                    return *((uint*)pointer + register / sizeof(uint));
+                                }
+                            }
+                        },
+                        Write = (o, v) =>
+                        {
+                            if (!GetRDRAMRegisterInfo((uint)o, out var register, out var index))
+                                return;
+
+                            unsafe
+                            {
+                                fixed (void* pointer = &RDRAMConfigs[index.Value])
+                                {
+                                    *((uint*)pointer + register / sizeof(uint)) = v;
                                 }
                             }
                         }
                     }
                 };
+            }
+            #endregion
+
+            #region Methods
+            private bool GetRDRAMRegisterInfo(uint offset, out uint register, out int? index)
+            {
+                register = offset & ((1 << 8) - 1);
+
+                switch (offset >> 8)
+                {
+                    case 0x0000:
+                        index = (int)RDRAMConfigIndex.Zero;
+                        break;
+                    case 0x0004:
+                        index = (int)RDRAMConfigIndex.One;
+                        break;
+                    case 0x0800:
+                        index = (int)RDRAMConfigIndex.Global;
+                        break;
+                    default:
+                        index = null;
+                        return false;
+                }
+
+                return true;
             }
             #endregion
         }
