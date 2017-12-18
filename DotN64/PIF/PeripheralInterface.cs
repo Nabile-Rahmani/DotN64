@@ -101,11 +101,11 @@ namespace DotN64
                 }
             }
 
-            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.s3] = (ulong)DeviceStateFlags.ROM;
+            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S3] = (ulong)DeviceStateFlags.ROM;
             // TODO: $s4 is the video mode (0 being PAL settings). This value is hard-coded into regional boot ROMs.
-            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.s5] = (ulong)DeviceStateFlags.Reset;
-            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.s6] = DeviceStateFlags.IPL3Seed;
-            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.s7] = DeviceStateFlags.Version;
+            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S5] = (ulong)DeviceStateFlags.Reset;
+            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S6] = DeviceStateFlags.IPL3Seed;
+            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S7] = DeviceStateFlags.Version;
 
             // Restoring CPU state.
             nintendo64.CPU.CP0.Registers[12] = 0x34000000;

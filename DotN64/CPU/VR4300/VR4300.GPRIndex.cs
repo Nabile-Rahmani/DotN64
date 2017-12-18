@@ -5,49 +5,49 @@
         public enum GPRIndex : byte
         {
             /// <summary>Hardwired to zero.</summary>
-            zero,
+            Zero,
             /// <summary>Assembler temporary (used for pseudo-ops).</summary>
-            at,
+            AT,
             /// <summary>Function return values.</summary>
-            v0,
-            v1,
+            V0,
+            V1,
             /// <summary>Function arguments.</summary>
-            a0,
-            a1,
-            a2,
-            a3,
+            A0,
+            A1,
+            A2,
+            A3,
             /// <summary>Temporaries.</summary>
-            t0,
-            t1,
-            t2,
-            t3,
-            t4,
-            t5,
-            t6,
-            t7,
+            T0,
+            T1,
+            T2,
+            T3,
+            T4,
+            T5,
+            T6,
+            T7,
             /// <summary>Saved temporaries.</summary>
-            s0,
-            s1,
-            s2,
-            s3,
-            s4,
-            s5,
-            s6,
-            s7,
+            S0,
+            S1,
+            S2,
+            S3,
+            S4,
+            S5,
+            S6,
+            S7,
             /// <summary>Temporaries.</summary>
-            t8,
-            t9,
+            T8,
+            T9,
             /// <summary>Reserved for kernel.</summary>
-            k0,
-            k1,
+            K0,
+            K1,
             /// <summary>Global pointer.</summary>
-            gp,
+            GP,
             /// <summary>Stack pointer.</summary>
-            sp,
+            SP,
             /// <summary>Frame pointer or saved temporary.</summary>
-            fp,
+            FP,
             /// <summary>Return address.</summary>
-            ra
+            RA
         }
     }
 }
