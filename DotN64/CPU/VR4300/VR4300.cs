@@ -94,7 +94,7 @@ namespace DotN64.CPU
                 [Instruction.FromOpCode(OpCode.MTC0)] = i => CP0.Registers[i.RD] = GPR[i.RT],
                 [Instruction.FromOpCode(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
                 [Instruction.FromOpCode(OpCode.LW)] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
-                [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = (ulong)(i.Immediate & (ushort)GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = i.Immediate & GPR[i.RS],
                 [Instruction.FromOpCode(OpCode.BEQL)] = i => BranchLikely(i, (rs, rt) => rs == rt),
                 [Instruction.FromOpCode(OpCode.ADDIU)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
                 [Instruction.FromOpCode(OpCode.SW)] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
@@ -140,8 +140,8 @@ namespace DotN64.CPU
                 [Instruction.FromOpCode(SpecialOpCode.MFHI)] = i => GPR[i.RD] = HI,
                 [Instruction.FromOpCode(SpecialOpCode.ADDU)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [Instruction.FromOpCode(SpecialOpCode.SLTU)] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
-                [Instruction.FromOpCode(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
-                [Instruction.FromOpCode(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.FromOpCode(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.FromOpCode(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
                 [Instruction.FromOpCode(SpecialOpCode.AND)] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT],
                 [Instruction.FromOpCode(SpecialOpCode.SLT)] = i => GPR[i.RD] = GPR[i.RS] < GPR[i.RT] ? (ulong)1 : 0,
                 [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i => Branch(i, (rs, rt) => rs >= 0, true),
@@ -179,7 +179,7 @@ namespace DotN64.CPU
             if (operations.TryGetValue(instruction.ToOpCode(), out var operation))
                 operation(instruction);
             else
-                throw new Exception($"Unknown opcode from instruction 0x{(uint)instruction:X8}.");
+                throw new UnimplementedOperationException(instruction);
         }
 
         public void Step()

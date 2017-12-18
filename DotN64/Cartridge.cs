@@ -5,21 +5,23 @@ using System.Text;
 
 namespace DotN64
 {
+    using Helpers;
+
     public class Cartridge
     {
         #region Properties
         public byte[] ROM { get; set; }
 
-        public uint ClockRate => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x04));
+        public uint ClockRate => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x04));
 
-        public uint BootAddressOffset => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x08));
+        public uint BootAddressOffset => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x08));
 
-        public uint ReleaseOffset => (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x0C));
+        public uint ReleaseOffset => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x0C));
 
         public uint[] CRC => new[]
         {
-            (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x10)),
-            (uint)IPAddress.NetworkToHostOrder(BitConverter.ToInt32(ROM, 0x14))
+            BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x10)),
+            BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x14))
         };
 
         public string ImageName => Encoding.ASCII.GetString(ROM, 0x20, 0x34 - 0x20);

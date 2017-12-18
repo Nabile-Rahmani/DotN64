@@ -15,7 +15,9 @@ namespace DotN64
 
         public RealityCoprocessor RCP { get; }
 
-        public byte[] RAM { get; } = new byte[0x00400000]; // The base system has 4 MB of RAM installed.
+        public RDRAM RAM { get; } = new RDRAM(new byte[0x00400000]); // The base system has 4 MB of RAM installed.
+
+        public PeripheralInterface PIF { get; }
 
         public Cartridge Cartridge { get; set; }
         #endregion
@@ -24,17 +26,18 @@ namespace DotN64
         public Nintendo64()
         {
             RCP = new RealityCoprocessor(this);
+            PIF = new PeripheralInterface(this);
             MemoryMaps = new[]
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
-                    Read = RCP.PI.MemoryMaps.ReadWord,
-                    Write = RCP.PI.MemoryMaps.WriteWord
+                    Read = PIF.MemoryMaps.ReadWord,
+                    Write = PIF.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x1FC007C0, 0x1FC007FF, false) // PIF (JoyChannel) RAM.
                 {
-                    Read = RCP.PI.MemoryMaps.ReadWord,
-                    Write = RCP.PI.MemoryMaps.WriteWord
+                    Read = PIF.MemoryMaps.ReadWord,
+                    Write = PIF.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x04600000, 0x046FFFFF, false) // Peripheral interface (PI) registers.
                 {
@@ -82,13 +85,13 @@ namespace DotN64
                 },
                 new MappingEntry(0x00000000, 0x03EFFFFF, false) // RDRAM memory.
                 {
-                    Read = RCP.RI.MemoryMaps.ReadWord,
-                    Write = RCP.RI.MemoryMaps.WriteWord
+                    Read = RAM.MemoryMaps.ReadWord,
+                    Write = RAM.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x03F00000, 0x03FFFFFF, false) // RDRAM registers.
                 {
-                    Read = RCP.RI.MemoryMaps.ReadWord,
-                    Write = RCP.RI.MemoryMaps.WriteWord
+                    Read = RAM.MemoryMaps.ReadWord,
+                    Write = RAM.MemoryMaps.WriteWord
                 }
             };
             CPU = new VR4300
@@ -104,9 +107,7 @@ namespace DotN64
         public void PowerOn()
         {
             CPU.Reset();
-
-            if (RCP.PI.BootROM == null)
-                RCP.PI.EmulateBootROM();
+            PIF.Reset();
         }
 
         public void Run()

@@ -60,9 +60,17 @@
                 {
                     case VR4300.SpecialOpCode.JR:
                         return Format(instruction, FormatRegister(instruction.RS, cpu));
+                    case VR4300.SpecialOpCode.MFHI:
+                    case VR4300.SpecialOpCode.MFLO:
+                        return Format(instruction, FormatRegister(instruction.RD, cpu));
+                    case VR4300.SpecialOpCode.MULTU:
+                        return Format(instruction, FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
                     case VR4300.SpecialOpCode.SLLV:
                     case VR4300.SpecialOpCode.SRLV:
                         return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RT, cpu), FormatRegister(instruction.RS, cpu));
+                    case VR4300.SpecialOpCode.SLL:
+                    case VR4300.SpecialOpCode.SRL:
+                        return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RT, cpu), (sbyte)instruction.SA);
                 }
 
                 switch (instruction.OP)

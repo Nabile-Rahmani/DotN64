@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace DotN64.Helpers
 {
@@ -25,6 +26,7 @@ namespace DotN64.Helpers
             data |= (value & size) << shift;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Write(byte[] data, int index, uint value)
         {
             fixed (byte* pointer = &data[index])
@@ -32,6 +34,12 @@ namespace DotN64.Helpers
                 *(uint*)pointer = value;
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint FromBigEndian(uint value) => (uint)IPAddress.NetworkToHostOrder((int)value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ToBigEndian(uint value) => (uint)IPAddress.HostToNetworkOrder((int)value);
         #endregion
     }
 }

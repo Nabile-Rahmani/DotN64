@@ -18,7 +18,7 @@ namespace DotN64
                 switch (arg)
                 {
                     case "--pif-rom":
-                        nintendo64.RCP.PI.BootROM = File.ReadAllBytes(args[++i]);
+                        nintendo64.PIF.BootROM = File.ReadAllBytes(args[++i]);
                         break;
                     case "--debug":
                     case "-d":

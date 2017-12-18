@@ -43,7 +43,6 @@
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.cs" />
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.InitModeRegister.cs" />
     <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.cs" />
-    <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.CICStatus.cs" />
     <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.Domain.cs" />
     <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.StatusRegister.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.cs" />
@@ -72,8 +71,14 @@
     <Compile Include="Helpers\BitHelper.cs" />
     <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.StatusRegister.cs" />
     <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.StatusRegister.cs" />
-    <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.RDRAMConfigRegister.cs" />
-    <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.RDRAMConfigIndex.cs" />
+    <Compile Include="CPU\VR4300\VR4300.Exceptions.cs" />
+    <Compile Include="PIF\PeripheralInterface.cs" />
+    <Compile Include="PIF\PeripheralInterface.CICStatus.cs" />
+    <Compile Include="PIF\PeripheralInterface.DeviceState.cs" />
+    <Compile Include="RDRAM\RDRAM.cs" />
+    <Compile Include="RDRAM\RDRAM.ConfigIndex.cs" />
+    <Compile Include="RDRAM\RDRAM.ConfigRegister.cs" />
+    <Compile Include="PIF\PeripheralInterface.CIC.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -91,6 +96,8 @@
     <Folder Include="CPU\VR4300\CP0\" />
     <Folder Include="Diagnostics\" />
     <Folder Include="Helpers\" />
+    <Folder Include="PIF\" />
+    <Folder Include="RDRAM\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
