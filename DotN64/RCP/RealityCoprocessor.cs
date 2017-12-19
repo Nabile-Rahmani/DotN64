@@ -9,7 +9,7 @@
 
         public DisplayProcessor DP { get; } = new DisplayProcessor();
 
-        public PeripheralInterface PI { get; }
+        public ParallelInterface PI { get; }
 
         public SerialInterface SI { get; }
 
@@ -26,7 +26,7 @@
         public RealityCoprocessor(Nintendo64 nintendo64)
         {
             Nintendo64 = nintendo64;
-            PI = new PeripheralInterface(this);
+            PI = new ParallelInterface(this);
             SI = new SerialInterface(this);
             AI = new AudioInterface(this);
             VI = new VideoInterface(this);

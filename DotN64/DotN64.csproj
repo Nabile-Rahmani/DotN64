@@ -42,9 +42,9 @@
     <Compile Include="RCP\AI\RealityCoprocessor.AudioInterface.cs" />
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.cs" />
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.InitModeRegister.cs" />
-    <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.cs" />
-    <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.Domain.cs" />
-    <Compile Include="RCP\PI\RealityCoprocessor.PeripheralInterface.StatusRegister.cs" />
+    <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.cs" />
+    <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.Domain.cs" />
+    <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.StatusRegister.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.ConfigRegister.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.ModeRegister.cs" />

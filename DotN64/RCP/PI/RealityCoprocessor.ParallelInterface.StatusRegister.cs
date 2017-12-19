@@ -4,7 +4,7 @@ namespace DotN64.RCP
 {
     public partial class RealityCoprocessor
     {
-        public partial class PeripheralInterface
+        public partial class ParallelInterface
         {
             [Flags]
             public enum StatusRegister

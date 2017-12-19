@@ -2,7 +2,7 @@
 {
     public partial class RealityCoprocessor
     {
-        public partial class PeripheralInterface
+        public partial class ParallelInterface
         {
             public class Domain
             {

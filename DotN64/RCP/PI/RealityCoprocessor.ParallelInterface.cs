@@ -7,7 +7,7 @@ namespace DotN64.RCP
 
     public partial class RealityCoprocessor
     {
-        public partial class PeripheralInterface : Interface
+        public partial class ParallelInterface : Interface
         {
             #region Properties
             public StatusRegister Status { get; set; }
@@ -35,7 +35,7 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public PeripheralInterface(RealityCoprocessor rcp)
+            public ParallelInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
                 MemoryMaps = new[]
