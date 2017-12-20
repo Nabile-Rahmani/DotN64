@@ -8,7 +8,7 @@ namespace DotN64.Extensions
     {
         #region Methods
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MappingEntry GetEntry(this IReadOnlyList<MappingEntry> memoryMaps, ulong address)
+        public static MappingEntry GetEntry(this IReadOnlyList<MappingEntry> memoryMaps, uint address)
         {
             for (int i = 0; i < memoryMaps.Count; i++)
             {
@@ -18,14 +18,14 @@ namespace DotN64.Extensions
                     return entry;
             }
 
-            throw new Exception($"Unknown physical address: 0x{address:X16}.");
+            throw new Exception($"Unknown physical address: 0x{address:X8}.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ReadWord(this IReadOnlyList<MappingEntry> memoryMaps, ulong address) => memoryMaps.GetEntry(address).ReadWord(address);
+        public static uint ReadWord(this IReadOnlyList<MappingEntry> memoryMaps, uint address) => memoryMaps.GetEntry(address).ReadWord(address);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteWord(this IReadOnlyList<MappingEntry> memoryMaps, ulong address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
+        public static void WriteWord(this IReadOnlyList<MappingEntry> memoryMaps, uint address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
         #endregion
     }
 }

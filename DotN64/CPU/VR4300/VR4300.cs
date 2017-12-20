@@ -73,12 +73,12 @@ namespace DotN64.CPU
         /// <summary>
         /// System address/data bus.
         /// </summary>
-        public Func<ulong, uint> ReadSysAD { get; set; }
+        public Func<uint, uint> ReadSysAD { get; set; }
 
         /// <summary>
         /// System address/data bus.
         /// </summary>
-        public Action<ulong, uint> WriteSysAD { get; set; }
+        public Action<uint, uint> WriteSysAD { get; set; }
 
         public SystemControlUnit CP0 { get; } = new SystemControlUnit();
 
