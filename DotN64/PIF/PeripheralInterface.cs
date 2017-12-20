@@ -90,14 +90,14 @@ namespace DotN64
 
             for (int i = 0; i < writes.GetLength(0); i++)
             {
-                nintendo64.MemoryMaps.WriteWord(writes[i, 0], writes[i, 1]);
+                nintendo64.RCP.MemoryMaps.WriteWord(writes[i, 0], writes[i, 1]);
             }
 
             if (DeviceStateFlags.ROM == DeviceState.ROMType.Cartridge && nintendo64.Cartridge != null)
             {
                 for (int i = 0x40; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
                 {
-                    nintendo64.MemoryMaps.WriteWord((ulong)(0x04000000 + i), BitHelper.FromBigEndian(BitConverter.ToUInt32(nintendo64.Cartridge.ROM, i)));
+                    BitHelper.Write(nintendo64.RCP.SP.DMEM, i, BitHelper.FromBigEndian(BitConverter.ToUInt32(nintendo64.Cartridge.ROM, i)));
                 }
             }
 

@@ -82,7 +82,7 @@ namespace DotN64.RCP
                         {
                             WriteLength = v & ((1 << 24) - 1);
                             Status |= StatusRegister.DMABusy;
-                            var maps = rcp.Nintendo64.MemoryMaps;
+                            var maps = rcp.MemoryMaps;
 
                             for (uint i = 0; i < WriteLength + 1; i += sizeof(uint))
                             {
