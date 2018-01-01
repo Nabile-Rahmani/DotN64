@@ -75,7 +75,7 @@ namespace DotN64.Diagnostics
                     for (var i = BigInteger.Zero; i < count; i++)
                     {
                         Disassemble();
-                        nintendo64.CPU.Step();
+                        nintendo64.CPU.Cycle();
                     }
                 }),
                 new Command(new[] { "goto", "g" }, "Sets the CPU's PC to the specified address.", args => nintendo64.CPU.PC = ulong.Parse(args.First(), NumberStyles.HexNumber)),
@@ -275,7 +275,7 @@ namespace DotN64.Diagnostics
 
                         try
                         {
-                            nintendo64.CPU.Step();
+                            nintendo64.CPU.Cycle();
                         }
                         catch (Exception e)
                         {

@@ -7,7 +7,7 @@ namespace DotN64.RCP
         public partial class ParallelInterface
         {
             [Flags]
-            public enum StatusRegister
+            public enum Statuses
             {
                 DMABusy = 1 << 0,
                 IOBusy = 1 << 1,
@@ -15,7 +15,7 @@ namespace DotN64.RCP
             }
 
             [Flags]
-            private enum WriteStatusRegister : byte
+            private enum StatusWrites : byte
             {
                 ResetController = 1 << 0,
                 ClearInterrupt = 1 << 1

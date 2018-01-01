@@ -10,7 +10,7 @@ namespace DotN64.RCP
         public partial class ParallelInterface : Interface
         {
             #region Properties
-            public StatusRegister Status { get; set; }
+            public Statuses Status { get; set; }
 
             public Domain[] Domains { get; } = new[]
             {
@@ -45,11 +45,12 @@ namespace DotN64.RCP
                         Read = o => (uint)Status,
                         Write = (o, v) =>
                         {
-                            var status = (WriteStatusRegister)v;
+                            var status = (StatusWrites)v;
 
-                            if ((status & WriteStatusRegister.ResetController) != 0) { /* TODO. */ }
+                            if ((status & StatusWrites.ResetController) != 0) { /* TODO. */ }
 
-                            if ((status & WriteStatusRegister.ClearInterrupt) != 0) { /* TODO. */ }
+                            if ((status & StatusWrites.ClearInterrupt) != 0)
+                                rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.PI;
                         }
                     },
                     new MappingEntry(0x04600014, 0x04600017) // PI dom1 latency.
@@ -81,7 +82,7 @@ namespace DotN64.RCP
                         Write = (o, v) =>
                         {
                             WriteLength = v & ((1 << 24) - 1);
-                            Status |= StatusRegister.DMABusy;
+                            Status |= Statuses.DMABusy;
                             var maps = rcp.MemoryMaps;
 
                             for (uint i = 0; i < WriteLength + 1; i += sizeof(uint))
@@ -89,13 +90,13 @@ namespace DotN64.RCP
                                 maps.WriteWord(DRAMAddress + i, maps.ReadWord(PBusAddress + i));
                             }
 
-                            Status &= ~StatusRegister.DMABusy;
-                            // TODO: Set interrupt.
+                            Status &= ~Statuses.DMABusy;
+                            rcp.MI.Interrupt |= MIPSInterface.Interrupts.PI;
                         }
                     },
                     new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
                     {
-                        Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rcp.Nintendo64.Cartridge.ROM, (int)o))
+                        Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rcp.nintendo64.Cartridge.ROM, (int)o))
                     }
                 };
             }

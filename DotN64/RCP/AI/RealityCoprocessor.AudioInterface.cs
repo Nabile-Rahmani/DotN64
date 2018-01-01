@@ -36,6 +36,10 @@
                     new MappingEntry(0x04500004, 0x04500007) // AI length.
                     {
                         Write = (o, v) => TransferLength = v
+                    },
+                    new MappingEntry(0x0450000C, 0x0450000F) // AI status.
+                    {
+                        Write = (o, v) => rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.AI
                     }
                 };
             }

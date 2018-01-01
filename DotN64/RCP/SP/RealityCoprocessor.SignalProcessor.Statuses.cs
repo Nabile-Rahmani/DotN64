@@ -7,7 +7,7 @@ namespace DotN64.RCP
         public partial class SignalProcessor
         {
             [Flags]
-            public enum StatusRegister : ushort
+            public enum Statuses : ushort
             {
                 Halt = 1 << 0,
                 Broke = 1 << 1,
@@ -27,7 +27,7 @@ namespace DotN64.RCP
             }
 
             [Flags]
-            private enum WriteStatusRegister
+            private enum StatusWrites
             {
                 ClearHalt = 1 << 0,
                 SetHalt = 1 << 1,

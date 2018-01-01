@@ -12,6 +12,8 @@ namespace DotN64.CPU
             public ConfigRegister Config { get; }
 
             public StatusRegister Status { get; }
+
+            public CauseRegister Cause { get; }
             #endregion
 
             #region Constructors
@@ -19,6 +21,7 @@ namespace DotN64.CPU
             {
                 Config = new ConfigRegister(this);
                 Status = new StatusRegister(this);
+                Cause = new CauseRegister(this);
             }
             #endregion
 

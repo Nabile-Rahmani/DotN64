@@ -6,14 +6,16 @@ namespace DotN64.RCP
 
     public partial class RealityCoprocessor
     {
+        #region Fields
+        private readonly Nintendo64 nintendo64;
+        #endregion
+
         #region Properties
         public IReadOnlyList<MappingEntry> MemoryMaps { get; }
 
-        public Nintendo64 Nintendo64 { get; }
+        public SignalProcessor SP { get; }
 
-        public SignalProcessor SP { get; } = new SignalProcessor();
-
-        public DisplayProcessor DP { get; } = new DisplayProcessor();
+        public DisplayProcessor DP { get; }
 
         public ParallelInterface PI { get; }
 
@@ -31,7 +33,9 @@ namespace DotN64.RCP
         #region Constructors
         public RealityCoprocessor(Nintendo64 nintendo64)
         {
-            Nintendo64 = nintendo64;
+            this.nintendo64 = nintendo64;
+            SP = new SignalProcessor(this);
+            DP = new DisplayProcessor(this);
             PI = new ParallelInterface(this);
             SI = new SerialInterface(this);
             AI = new AudioInterface(this);
@@ -42,13 +46,13 @@ namespace DotN64.RCP
             {
                 new MappingEntry(0x1FC00000, 0x1FC007BF, false) // PIF Boot ROM.
                 {
-                    Read = Nintendo64.PIF.MemoryMaps.ReadWord,
-                    Write = Nintendo64.PIF.MemoryMaps.WriteWord
+                    Read = nintendo64.PIF.MemoryMaps.ReadWord,
+                    Write = nintendo64.PIF.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x1FC007C0, 0x1FC007FF, false) // PIF (JoyChannel) RAM.
                 {
-                    Read = Nintendo64.PIF.MemoryMaps.ReadWord,
-                    Write = Nintendo64.PIF.MemoryMaps.WriteWord
+                    Read = nintendo64.PIF.MemoryMaps.ReadWord,
+                    Write = nintendo64.PIF.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x04600000, 0x046FFFFF, false) // Peripheral interface (PI) registers.
                 {
@@ -96,13 +100,13 @@ namespace DotN64.RCP
                 },
                 new MappingEntry(0x00000000, 0x03EFFFFF, false) // RDRAM memory.
                 {
-                    Read = Nintendo64.RAM.MemoryMaps.ReadWord,
-                    Write = Nintendo64.RAM.MemoryMaps.WriteWord
+                    Read = nintendo64.RAM.MemoryMaps.ReadWord,
+                    Write = nintendo64.RAM.MemoryMaps.WriteWord
                 },
                 new MappingEntry(0x03F00000, 0x03FFFFFF, false) // RDRAM registers.
                 {
-                    Read = Nintendo64.RAM.MemoryMaps.ReadWord,
-                    Write = Nintendo64.RAM.MemoryMaps.WriteWord
+                    Read = nintendo64.RAM.MemoryMaps.ReadWord,
+                    Write = nintendo64.RAM.MemoryMaps.WriteWord
                 }
             };
         }

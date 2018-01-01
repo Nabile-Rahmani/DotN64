@@ -44,7 +44,7 @@
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.InitModeRegister.cs" />
     <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.cs" />
     <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.Domain.cs" />
-    <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.StatusRegister.cs" />
+    <Compile Include="RCP\PI\RealityCoprocessor.ParallelInterface.Statuses.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.ConfigRegister.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.ModeRegister.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="Diagnostics\Debugger.InstructionFormat.cs" />
     <Compile Include="Helpers\BitHelper.cs" />
     <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.StatusRegister.cs" />
-    <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.StatusRegister.cs" />
+    <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.Statuses.cs" />
     <Compile Include="CPU\VR4300\VR4300.Exceptions.cs" />
     <Compile Include="PIF\PeripheralInterface.cs" />
     <Compile Include="PIF\PeripheralInterface.CICStatus.cs" />
@@ -79,6 +79,9 @@
     <Compile Include="RDRAM\RDRAM.ConfigIndex.cs" />
     <Compile Include="RDRAM\RDRAM.ConfigRegister.cs" />
     <Compile Include="PIF\PeripheralInterface.CIC.cs" />
+    <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.Interrupts.cs" />
+    <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.CauseRegister.cs" />
+    <Compile Include="CPU\VR4300\VR4300.ExceptionProcessing.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />

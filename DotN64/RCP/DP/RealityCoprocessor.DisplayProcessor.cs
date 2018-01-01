@@ -6,6 +6,10 @@ namespace DotN64.RCP
     {
         public partial class DisplayProcessor
         {
+            #region Fields
+            private readonly RealityCoprocessor rcp;
+            #endregion
+
             #region Properties
             public IReadOnlyList<MappingEntry> MemoryMaps { get; }
 
@@ -13,8 +17,9 @@ namespace DotN64.RCP
             #endregion
 
             #region Constructors
-            public DisplayProcessor()
+            public DisplayProcessor(RealityCoprocessor rcp)
             {
+                this.rcp = rcp;
                 MemoryMaps = new[]
                 {
                     new MappingEntry(0x0410000C, 0x0410000F) // DP CMD status.

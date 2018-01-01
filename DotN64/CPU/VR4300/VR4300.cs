@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 
 namespace DotN64.CPU
 {
+    using Helpers;
+
     /// <summary>
     /// The NEC VR4300 CPU, designed by MIPS Technologies.
     /// Datasheet: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
@@ -12,8 +14,14 @@ namespace DotN64.CPU
     {
         #region Fields
         private readonly IReadOnlyDictionary<uint, Action<Instruction>> operations;
+        private readonly IReadOnlyDictionary<byte, float> divModeMultipliers = new Dictionary<byte, float>
+        {
+            [0b01] = 1.5f,
+            [0b10] = 2.0f,
+            [0b11] = 3.0f
+        };
 
-        private const ulong ResetVector = 0xFFFFFFFFBFC00000;
+        private const byte IntShift = 2, IntSize = (1 << 5) - 1;
 
         private delegate bool BranchCondition(ulong rs, ulong rt);
         #endregion
@@ -68,6 +76,39 @@ namespace DotN64.CPU
         {
             get => divMode;
             set => divMode = (byte)(value & ((1 << 2) - 1));
+        }
+
+        public double MasterClock { get; set; }
+
+        /// <summary>
+        /// Pipeline clock.
+        /// </summary>
+        private double PClock => MasterClock * divModeMultipliers[DivMode] * (CP0.Status.RP ? 0.25 : 1.0);
+
+        /// <summary>
+        /// System interface clock.
+        /// </summary>
+        private double SClock => PClock / divModeMultipliers[DivMode];
+
+        /// <summary>
+        /// Transmit/receive clock.
+        /// </summary>
+        public double TClock => SClock;
+
+        private double TicksPerCycle => 1.0 / PClock * TimeSpan.TicksPerSecond;
+
+        /// <summary>
+        /// Interrupt request acknowledge.
+        /// </summary>
+        public byte Int
+        {
+            get => (byte)BitHelper.Get(CP0.Cause.IP, IntShift, IntSize);
+            set
+            {
+                var ip = (uint)CP0.Cause.IP;
+                BitHelper.Set(ref ip, IntShift, IntSize, value);
+                CP0.Cause.IP = (byte)ip;
+            }
         }
 
         /// <summary>
@@ -155,25 +196,9 @@ namespace DotN64.CPU
         /// Cold reset.
         /// See: datasheet#6.4.4.
         /// </summary>
-        public void Reset()
-        {
-            PC = ResetVector;
+        public void Reset() => ExceptionProcessing.ColdReset(this);
 
-            var ds = CP0.Status.DS;
-
-            ds.TS = ds.SR = CP0.Status.RP = false;
-            CP0.Config.EP = 0;
-
-            CP0.Status.ERL = ds.BEV = true;
-            CP0.Config.BE = (SystemControlUnit.ConfigRegister.Endianness)1;
-
-            CP0.Registers[(int)SystemControlUnit.RegisterIndex.Random] = 31;
-
-            CP0.Config.EC = DivMode;
-
-            CP0.Status.DS = ds;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Run(Instruction instruction)
         {
             if (operations.TryGetValue(instruction.ToOpCode(), out var operation))
@@ -182,7 +207,8 @@ namespace DotN64.CPU
                 throw new UnimplementedOperationException(instruction);
         }
 
-        public void Step()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Step()
         {
             Instruction instruction;
 
@@ -200,6 +226,19 @@ namespace DotN64.CPU
             Run(instruction);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Cycle()
+        {
+            if ((uint)++CP0.Registers[(int)SystemControlUnit.RegisterIndex.Count] == (uint)CP0.Registers[(int)SystemControlUnit.RegisterIndex.Compare])
+                CP0.Cause.IP |= 1 << 7; // Set the Timer interrupt.
+
+            if (CP0.Status.IE && !CP0.Status.EXL && !CP0.Status.ERL && (CP0.Status.IM & CP0.Cause.IP) != 0)
+                ExceptionProcessing.Interrupt(this);
+
+            Step();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Branch(Instruction instruction, BranchCondition condition, bool storeLink = false)
         {
             var result = condition(GPR[instruction.RS], GPR[instruction.RT]);
@@ -216,6 +255,7 @@ namespace DotN64.CPU
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void BranchLikely(Instruction instruction, BranchCondition condition)
         {
             if (!Branch(instruction, condition))

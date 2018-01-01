@@ -1,4 +1,6 @@
-﻿namespace DotN64
+﻿using System;
+
+namespace DotN64
 {
     using CPU;
     using Extensions;
@@ -25,7 +27,8 @@
             RCP = new RealityCoprocessor(this);
             CPU = new VR4300
             {
-                DivMode = 0b01, // Assuming this value as the CPU is clocked at 93.75 MHz, and the RCP would be clocked at 93.75 / 3 * 2 = 62.5 MHz.
+                DivMode = 0b01,
+                MasterClock = 62.5 * Math.Pow(10, 6),
                 ReadSysAD = RCP.MemoryMaps.ReadWord,
                 WriteSysAD = RCP.MemoryMaps.WriteWord
             };
@@ -43,7 +46,7 @@
         {
             while (true)
             {
-                CPU.Step();
+                CPU.Cycle();
             }
         }
         #endregion

@@ -9,10 +9,14 @@ namespace DotN64.RCP
     {
         public partial class SignalProcessor
         {
+            #region Fields
+            private readonly RealityCoprocessor rcp;
+            #endregion
+
             #region Properties
             public IReadOnlyList<MappingEntry> MemoryMaps { get; }
 
-            public StatusRegister Status { get; set; } = StatusRegister.Halt;
+            public Statuses Status { get; set; } = Statuses.Halt;
 
             public bool DMABusy { get; set; }
 
@@ -25,11 +29,17 @@ namespace DotN64.RCP
             /// Data memory.
             /// </summary>
             public byte[] DMEM { get; } = new byte[0x1000];
+
+            /// <summary>
+            /// Program counter.
+            /// </summary>
+            public ushort PC { get; set; }
             #endregion
 
             #region Constructors
-            public SignalProcessor()
+            public SignalProcessor(RealityCoprocessor rcp)
             {
+                this.rcp = rcp;
                 MemoryMaps = new[]
                 {
                     new MappingEntry(0x04001000, 0x04001FFF) // SP_IMEM read/write.
@@ -42,80 +52,82 @@ namespace DotN64.RCP
                         Read = o => (uint)Status,
                         Write = (o, v) =>
                         {
-                            var status = (WriteStatusRegister)v;
+                            var status = (StatusWrites)v;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearHalt))
-                                Status &= ~StatusRegister.Halt;
+                            if ((status & StatusWrites.ClearHalt) != 0)
+                                Status &= ~Statuses.Halt;
 
-                            if (status.HasFlag(WriteStatusRegister.SetHalt))
-                                Status |= StatusRegister.Halt;
+                            if ((status & StatusWrites.SetHalt) != 0)
+                                Status |= Statuses.Halt;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearBroke))
-                                Status &= ~StatusRegister.Broke;
+                            if ((status & StatusWrites.ClearBroke) != 0)
+                                Status &= ~Statuses.Broke;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearInterrupt)) { /* TODO. */ }
+                            if ((status & StatusWrites.ClearInterrupt) != 0)
+                                rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.SP;
 
-                            if (status.HasFlag(WriteStatusRegister.SetInterrupt)) { /* TODO. */ }
+                            if ((status & StatusWrites.SetInterrupt) != 0)
+                                rcp.MI.Interrupt |= MIPSInterface.Interrupts.SP;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSingleStep))
-                                Status &= ~StatusRegister.SingleStep;
+                            if ((status & StatusWrites.ClearSingleStep) != 0)
+                                Status &= ~Statuses.SingleStep;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSingleStep))
-                                Status |= StatusRegister.SingleStep;
+                            if ((status & StatusWrites.SetSingleStep) != 0)
+                                Status |= Statuses.SingleStep;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearInterruptOnBreak))
-                                Status &= ~StatusRegister.InterruptOnBreak;
+                            if ((status & StatusWrites.ClearInterruptOnBreak) != 0)
+                                Status &= ~Statuses.InterruptOnBreak;
 
-                            if (status.HasFlag(WriteStatusRegister.SetInterruptOnBreak))
-                                Status |= StatusRegister.InterruptOnBreak;
+                            if ((status & StatusWrites.SetInterruptOnBreak) != 0)
+                                Status |= Statuses.InterruptOnBreak;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal0))
-                                Status &= ~StatusRegister.Signal0;
+                            if ((status & StatusWrites.ClearSignal0) != 0)
+                                Status &= ~Statuses.Signal0;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal0))
-                                Status |= StatusRegister.Signal0;
+                            if ((status & StatusWrites.SetSignal0) != 0)
+                                Status |= Statuses.Signal0;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal1))
-                                Status &= ~StatusRegister.Signal1;
+                            if ((status & StatusWrites.ClearSignal1) != 0)
+                                Status &= ~Statuses.Signal1;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal1))
-                                Status |= StatusRegister.Signal1;
+                            if ((status & StatusWrites.SetSignal1) != 0)
+                                Status |= Statuses.Signal1;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal2))
-                                Status &= ~StatusRegister.Signal2;
+                            if ((status & StatusWrites.ClearSignal2) != 0)
+                                Status &= ~Statuses.Signal2;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal2))
-                                Status |= StatusRegister.Signal2;
+                            if ((status & StatusWrites.SetSignal2) != 0)
+                                Status |= Statuses.Signal2;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal3))
-                                Status &= ~StatusRegister.Signal3;
+                            if ((status & StatusWrites.ClearSignal3) != 0)
+                                Status &= ~Statuses.Signal3;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal3))
-                                Status |= StatusRegister.Signal3;
+                            if ((status & StatusWrites.SetSignal3) != 0)
+                                Status |= Statuses.Signal3;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal4))
-                                Status &= ~StatusRegister.Signal4;
+                            if ((status & StatusWrites.ClearSignal4) != 0)
+                                Status &= ~Statuses.Signal4;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal4))
-                                Status |= StatusRegister.Signal4;
+                            if ((status & StatusWrites.SetSignal4) != 0)
+                                Status |= Statuses.Signal4;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal5))
-                                Status &= ~StatusRegister.Signal5;
+                            if ((status & StatusWrites.ClearSignal5) != 0)
+                                Status &= ~Statuses.Signal5;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal5))
-                                Status |= StatusRegister.Signal5;
+                            if ((status & StatusWrites.SetSignal5) != 0)
+                                Status |= Statuses.Signal5;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal6))
-                                Status &= ~StatusRegister.Signal6;
+                            if ((status & StatusWrites.ClearSignal6) != 0)
+                                Status &= ~Statuses.Signal6;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal6))
-                                Status |= StatusRegister.Signal6;
+                            if ((status & StatusWrites.SetSignal6) != 0)
+                                Status |= Statuses.Signal6;
 
-                            if (status.HasFlag(WriteStatusRegister.ClearSignal7))
-                                Status &= ~StatusRegister.Signal7;
+                            if ((status & StatusWrites.ClearSignal7) != 0)
+                                Status &= ~Statuses.Signal7;
 
-                            if (status.HasFlag(WriteStatusRegister.SetSignal7))
-                                Status |= StatusRegister.Signal7;
+                            if ((status & StatusWrites.SetSignal7) != 0)
+                                Status |= Statuses.Signal7;
                         }
                     },
                     new MappingEntry(0x04040018, 0x0404001B) // SP DMA busy.
@@ -126,6 +138,10 @@ namespace DotN64.RCP
                     {
                         Read = o => BitConverter.ToUInt32(DMEM, (int)o),
                         Write = (o, v) => BitHelper.Write(DMEM, (int)o, v)
+                    },
+                    new MappingEntry(0x04080000, 0x04080003) // SP PC.
+                    {
+                        Read = o => PC
                     }
                 };
             }
