@@ -43,9 +43,9 @@ namespace DotN64.CPU
                 /// IP(6:2) :  External normal interrupts. Controlled by Int[4:0], or external write requests
                 /// IP(1:0) :  Software interrupts. Only these bits can cause interrupt exception when they are set to 1 by software.
                 /// </summary>
-                public byte IP
+                public InterruptPending IP
                 {
-                    get => (byte)this[ip];
+                    get => (InterruptPending)this[ip];
                     set => this[ip] = value;
                 }
 
@@ -74,6 +74,45 @@ namespace DotN64.CPU
                 #region Constructors
                 public CauseRegister(SystemControlUnit cp0)
                     : base(cp0) { }
+                #endregion
+
+                #region Structures
+                public struct InterruptPending
+                {
+                    #region Fields
+                    private BitVector32 bits;
+
+                    private static BitVector32.Section softwareInterrupts = BitVector32.CreateSection((1 << 2) - 1),
+                    externalNormalInterrupts = BitVector32.CreateSection((1 << 5) - 1, softwareInterrupts),
+                    timerInterrupt = BitVector32.CreateSection(1, externalNormalInterrupts);
+                    #endregion
+
+                    #region Properties
+                    public byte SoftwareInterrupts
+                    {
+                        get => (byte)bits[softwareInterrupts];
+                        set => bits[softwareInterrupts] = value;
+                    }
+
+                    public byte ExternalNormalInterrupts
+                    {
+                        get => (byte)bits[externalNormalInterrupts];
+                        set => bits[externalNormalInterrupts] = value;
+                    }
+
+                    public bool TimerInterrupt
+                    {
+                        get => Convert.ToBoolean(bits[timerInterrupt]);
+                        set => bits[timerInterrupt] = Convert.ToInt32(value);
+                    }
+                    #endregion
+
+                    #region Operators
+                    public static implicit operator InterruptPending(byte data) => new InterruptPending { bits = new BitVector32(data) };
+
+                    public static implicit operator byte(InterruptPending interrupt) => (byte)interrupt.bits.Data;
+                    #endregion
+                }
                 #endregion
 
                 #region Enumerations

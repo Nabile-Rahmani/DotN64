@@ -4,8 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace DotN64.CPU
 {
-    using Helpers;
-
     /// <summary>
     /// The NEC VR4300 CPU, designed by MIPS Technologies.
     /// Datasheet: http://datasheets.chipdb.org/NEC/Vr-Series/Vr43xx/U10504EJ7V0UMJ1.pdf
@@ -20,8 +18,6 @@ namespace DotN64.CPU
             [0b10] = 2.0f,
             [0b11] = 3.0f
         };
-
-        private const byte IntShift = 2, IntSize = (1 << 5) - 1;
 
         private delegate bool BranchCondition(ulong rs, ulong rt);
         #endregion
@@ -102,12 +98,12 @@ namespace DotN64.CPU
         /// </summary>
         public byte Int
         {
-            get => (byte)BitHelper.Get(CP0.Cause.IP, IntShift, IntSize);
+            get => CP0.Cause.IP.ExternalNormalInterrupts;
             set
             {
-                var ip = (uint)CP0.Cause.IP;
-                BitHelper.Set(ref ip, IntShift, IntSize, value);
-                CP0.Cause.IP = (byte)ip;
+                var ip = CP0.Cause.IP;
+                ip.ExternalNormalInterrupts = value;
+                CP0.Cause.IP = ip;
             }
         }
 
@@ -230,10 +226,17 @@ namespace DotN64.CPU
         public void Cycle()
         {
             if ((uint)++CP0.Registers[(int)SystemControlUnit.RegisterIndex.Count] == (uint)CP0.Registers[(int)SystemControlUnit.RegisterIndex.Compare])
-                CP0.Cause.IP |= 1 << 7; // Set the Timer interrupt.
+            {
+                var ip = CP0.Cause.IP;
+                ip.TimerInterrupt = true;
+                CP0.Cause.IP = ip;
+            }
 
             if (CP0.Status.IE && !CP0.Status.EXL && !CP0.Status.ERL && (CP0.Status.IM & CP0.Cause.IP) != 0)
+            {
                 ExceptionProcessing.Interrupt(this);
+                return;
+            }
 
             Step();
         }
