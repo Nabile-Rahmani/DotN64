@@ -15,7 +15,7 @@ namespace DotN64.Diagnostics
         private readonly IReadOnlyCollection<Command> commands;
         private readonly IDictionary<ulong, string> labels = new Dictionary<ulong, string>();
         private readonly IList<ulong> breakpoints = new List<ulong>();
-        private readonly IDictionary<uint, Func<VR4300.Instruction, VR4300, string>> operationFormats = new Dictionary<uint, Func<VR4300.Instruction, VR4300, string>>
+        private readonly IDictionary<VR4300.Instruction, Func<VR4300.Instruction, VR4300, string>> operationFormats = new Dictionary<VR4300.Instruction, Func<VR4300.Instruction, VR4300, string>>
         {
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.ADDI)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.ADDIU)] = InstructionFormat.I,
@@ -30,7 +30,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LBU)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LUI)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LW)] = InstructionFormat.I,
-            [VR4300.Instruction.FromOpCode(VR4300.OpCode.MTC0)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.COP0)] = InstructionFormat.R, // FIXME: all CP0 ops are treated as such at the moment.
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.ORI)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.SB)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.SLTI)] = InstructionFormat.I,
@@ -58,6 +58,8 @@ namespace DotN64.Diagnostics
         #endregion
 
         #region Properties
+        private ulong Cursor => nintendo64.CPU.DelaySlot ?? nintendo64.CPU.PC;
+
         public Status DebuggerStatus { get; private set; }
         #endregion
 
@@ -85,7 +87,7 @@ namespace DotN64.Diagnostics
 
                     for (var i = BigInteger.Zero; i < count; i++)
                     {
-                        Disassemble(nintendo64.CPU.PC + (ulong)(i * VR4300.Instruction.Size), false);
+                        Disassemble(Cursor + (ulong)(i * VR4300.Instruction.Size), false);
                     }
                 }),
                 new Command(new[] { "label", "labels", "l" }, "Shows, adds or removes a label attached to an address.", args =>
@@ -96,11 +98,11 @@ namespace DotN64.Diagnostics
                     {
                         case "add":
                         case "a":
-                            labels[args.Length <= index + 1 ? nintendo64.CPU.PC : ulong.Parse(args[index++], NumberStyles.HexNumber)] = args[index++];
+                            labels[args.Length <= index + 1 ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber)] = args[index++];
                             break;
                         case "remove":
                         case "r":
-                            labels.Remove(args.Length <= index ? nintendo64.CPU.PC : ulong.Parse(args[index++], NumberStyles.HexNumber));
+                            labels.Remove(args.Length <= index ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber));
                             break;
                         case "clear":
                         case "c":
@@ -133,11 +135,11 @@ namespace DotN64.Diagnostics
                     {
                         case "add":
                         case "a":
-                            breakpoints.Add(args.Length <= index ? nintendo64.CPU.PC : ulong.Parse(args[index++], NumberStyles.HexNumber));
+                            breakpoints.Add(args.Length <= index ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber));
                             break;
                         case "remove":
                         case "r":
-                            breakpoints.Remove(args.Length <= index ? nintendo64.CPU.PC : ulong.Parse(args[index++], NumberStyles.HexNumber));
+                            breakpoints.Remove(args.Length <= index ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber));
                             break;
                         case "clear":
                         case "c":
@@ -181,7 +183,7 @@ namespace DotN64.Diagnostics
         private void Disassemble(ulong? address = null, bool withRegisterContents = true)
         {
             if (!address.HasValue)
-                address = nintendo64.CPU.DelaySlot ?? nintendo64.CPU.PC;
+                address = Cursor;
 
             var instruction = nintendo64.CPU.ReadSysAD(nintendo64.CPU.CP0.Translate(address.Value));
 
@@ -264,13 +266,16 @@ namespace DotN64.Diagnostics
                 switch (DebuggerStatus)
                 {
                     case Status.Running:
-                        if (breakpoints.Contains(nintendo64.CPU.PC))
+                        if (breakpoints.Contains(Cursor))
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
 
                             Console.WriteLine("Hit a breakpoint; entering debug prompt.");
                             Console.ResetColor();
                             Debug();
+
+                            if (DebuggerStatus != Status.Running) // Prevents running the instruction if we chose to quit (e.g. covers the case where the next one causes an exception, dropping us right back into the debugger).
+                                break;
                         }
 
                         try

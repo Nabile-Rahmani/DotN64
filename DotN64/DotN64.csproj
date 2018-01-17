@@ -82,6 +82,7 @@
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.Interrupts.cs" />
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.CauseRegister.cs" />
     <Compile Include="CPU\VR4300\VR4300.ExceptionProcessing.cs" />
+    <Compile Include="CPU\VR4300\VR4300.ICoprocessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />

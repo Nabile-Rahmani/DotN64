@@ -6,10 +6,12 @@
         {
             SPECIAL = 0b000000,
             REGIMM = 0b000001,
+            COP0 = 0b010000,
+            COP1 = 0b010001,
+            COP2 = 0b010010,
+            COP3 = 0b010011,
             /// <summary>Load Upper Immediate.</summary>
             LUI = 0b001111,
-            /// <summary>Move To System Control Coprocessor.</summary>
-            MTC0 = 0b010000,
             /// <summary>Or Immediate.</summary>
             ORI = 0b001101,
             /// <summary>Load Word.</summary>

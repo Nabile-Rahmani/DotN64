@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace DotN64.CPU
 {
@@ -9,7 +10,7 @@ namespace DotN64.CPU
         /// <summary>
         /// See: datasheet#3.1.
         /// </summary>
-        public struct Instruction
+        public struct Instruction : IEquatable<Instruction>
         {
             #region Fields
             private uint data;
@@ -22,6 +23,7 @@ namespace DotN64.CPU
             private const int RDShift = 11, RDSize = (1 << 5) - 1;
             private const int SAShift = 6, SASize = (1 << 5) - 1;
             private const int FunctShift = 0, FunctSize = (1 << 6) - 1;
+            private const byte COPzSize = (1 << 2) - 1;
             public const int Size = sizeof(uint);
             #endregion
 
@@ -117,6 +119,11 @@ namespace DotN64.CPU
                     RT = (byte)value;
                 }
             }
+
+            /// <summary>
+            /// Gets the coprocessor unit index.
+            /// </summary>
+            public byte? COPz => (OpCode)((byte)OP & ~COPzSize) == OpCode.COP0 ? (byte?)((byte)OP & COPzSize) : null;
             #endregion
 
             #region Methods
@@ -147,6 +154,12 @@ namespace DotN64.CPU
                         return new Instruction { OP = OP };
                 }
             }
+
+            public bool Equals(Instruction other) => other.data == data;
+
+            public override bool Equals(object obj) => obj is Instruction && ((Instruction)obj).data == data;
+
+            public override int GetHashCode() => (int)data;
 
             public override string ToString()
             {

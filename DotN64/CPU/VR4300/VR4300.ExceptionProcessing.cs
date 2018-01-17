@@ -62,6 +62,15 @@
             }
 
             public static void Interrupt(VR4300 cpu) => HandleGeneral(cpu, SystemControlUnit.CauseRegister.ExceptionCode.Int);
+
+            public static void ReservedInstruction(VR4300 cpu, Instruction instruction)
+            {
+                HandleGeneral(cpu, SystemControlUnit.CauseRegister.ExceptionCode.RI);
+
+                throw new UnimplementedOperationException(instruction); // TODO: Remove this and the parameter once every instruction gets implemented.
+            }
+
+            public static void CoprocessorUnusable(VR4300 cpu, byte unit) => HandleGeneral(cpu, SystemControlUnit.CauseRegister.ExceptionCode.CpU, unit);
             #endregion
         }
     }

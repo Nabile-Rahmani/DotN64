@@ -11,7 +11,7 @@ namespace DotN64.CPU
     public partial class VR4300
     {
         #region Fields
-        private readonly IReadOnlyDictionary<uint, Action<Instruction>> operations;
+        private readonly IReadOnlyDictionary<Instruction, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<byte, float> divModeMultipliers = new Dictionary<byte, float>
         {
             [0b01] = 1.5f,
@@ -117,7 +117,9 @@ namespace DotN64.CPU
         /// </summary>
         public Action<uint, uint> WriteSysAD { get; set; }
 
-        public SystemControlUnit CP0 { get; } = new SystemControlUnit();
+        public ICoprocessor[] COP { get; } = new ICoprocessor[4];
+
+        public SystemControlUnit CP0 => COP[0] as SystemControlUnit;
 
         public ulong? DelaySlot { get; private set; }
         #endregion
@@ -125,10 +127,10 @@ namespace DotN64.CPU
         #region Constructors
         public VR4300()
         {
-            operations = new Dictionary<uint, Action<Instruction>>
+            COP[0] = new SystemControlUnit(this);
+            operations = new Dictionary<Instruction, Action<Instruction>>
             {
                 [Instruction.FromOpCode(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
-                [Instruction.FromOpCode(OpCode.MTC0)] = i => CP0.Registers[i.RD] = GPR[i.RT],
                 [Instruction.FromOpCode(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
                 [Instruction.FromOpCode(OpCode.LW)] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
                 [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = i.Immediate & GPR[i.RS],
@@ -156,6 +158,7 @@ namespace DotN64.CPU
                     WriteWord(address, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)GPR[i.RT]);
                 },
                 [Instruction.FromOpCode(OpCode.LBU)] = i => GPR[i.RT] = (byte)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.COP3)] = i => ExceptionProcessing.ReservedInstruction(this, i), // CP3 access throws a reserved instruction for this CPU.
                 [Instruction.FromOpCode(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [Instruction.FromOpCode(SpecialOpCode.JR)] = i =>
                 {
@@ -199,8 +202,17 @@ namespace DotN64.CPU
         {
             if (operations.TryGetValue(instruction.ToOpCode(), out var operation))
                 operation(instruction);
+            else if (instruction.COPz.HasValue)
+            {
+                var unit = instruction.COPz.Value;
+
+                if (((byte)CP0.Status.CU & 1 << unit) != 0 || (unit == 0 && CP0.Status.KSU == SystemControlUnit.StatusRegister.Mode.Kernel))
+                    COP[unit].Run(instruction);
+                else
+                    ExceptionProcessing.CoprocessorUnusable(this, unit);
+            }
             else
-                throw new UnimplementedOperationException(instruction);
+                ExceptionProcessing.ReservedInstruction(this, instruction);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

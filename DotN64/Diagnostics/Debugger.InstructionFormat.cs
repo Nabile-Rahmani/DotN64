@@ -5,7 +5,7 @@
     public partial class Debugger
     {
         // TODO: Double check for possibly missing exceptions in formatting according to the CPU's documentation, as I started with help from a MIPS I (?) general documentation (https://en.wikibooks.org/wiki/MIPS_Assembly/Instruction_Formats).
-        // NOTE: Perhaps this should be moved beside the CPU. It would probably be nice to make it overridable from a more general MIPS format class, as well as make it instanciable for changing display variables (register prefix, etc.).
+        // NOTE: Perhaps this should be moved beside the CPU. It would probably be nice to make it overridable from a more general MIPS format class, as well as make it instantiable for changing display variables (register prefix, etc.).
         // NOTE: If assembling input has to be implemented, make an enum Type, and move the currently used methods inside a Disassembler class, and the new ones into Assembler. The caller would look for the type associated with a given instruction and choose from here.
         /// <summary>
         /// Formatting helpers for disassembling instructions.
@@ -17,7 +17,29 @@
             #endregion
 
             #region Methods
-            private static string Format(VR4300.Instruction instruction, params object[] values) => $"{instruction} {string.Join(Separator, values)}";
+            private static string Format(VR4300.Instruction instruction, params object[] values) => $"{FormatOpCode(instruction)} {string.Join(Separator, values)}";
+
+            private static string FormatOpCode(VR4300.Instruction instruction)
+            {
+                // I was originally going to use the CPU in all cases and casting the COP[instruction.COPz] to a debuggable coprocessor to get the opcode, but it just makes the argument list larger because I have to show the register contents.
+                // You could argue this should be made instantiable but hey.
+                // Besides, coprocessors are already hard-coded here (FormatCP0Register). I'll have to clean things up some day.
+                if (instruction.COPz.HasValue)
+                {
+                    var opCode = "?";
+
+                    switch (instruction.OP)
+                    {
+                        case VR4300.OpCode.COP0:
+                            opCode = ((VR4300.SystemControlUnit.OpCode)instruction.RS).ToString(); // Not accounting for RT, Func...
+                            break;
+                    }
+
+                    return $"{instruction}.{opCode}";
+                }
+
+                return instruction.ToString();
+            }
 
             private static string FormatRegister(int index, VR4300 cpu) => RegisterPrefix + (VR4300.GPRIndex)index + (cpu != null ? FormatRegisterContents(cpu.GPR[index]) : string.Empty);
 
@@ -75,11 +97,17 @@
 
                 switch (instruction.OP)
                 {
-                    case VR4300.OpCode.MTC0:
-                        return Format(instruction, FormatRegister(instruction.RT, cpu), FormatCP0Register(instruction.RD, cpu));
-                    default:
-                        return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
+                    case VR4300.OpCode.COP0:
+                        switch ((VR4300.SystemControlUnit.OpCode)instruction.RS)
+                        {
+                            case VR4300.SystemControlUnit.OpCode.MT:
+                            case VR4300.SystemControlUnit.OpCode.MF:
+                                return Format(instruction, FormatRegister(instruction.RT, cpu), FormatCP0Register(instruction.RD, cpu));
+                        }
+                        break;
                 }
+
+                return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
             }
 
             /// <summary>

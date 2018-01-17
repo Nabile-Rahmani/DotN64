@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DotN64.CPU
 {
     public partial class VR4300
     {
-        public partial class SystemControlUnit
+        public partial class SystemControlUnit : ICoprocessor
         {
+            #region Fields
+            private readonly VR4300 cpu;
+            private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
+            #endregion
+
             #region Properties
             public ulong[] Registers { get; } = new ulong[32];
 
@@ -17,11 +23,17 @@ namespace DotN64.CPU
             #endregion
 
             #region Constructors
-            public SystemControlUnit()
+            public SystemControlUnit(VR4300 cpu)
             {
+                this.cpu = cpu;
                 Config = new ConfigRegister(this);
                 Status = new StatusRegister(this);
                 Cause = new CauseRegister(this);
+                operations = new Dictionary<OpCode, Action<Instruction>>
+                {
+                    [OpCode.MT] = i => Registers[i.RD] = cpu.GPR[i.RT],
+                    [OpCode.MF] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD]
+                };
             }
             #endregion
 
@@ -42,7 +54,23 @@ namespace DotN64.CPU
                         throw new Exception($"Unknown memory map segment for location 0x{address:X16}.");
                 }
             }
+
+            public void Run(Instruction instruction)
+            {
+                if (operations.TryGetValue((OpCode)instruction.RS, out var operation))
+                    operation(instruction);
+                else
+                    ExceptionProcessing.ReservedInstruction(cpu, instruction);
+            }
             #endregion
+
+            public enum OpCode : byte
+            {
+                /// <summary>Move To System Control Coprocessor.</summary>
+                MT = 0b00100,
+                /// <summary>Move From System Control Coprocessor.</summary>
+                MF = 0b00000
+            }
         }
     }
 }
