@@ -178,7 +178,7 @@ namespace DotN64.Diagnostics
         #endregion
 
         #region Methods
-        private string Disassemble(VR4300.Instruction instruction, bool withRegisterContents) => operationFormats.TryGetValue(instruction.ToOpCode(), out var format) && format != null ? format(instruction, withRegisterContents ? nintendo64.CPU : null) : instruction.ToString();
+        private string Disassemble(VR4300.Instruction instruction, bool withRegisterContents) => operationFormats.TryGetValue(instruction.ToOpCode(), out var format) && format != null ? format(instruction, withRegisterContents ? nintendo64.CPU : null) : InstructionFormat.Unknown(instruction);
 
         private void Disassemble(ulong? address = null, bool withRegisterContents = true)
         {

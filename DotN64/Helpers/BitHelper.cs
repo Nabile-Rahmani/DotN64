@@ -36,7 +36,13 @@ namespace DotN64.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort FromBigEndian(ushort value) => (ushort)IPAddress.NetworkToHostOrder((short)value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint FromBigEndian(uint value) => (uint)IPAddress.NetworkToHostOrder((int)value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ToBigEndian(ushort value) => (ushort)IPAddress.HostToNetworkOrder((short)value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ToBigEndian(uint value) => (uint)IPAddress.HostToNetworkOrder((int)value);

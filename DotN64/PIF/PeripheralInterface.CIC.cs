@@ -35,7 +35,7 @@
                 return c ^ 0xFFFFFFFF;
             }
 
-            public static uint GetSeed(byte[] data, int offset = 0x40, int length = 0x1000 - 0x40)
+            public static uint GetSeed(byte[] data, int offset = Cartridge.HeaderSize, int length = Cartridge.BootstrapSize)
             {
                 switch (ComputeCRC32(data, offset, length))
                 {

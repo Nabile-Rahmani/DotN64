@@ -33,6 +33,9 @@
                         case VR4300.OpCode.COP0:
                             opCode = ((VR4300.SystemControlUnit.OpCode)instruction.RS).ToString(); // Not accounting for RT, Func...
                             break;
+                        case VR4300.OpCode.COP1:
+                            opCode = ((VR4300.FloatingPointUnit.OpCode)instruction.RS).ToString();
+                            break;
                     }
 
                     return $"{instruction}.{opCode}";
@@ -103,8 +106,9 @@
                             case VR4300.SystemControlUnit.OpCode.MT:
                             case VR4300.SystemControlUnit.OpCode.MF:
                                 return Format(instruction, FormatRegister(instruction.RT, cpu), FormatCP0Register(instruction.RD, cpu));
+                            default:
+                                return FormatOpCode(instruction);
                         }
-                        break;
                 }
 
                 return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
@@ -114,6 +118,8 @@
             /// Jump type.
             /// </summary>
             public static string J(VR4300.Instruction instruction, VR4300 cpu) => Format(instruction, $"0x{instruction.Target:X8}");
+
+            public static string Unknown(VR4300.Instruction instruction) => FormatOpCode(instruction);
             #endregion
         }
     }

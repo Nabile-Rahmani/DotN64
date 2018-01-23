@@ -95,14 +95,14 @@ namespace DotN64
 
             if (DeviceStateFlags.ROM == DeviceState.ROMType.Cartridge && nintendo64.Cartridge != null)
             {
-                for (int i = 0x40; i < 0x1000; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
+                for (int i = Cartridge.HeaderSize; i < Cartridge.HeaderSize + Cartridge.BootstrapSize; i += sizeof(uint)) // Copying the bootstrap code from the cartridge to the RSP's DMEM.
                 {
                     BitHelper.Write(nintendo64.RCP.SP.DMEM, i, BitHelper.FromBigEndian(BitConverter.ToUInt32(nintendo64.Cartridge.ROM, i)));
                 }
             }
 
             nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S3] = (ulong)DeviceStateFlags.ROM;
-            // TODO: $s4 is the video mode (0 being PAL settings). This value is hard-coded into regional boot ROMs.
+            nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S4] = (ulong)GetRegion();
             nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S5] = (ulong)DeviceStateFlags.Reset;
             nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S6] = DeviceStateFlags.IPL3Seed;
             nintendo64.CPU.GPR[(int)VR4300.GPRIndex.S7] = DeviceStateFlags.Version;
@@ -115,15 +115,33 @@ namespace DotN64
             nintendo64.CPU.GPR[8] = 0xC0;
             nintendo64.CPU.GPR[10] = 0x40;
             nintendo64.CPU.GPR[11] = 0xFFFFFFFFA4000040;
-            nintendo64.CPU.GPR[20] = 0x1;
             nintendo64.CPU.GPR[29] = 0xFFFFFFFFA4001FF0;
             nintendo64.CPU.GPR[31] = 0xFFFFFFFFA4001550;
             nintendo64.CPU.PC = 0xFFFFFFFFA4000040;
         }
 
+        /// <summary>
+        /// Determines the console region from the loaded cartridge's header.
+        /// </summary>
+        private TVType GetRegion()
+        {
+            switch (nintendo64.Cartridge?.Country)
+            {
+                case Cartridge.CountryCode.Europe:
+                case Cartridge.CountryCode.Germany:
+                case Cartridge.CountryCode.Australia:
+                    return TVType.PAL;
+                case Cartridge.CountryCode.Japan:
+                case Cartridge.CountryCode.USA:
+                    return TVType.NTSC;
+                default:
+                    return 0;
+            }
+        }
+
         public void Reset()
         {
-            if (nintendo64.Cartridge?.ROM.Length >= 0x1000)
+            if (nintendo64.Cartridge?.ROM.Length >= Cartridge.HeaderSize + Cartridge.BootstrapSize)
                 DeviceStateFlags = CIC.GetSeed(nintendo64.Cartridge.ROM);
 
             if (BootROM == null)

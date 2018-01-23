@@ -84,6 +84,14 @@
     <Compile Include="CPU\VR4300\VR4300.ExceptionProcessing.cs" />
     <Compile Include="CPU\VR4300\VR4300.ICoprocessor.cs" />
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.OpCode.cs" />
+    <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.cs" />
+    <Compile Include="PIF\PeripheralInterface.TVType.cs" />
+    <Compile Include="Cartridge.MediaFormat.cs" />
+    <Compile Include="Cartridge.CountryCode.cs" />
+    <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.OpCode.cs" />
+    <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.Register.cs" />
+    <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.ImplementationRevisionRegister.cs" />
+    <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.ControlStatusRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -103,6 +111,7 @@
     <Folder Include="Helpers\" />
     <Folder Include="PIF\" />
     <Folder Include="RDRAM\" />
+    <Folder Include="CPU\VR4300\CP1\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

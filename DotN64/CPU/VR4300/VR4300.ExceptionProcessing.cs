@@ -71,6 +71,8 @@
             }
 
             public static void CoprocessorUnusable(VR4300 cpu, byte unit) => HandleGeneral(cpu, SystemControlUnit.CauseRegister.ExceptionCode.CpU, unit);
+
+            public static void FloatingPoint(VR4300 cpu) => HandleGeneral(cpu, SystemControlUnit.CauseRegister.ExceptionCode.FPE);
             #endregion
         }
     }

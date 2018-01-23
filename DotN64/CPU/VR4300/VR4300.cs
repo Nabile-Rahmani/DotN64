@@ -56,12 +56,12 @@ namespace DotN64.CPU
         /// <summary>
         /// 32-bit floating-point Implementation/Revision register.
         /// </summary>
-        public float FCR0 { get; set; }
+        public uint FCR0 { get; set; }
 
         /// <summary>
         /// 32-bit floating-point Control/Status register.
         /// </summary>
-        public float FCR31 { get; set; }
+        public uint FCR31 { get; set; }
 
         private byte divMode;
         /// <summary>
@@ -121,6 +121,8 @@ namespace DotN64.CPU
 
         public SystemControlUnit CP0 => COP[0] as SystemControlUnit;
 
+        public FloatingPointUnit CP1 => COP[1] as FloatingPointUnit;
+
         public ulong? DelaySlot { get; private set; }
         #endregion
 
@@ -128,6 +130,7 @@ namespace DotN64.CPU
         public VR4300()
         {
             COP[0] = new SystemControlUnit(this);
+            COP[1] = new FloatingPointUnit(this);
             operations = new Dictionary<Instruction, Action<Instruction>>
             {
                 [Instruction.FromOpCode(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
@@ -206,7 +209,7 @@ namespace DotN64.CPU
             {
                 var unit = instruction.COPz.Value;
 
-                if (((byte)CP0.Status.CU & 1 << unit) != 0 || (unit == 0 && CP0.Status.KSU == SystemControlUnit.StatusRegister.Mode.Kernel))
+                if (CP0.IsCoprocessorUsable(unit))
                     COP[unit].Run(instruction);
                 else
                     ExceptionProcessing.CoprocessorUnusable(this, unit);

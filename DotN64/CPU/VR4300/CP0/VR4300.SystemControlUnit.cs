@@ -55,6 +55,8 @@ namespace DotN64.CPU
                 }
             }
 
+            public bool IsCoprocessorUsable(byte unit) => ((byte)Status.CU & 1 << unit) != 0 || (unit == 0 && Status.KSU == StatusRegister.Mode.Kernel);
+
             public void Run(Instruction instruction)
             {
                 if (operations.TryGetValue((OpCode)instruction.RS, out var operation))
