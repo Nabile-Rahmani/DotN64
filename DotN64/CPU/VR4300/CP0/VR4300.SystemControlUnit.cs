@@ -10,6 +10,7 @@ namespace DotN64.CPU
             #region Fields
             private readonly VR4300 cpu;
             private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
+            private readonly IReadOnlyDictionary<FunctOpCode, Action<Instruction>> functOperations;
             #endregion
 
             #region Properties
@@ -32,7 +33,18 @@ namespace DotN64.CPU
                 operations = new Dictionary<OpCode, Action<Instruction>>
                 {
                     [OpCode.MT] = i => Registers[i.RD] = cpu.GPR[i.RT],
-                    [OpCode.MF] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD]
+                    [OpCode.MF] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD],
+                    [OpCode.CO] = i =>
+                    {
+                        if (functOperations.TryGetValue((FunctOpCode)i.Funct, out var operation))
+                            operation(i);
+                        else if (i.Funct == 0b010000)
+                            ExceptionProcessing.ReservedInstruction(cpu, i);
+                    }
+                };
+                functOperations = new Dictionary<FunctOpCode, Action<Instruction>>
+                {
+                    [FunctOpCode.TLBWI] = i => { /* TODO. */ }
                 };
             }
             #endregion

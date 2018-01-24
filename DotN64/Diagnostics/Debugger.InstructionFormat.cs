@@ -31,7 +31,15 @@
                     switch (instruction.OP)
                     {
                         case VR4300.OpCode.COP0:
-                            opCode = ((VR4300.SystemControlUnit.OpCode)instruction.RS).ToString(); // Not accounting for RT, Func...
+                            switch ((VR4300.SystemControlUnit.OpCode)instruction.RS)
+                            {
+                                case VR4300.SystemControlUnit.OpCode.CO:
+                                    opCode = ((VR4300.SystemControlUnit.FunctOpCode)instruction.Funct).ToString();
+                                    break;
+                                default:
+                                    opCode = ((VR4300.SystemControlUnit.OpCode)instruction.RS).ToString();
+                                    break;
+                            }
                             break;
                         case VR4300.OpCode.COP1:
                             opCode = ((VR4300.FloatingPointUnit.OpCode)instruction.RS).ToString();
@@ -70,6 +78,7 @@
                     case VR4300.OpCode.BNEL:
                         return Format(instruction, FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu), (short)instruction.Immediate);
                     case VR4300.OpCode.BLEZL:
+                    case VR4300.OpCode.BLEZ:
                         return Format(instruction, FormatRegister(instruction.RS, cpu), (short)instruction.Immediate);
                     default:
                         return Format(instruction, FormatRegister(instruction.RT, cpu), FormatRegister(instruction.RS, cpu), (short)instruction.Immediate);
@@ -89,12 +98,17 @@
                     case VR4300.SpecialOpCode.MFLO:
                         return Format(instruction, FormatRegister(instruction.RD, cpu));
                     case VR4300.SpecialOpCode.MULTU:
+                    case VR4300.SpecialOpCode.DMULTU:
+                    case VR4300.SpecialOpCode.DDIVU:
                         return Format(instruction, FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
                     case VR4300.SpecialOpCode.SLLV:
                     case VR4300.SpecialOpCode.SRLV:
                         return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RT, cpu), FormatRegister(instruction.RS, cpu));
                     case VR4300.SpecialOpCode.SLL:
                     case VR4300.SpecialOpCode.SRL:
+                    case VR4300.SpecialOpCode.DSLL32:
+                    case VR4300.SpecialOpCode.DSRA32:
+                    case VR4300.SpecialOpCode.SRA:
                         return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RT, cpu), (sbyte)instruction.SA);
                 }
 

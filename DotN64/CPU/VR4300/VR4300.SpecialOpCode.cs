@@ -35,7 +35,17 @@
             /// <summary>And.</summary>
             AND = 0b100100,
             /// <summary>Set On Less Than.</summary>
-            SLT = 0b101010
+            SLT = 0b101010,
+            /// <summary>Doubleword Multiply Unsigned.</summary>
+            DMULTU = 0b011101,
+            /// <summary>Doubleword Shift Left Logical + 32.</summary>
+            DSLL32 = 0b111100,
+            /// <summary>Doubleword Shift Right Arithmetic + 32.</summary>
+            DSRA32 = 0b111111,
+            /// <summary>Doubleword Divide Unsigned.</summary>
+            DDIVU = 0b011111,
+            /// <summary>Shift Right Arithmetic.</summary>
+            SRA = 0b000011
         }
     }
 }

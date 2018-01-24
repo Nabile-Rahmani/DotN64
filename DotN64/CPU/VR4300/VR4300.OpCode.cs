@@ -45,7 +45,17 @@
             /// <summary>Store Byte.</summary>
             SB = 0b101000,
             /// <summary>Load Byte Unsigned.</summary>
-            LBU = 0b100100
+            LBU = 0b100100,
+            /// <summary>Branch On Less Than Or Equal To Zero.</summary>
+            BLEZ = 0b000110,
+            /// <summary>Load Doubleword.</summary>
+            LD = 0b110111,
+            /// <summary>Set On Less Than Immediate Unsigned.</summary>
+            SLTIU = 0b001011,
+            /// <summary>Store Halfword.</summary>
+            SH = 0b101001,
+            /// <summary>Load Halfword Unsigned.</summary>
+            LHU = 0b100101
         }
     }
 }
