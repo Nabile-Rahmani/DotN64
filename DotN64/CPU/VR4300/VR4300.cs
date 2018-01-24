@@ -222,6 +222,8 @@ namespace DotN64.CPU
                     HI = rs % rt;
                 },
                 [Instruction.FromOpCode(SpecialOpCode.SRA)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
+                [Instruction.FromOpCode(SpecialOpCode.MTLO)] = i => LO = GPR[i.RS],
+                [Instruction.FromOpCode(SpecialOpCode.MTHI)] = i => HI = GPR[i.RS],
                 [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i => Branch(i, (rs, rt) => rs >= 0, true),
                 [Instruction.FromOpCode(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0)
             };

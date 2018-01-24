@@ -93,6 +93,8 @@
                 switch (instruction.Special)
                 {
                     case VR4300.SpecialOpCode.JR:
+                    case VR4300.SpecialOpCode.MTLO:
+                    case VR4300.SpecialOpCode.MTHI:
                         return Format(instruction, FormatRegister(instruction.RS, cpu));
                     case VR4300.SpecialOpCode.MFHI:
                     case VR4300.SpecialOpCode.MFLO:

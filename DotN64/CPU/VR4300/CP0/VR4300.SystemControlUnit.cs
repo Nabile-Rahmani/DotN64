@@ -38,13 +38,29 @@ namespace DotN64.CPU
                     {
                         if (functOperations.TryGetValue((FunctOpCode)i.Funct, out var operation))
                             operation(i);
-                        else if (i.Funct == 0b010000)
+                        else //if (i.Funct == 0b010000) // TODO: Uncomment once the operations are implemented.
                             ExceptionProcessing.ReservedInstruction(cpu, i);
                     }
                 };
                 functOperations = new Dictionary<FunctOpCode, Action<Instruction>>
                 {
-                    [FunctOpCode.TLBWI] = i => { /* TODO. */ }
+                    [FunctOpCode.TLBWI] = i => { /* TODO. */ },
+                    [FunctOpCode.ERET] = i =>
+                    {
+                        if (Status.ERL)
+                        {
+                            cpu.PC = Registers[(int)RegisterIndex.ErrorEPC];
+                            Status.ERL = false;
+                        }
+                        else
+                        {
+                            cpu.PC = Registers[(int)RegisterIndex.EPC];
+                            Status.EXL = false;
+                        }
+
+                        cpu.LLBit = false;
+                        cpu.DelaySlot = null;
+                    }
                 };
             }
             #endregion

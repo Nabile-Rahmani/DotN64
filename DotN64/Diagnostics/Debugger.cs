@@ -51,6 +51,8 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.JR)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFHI)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFLO)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MTHI)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MTLO)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MULTU)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.OR)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SLL)] = InstructionFormat.R,

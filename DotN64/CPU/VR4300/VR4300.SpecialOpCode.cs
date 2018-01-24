@@ -45,7 +45,11 @@
             /// <summary>Doubleword Divide Unsigned.</summary>
             DDIVU = 0b011111,
             /// <summary>Shift Right Arithmetic.</summary>
-            SRA = 0b000011
+            SRA = 0b000011,
+            /// <summary>Move To LO.</summary>
+            MTLO = 0b010011,
+            /// <summary>Move To HI.</summary>
+            MTHI = 0b010001
         }
     }
 }
