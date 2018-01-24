@@ -151,7 +151,7 @@ namespace DotN64.CPU
                     DelaySlot = PC;
                     PC = (PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2);
                 },
-                [Instruction.FromOpCode(OpCode.SLTI)] = i => GPR[i.RT] = GPR[i.RS] < (ulong)(short)i.Immediate ? (ulong)1 : 0,
+                [Instruction.FromOpCode(OpCode.SLTI)] = i => GPR[i.RT] = (long)GPR[i.RS] < (long)(short)i.Immediate ? (ulong)1 : 0,
                 [Instruction.FromOpCode(OpCode.XORI)] = i => GPR[i.RT] = GPR[i.RS] ^ i.Immediate,
                 [Instruction.FromOpCode(OpCode.BLEZL)] = i => BranchLikely(i, (rs, rt) => rs <= 0),
                 [Instruction.FromOpCode(OpCode.SB)] = i =>
@@ -200,7 +200,7 @@ namespace DotN64.CPU
                 [Instruction.FromOpCode(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
                 [Instruction.FromOpCode(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
                 [Instruction.FromOpCode(SpecialOpCode.AND)] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT],
-                [Instruction.FromOpCode(SpecialOpCode.SLT)] = i => GPR[i.RD] = GPR[i.RS] < GPR[i.RT] ? (ulong)1 : 0,
+                [Instruction.FromOpCode(SpecialOpCode.SLT)] = i => GPR[i.RD] = (long)GPR[i.RS] < (long)GPR[i.RT] ? (ulong)1 : 0,
                 [Instruction.FromOpCode(SpecialOpCode.DMULTU)] = i =>
                 {
                     ulong rsHi = (uint)(GPR[i.RS] >> 32), rtHi = (uint)(GPR[i.RT] >> 32);
