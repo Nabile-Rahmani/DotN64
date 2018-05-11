@@ -13,7 +13,7 @@ namespace DotN64.RCP
             #region Properties
             public IReadOnlyList<MappingEntry> MemoryMaps { get; }
 
-            public StatusRegister Status { get; set; }
+            public Statuses Status { get; set; }
             #endregion
 
             #region Constructors

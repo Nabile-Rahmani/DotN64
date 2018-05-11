@@ -9,7 +9,7 @@ namespace DotN64.RCP
         public partial class MIPSInterface : Interface
         {
             #region Fields
-            private static readonly byte interruptPin = 1 << 0;
+            private const byte InterruptPin = 1 << 0;
             #endregion
 
             #region Properties
@@ -72,41 +72,35 @@ namespace DotN64.RCP
                         {
                             var mask = (InterruptMaskWrites)v;
 
-                            if ((mask & InterruptMaskWrites.ClearSP) != 0)
-                                InterruptMask &= ~Interrupts.SP;
+                            void Clear(InterruptMaskWrites clearMask, Interrupts interrupt)
+                            {
+                                if ((mask & clearMask) != 0)
+                                    InterruptMask &= ~interrupt;
+                            }
 
-                            if ((mask & InterruptMaskWrites.SetSP) != 0)
-                                InterruptMask |= Interrupts.SP;
+                            void Set(InterruptMaskWrites setMask, Interrupts interrupt)
+                            {
+                                if ((mask & setMask) != 0)
+                                    InterruptMask |= interrupt;
+                            }
 
-                            if ((mask & InterruptMaskWrites.ClearSI) != 0)
-                                InterruptMask &= ~Interrupts.SI;
+                            Clear(InterruptMaskWrites.ClearSP, Interrupts.SP);
+                            Set(InterruptMaskWrites.SetSP, Interrupts.SP);
 
-                            if ((mask & InterruptMaskWrites.SetSI) != 0)
-                                InterruptMask |= Interrupts.SI;
+                            Clear(InterruptMaskWrites.ClearSI, Interrupts.SI);
+                            Set(InterruptMaskWrites.SetSI, Interrupts.SI);
 
-                            if ((mask & InterruptMaskWrites.ClearAI) != 0)
-                                InterruptMask &= ~Interrupts.AI;
+                            Clear(InterruptMaskWrites.ClearAI, Interrupts.AI);
+                            Set(InterruptMaskWrites.SetAI, Interrupts.AI);
 
-                            if ((mask & InterruptMaskWrites.SetAI) != 0)
-                                InterruptMask |= Interrupts.AI;
+                            Clear(InterruptMaskWrites.ClearVI, Interrupts.VI);
+                            Set(InterruptMaskWrites.SetVI, Interrupts.VI);
 
-                            if ((mask & InterruptMaskWrites.ClearVI) != 0)
-                                InterruptMask &= ~Interrupts.VI;
+                            Clear(InterruptMaskWrites.ClearPI, Interrupts.PI);
+                            Set(InterruptMaskWrites.SetPI, Interrupts.PI);
 
-                            if ((mask & InterruptMaskWrites.SetVI) != 0)
-                                InterruptMask |= Interrupts.VI;
-
-                            if ((mask & InterruptMaskWrites.ClearPI) != 0)
-                                InterruptMask &= ~Interrupts.PI;
-
-                            if ((mask & InterruptMaskWrites.SetPI) != 0)
-                                InterruptMask |= Interrupts.PI;
-
-                            if ((mask & InterruptMaskWrites.ClearDP) != 0)
-                                InterruptMask &= ~Interrupts.DP;
-
-                            if ((mask & InterruptMaskWrites.SetDP) != 0)
-                                InterruptMask |= Interrupts.DP;
+                            Clear(InterruptMaskWrites.ClearDP, Interrupts.DP);
+                            Set(InterruptMaskWrites.SetDP, Interrupts.DP);
 
                             UpdateInterrupt();
                         }
@@ -119,9 +113,9 @@ namespace DotN64.RCP
             private void UpdateInterrupt()
             {
                 if ((Interrupt & InterruptMask) != 0)
-                    CPU.Int |= interruptPin;
+                    CPU.Int |= InterruptPin;
                 else
-                    CPU.Int &= (byte)~interruptPin;
+                    CPU.Int &= unchecked((byte)~InterruptPin);
             }
             #endregion
         }

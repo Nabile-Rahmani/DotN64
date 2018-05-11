@@ -50,7 +50,7 @@
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.ModeRegister.cs" />
     <Compile Include="RCP\RI\RealityCoprocessor.RDRAMInterface.RefreshRegister.cs" />
     <Compile Include="RCP\SI\RealityCoprocessor.SerialInterface.cs" />
-    <Compile Include="RCP\SI\RealityCoprocessor.SerialInterface.StatusRegister.cs" />
+    <Compile Include="RCP\SI\RealityCoprocessor.SerialInterface.Statuses.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.HorizontalVideoRegister.cs" />
     <Compile Include="CPU\VR4300\VR4300.cs" />
@@ -69,7 +69,7 @@
     <Compile Include="Diagnostics\Debugger.Command.cs" />
     <Compile Include="Diagnostics\Debugger.InstructionFormat.cs" />
     <Compile Include="Helpers\BitHelper.cs" />
-    <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.StatusRegister.cs" />
+    <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.Statuses.cs" />
     <Compile Include="RCP\SP\RealityCoprocessor.SignalProcessor.Statuses.cs" />
     <Compile Include="CPU\VR4300\VR4300.Exceptions.cs" />
     <Compile Include="PIF\PeripheralInterface.cs" />

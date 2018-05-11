@@ -5,7 +5,7 @@
         public partial class DisplayProcessor
         {
             [System.Flags]
-            public enum StatusRegister : ushort
+            public enum Statuses : ushort
             {
                 XBusDMemDMA = 1 << 0,
                 Freeze = 1 << 1,

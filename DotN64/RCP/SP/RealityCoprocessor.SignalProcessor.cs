@@ -54,14 +54,22 @@ namespace DotN64.RCP
                         {
                             var status = (StatusWrites)v;
 
-                            if ((status & StatusWrites.ClearHalt) != 0)
-                                Status &= ~Statuses.Halt;
+                            void Clear(StatusWrites clearMask, Statuses value)
+                            {
+                                if ((status & clearMask) != 0)
+                                    Status &= ~value;
+                            }
 
-                            if ((status & StatusWrites.SetHalt) != 0)
-                                Status |= Statuses.Halt;
+                            void Set(StatusWrites setMask, Statuses value)
+                            {
+                                if ((status & setMask) != 0)
+                                    Status |= value;
+                            }
 
-                            if ((status & StatusWrites.ClearBroke) != 0)
-                                Status &= ~Statuses.Broke;
+                            Clear(StatusWrites.ClearHalt, Statuses.Halt);
+                            Set(StatusWrites.SetHalt, Statuses.Halt);
+
+                            Clear(StatusWrites.ClearBroke, Statuses.Broke);
 
                             if ((status & StatusWrites.ClearInterrupt) != 0)
                                 rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.SP;
@@ -69,65 +77,35 @@ namespace DotN64.RCP
                             if ((status & StatusWrites.SetInterrupt) != 0)
                                 rcp.MI.Interrupt |= MIPSInterface.Interrupts.SP;
 
-                            if ((status & StatusWrites.ClearSingleStep) != 0)
-                                Status &= ~Statuses.SingleStep;
+                            Clear(StatusWrites.ClearSingleStep, Statuses.SingleStep);
+                            Set(StatusWrites.SetSingleStep, Statuses.SingleStep);
 
-                            if ((status & StatusWrites.SetSingleStep) != 0)
-                                Status |= Statuses.SingleStep;
+                            Clear(StatusWrites.ClearInterruptOnBreak, Statuses.InterruptOnBreak);
+                            Set(StatusWrites.SetInterruptOnBreak, Statuses.InterruptOnBreak);
 
-                            if ((status & StatusWrites.ClearInterruptOnBreak) != 0)
-                                Status &= ~Statuses.InterruptOnBreak;
+                            Clear(StatusWrites.ClearSignal0, Statuses.Signal0);
+                            Set(StatusWrites.SetSignal0, Statuses.Signal0);
 
-                            if ((status & StatusWrites.SetInterruptOnBreak) != 0)
-                                Status |= Statuses.InterruptOnBreak;
+                            Clear(StatusWrites.ClearSignal1, Statuses.Signal1);
+                            Set(StatusWrites.SetSignal1, Statuses.Signal1);
 
-                            if ((status & StatusWrites.ClearSignal0) != 0)
-                                Status &= ~Statuses.Signal0;
+                            Clear(StatusWrites.ClearSignal2, Statuses.Signal2);
+                            Set(StatusWrites.SetSignal2, Statuses.Signal2);
 
-                            if ((status & StatusWrites.SetSignal0) != 0)
-                                Status |= Statuses.Signal0;
+                            Clear(StatusWrites.ClearSignal3, Statuses.Signal3);
+                            Set(StatusWrites.SetSignal3, Statuses.Signal3);
 
-                            if ((status & StatusWrites.ClearSignal1) != 0)
-                                Status &= ~Statuses.Signal1;
+                            Clear(StatusWrites.ClearSignal4, Statuses.Signal4);
+                            Set(StatusWrites.SetSignal4, Statuses.Signal4);
 
-                            if ((status & StatusWrites.SetSignal1) != 0)
-                                Status |= Statuses.Signal1;
+                            Clear(StatusWrites.ClearSignal5, Statuses.Signal5);
+                            Set(StatusWrites.SetSignal5, Statuses.Signal5);
 
-                            if ((status & StatusWrites.ClearSignal2) != 0)
-                                Status &= ~Statuses.Signal2;
+                            Clear(StatusWrites.ClearSignal6, Statuses.Signal6);
+                            Set(StatusWrites.SetSignal6, Statuses.Signal6);
 
-                            if ((status & StatusWrites.SetSignal2) != 0)
-                                Status |= Statuses.Signal2;
-
-                            if ((status & StatusWrites.ClearSignal3) != 0)
-                                Status &= ~Statuses.Signal3;
-
-                            if ((status & StatusWrites.SetSignal3) != 0)
-                                Status |= Statuses.Signal3;
-
-                            if ((status & StatusWrites.ClearSignal4) != 0)
-                                Status &= ~Statuses.Signal4;
-
-                            if ((status & StatusWrites.SetSignal4) != 0)
-                                Status |= Statuses.Signal4;
-
-                            if ((status & StatusWrites.ClearSignal5) != 0)
-                                Status &= ~Statuses.Signal5;
-
-                            if ((status & StatusWrites.SetSignal5) != 0)
-                                Status |= Statuses.Signal5;
-
-                            if ((status & StatusWrites.ClearSignal6) != 0)
-                                Status &= ~Statuses.Signal6;
-
-                            if ((status & StatusWrites.SetSignal6) != 0)
-                                Status |= Statuses.Signal6;
-
-                            if ((status & StatusWrites.ClearSignal7) != 0)
-                                Status &= ~Statuses.Signal7;
-
-                            if ((status & StatusWrites.SetSignal7) != 0)
-                                Status |= Statuses.Signal7;
+                            Clear(StatusWrites.ClearSignal7, Statuses.Signal7);
+                            Set(StatusWrites.SetSignal7, Statuses.Signal7);
                         }
                     },
                     new MappingEntry(0x04040018, 0x0404001B) // SP DMA busy.

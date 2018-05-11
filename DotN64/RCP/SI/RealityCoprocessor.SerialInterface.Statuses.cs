@@ -5,7 +5,7 @@
         public partial class SerialInterface
         {
             [System.Flags]
-            public enum StatusRegister
+            public enum Statuses
             {
                 DMABusy = 1 << 0,
                 IOReadBusy = 1 << 1,
