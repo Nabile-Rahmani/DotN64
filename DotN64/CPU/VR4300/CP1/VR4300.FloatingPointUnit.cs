@@ -16,11 +16,6 @@ namespace DotN64.CPU
             public ImplementationRevisionRegister ImplementationRevision { get; }
 
             public ControlStatusRegister ControlStatus { get; }
-
-            /// <summary>
-            /// Condition signal.
-            /// </summary>
-            public bool CO { get; private set; }
             #endregion
 
             #region Constructors
@@ -54,9 +49,8 @@ namespace DotN64.CPU
                                 return; // Read-only register.
                             case 31:
                                 cpu.FCR31 = (uint)cpu.GPR[i.RT];
-                                CO = ControlStatus.C;
 
-                                if ((ControlStatus.Cause & ControlStatus.Enables) != 0)
+                                if ((ControlStatus.Cause & (ControlStatus.Enables | ControlStatusRegister.ExceptionFlags.E)) != 0)
                                 {
                                     ExceptionProcessing.FloatingPoint(cpu);
                                     return;
