@@ -37,7 +37,7 @@ namespace DotN64
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteWord(uint address, uint value) => Write(OffsetAddress ? address - StartAddress : address, value);
 
-        public override string ToString() => $"[0x{StartAddress:X8}..0x{EndAddress:X8}] - {(Read != null ? "R" : "-")}{(Write != null ? "W" : "-")}";
+        public override string ToString() => $"0x{StartAddress:X8} .. 0x{EndAddress:X8} ({(Read != null ? "R" : string.Empty)}{(Write != null ? "W" : string.Empty)})";
         #endregion
     }
 }
