@@ -277,14 +277,9 @@ namespace DotN64.CPU
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Cycle()
         {
-            if ((uint)++CP0.Registers[(int)SystemControlUnit.RegisterIndex.Count] == (uint)CP0.Registers[(int)SystemControlUnit.RegisterIndex.Compare])
-            {
-                var ip = CP0.Cause.IP;
-                ip.TimerInterrupt = true;
-                CP0.Cause.IP = ip;
-            }
+            CP0.IncrementCounter();
 
-            if (CP0.Status.IE && !CP0.Status.EXL && !CP0.Status.ERL && (CP0.Status.IM & CP0.Cause.IP) != 0)
+            if (CP0.HasPendingInterrupt)
             {
                 ExceptionProcessing.Interrupt(this);
                 return;

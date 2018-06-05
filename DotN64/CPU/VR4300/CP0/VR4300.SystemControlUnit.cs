@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DotN64.CPU
 {
@@ -21,6 +22,8 @@ namespace DotN64.CPU
             public StatusRegister Status { get; }
 
             public CauseRegister Cause { get; }
+
+            public bool HasPendingInterrupt => Status.IE && !(Status.EXL | Status.ERL) && (Status.IM & Cause.IP) != 0;
             #endregion
 
             #region Constructors
@@ -67,9 +70,24 @@ namespace DotN64.CPU
 
             #region Methods
             /// <summary>
+            /// Increments the Count register (must be called on every odd PClock cycle), and updates the timer interrupt.
+            /// </summary>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void IncrementCounter()
+            {
+                if ((uint)++Registers[(int)RegisterIndex.Count] == (uint)Registers[(int)RegisterIndex.Compare])
+                {
+                    var ip = Cause.IP;
+                    ip.TimerInterrupt = true;
+                    Cause.IP = ip;
+                }
+            }
+
+            /// <summary>
             /// Translates a virtual address into a physical address.
             /// See: datasheet#5.2.4 Table 5-3.
             /// </summary>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public uint Translate(ulong address)
             {
                 switch (address >> 29 & 0b111)
@@ -83,8 +101,10 @@ namespace DotN64.CPU
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsCoprocessorUsable(byte unit) => ((byte)Status.CU & 1 << unit) != 0 || (unit == 0 && Status.KSU == StatusRegister.Mode.Kernel);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Run(Instruction instruction)
             {
                 if (operations.TryGetValue((OpCode)instruction.RS, out var operation))
