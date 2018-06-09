@@ -40,9 +40,9 @@ namespace DotN64.RCP
                 {
                     new MappingEntry(0x04300000, 0x04300003) // MI init mode.
                     {
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            var bits = new BitVector32((int)v);
+                            var bits = new BitVector32((int)d);
                             var mode = InitMode;
 
                             mode.InitLength = (byte)bits[InitModeRegister.InitLengthSection];
@@ -68,9 +68,9 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x0430000C, 0x0430000F) // MI interrupt mask.
                     {
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            var mask = (InterruptMaskWrites)v;
+                            var mask = (InterruptMaskWrites)d;
 
                             void Clear(InterruptMaskWrites clearMask, Interrupts interrupt)
                             {

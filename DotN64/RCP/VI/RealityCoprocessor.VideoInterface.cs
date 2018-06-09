@@ -26,17 +26,17 @@
                 {
                     new MappingEntry(0x0440000C, 0x0440000F) // VI vertical intr.
                     {
-                        Write = (o, v) => VerticalInterrupt = (ushort)(v & ((1 << 10) - 1))
+                        Write = (o, d) => VerticalInterrupt = (ushort)(d & ((1 << 10) - 1))
                     },
                     new MappingEntry(0x04400024, 0x04400027) // VI horizontal video.
                     {
-                        Write = (o, v) => HorizontalVideo = v
+                        Write = (o, d) => HorizontalVideo = d
                     },
                     new MappingEntry(0x04400010, 0x04400013) // VI current vertical line.
                     {
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            CurrentVerticalLine = (ushort)(v & ((1 << 10) - 1));
+                            CurrentVerticalLine = (ushort)(d & ((1 << 10) - 1));
                             rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.VI;
                         }
                     }

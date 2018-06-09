@@ -24,7 +24,7 @@ namespace DotN64
                 new MappingEntry(0x00000000, 0x03EFFFFF) // RDRAM memory.
                 {
                     Read = o => BitConverter.ToUInt32(Memory, (int)o),
-                    Write = (o, v) => BitHelper.Write(Memory, (int)o, v)
+                    Write = (o, d) => BitHelper.Write(Memory, (int)o, d)
                 },
                 new MappingEntry(0x03F00000, 0x03FFFFFF) // RDRAM registers.
                 {
@@ -41,7 +41,7 @@ namespace DotN64
                             }
                         }
                     },
-                    Write = (o, v) =>
+                    Write = (o, d) =>
                     {
                         if (!GetRegisterInfo((uint)o, out var register, out var index))
                             return;
@@ -50,7 +50,7 @@ namespace DotN64
                         {
                             fixed (void* pointer = &Configs[index.Value])
                             {
-                                *((uint*)pointer + register) = v;
+                                *((uint*)pointer + register) = d;
                             }
                         }
                     }

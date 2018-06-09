@@ -25,7 +25,7 @@ namespace DotN64.Extensions
         public static uint ReadWord(this IReadOnlyList<MappingEntry> memoryMaps, uint address) => memoryMaps.GetEntry(address).ReadWord(address);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteWord(this IReadOnlyList<MappingEntry> memoryMaps, uint address, uint value) => memoryMaps.GetEntry(address).WriteWord(address, value);
+        public static void WriteWord(this IReadOnlyList<MappingEntry> memoryMaps, uint address, uint data) => memoryMaps.GetEntry(address).WriteWord(address, data);
         #endregion
     }
 }

@@ -336,24 +336,24 @@ namespace DotN64.CPU
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Write(ulong address, ulong value, AccessSize size)
+        private void Write(ulong address, ulong data, AccessSize size)
         {
             var physicalAddress = CP0.Translate(address);
 
             switch (size)
             {
                 case AccessSize.Byte:
-                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)value);
+                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)data);
                     break;
                 case AccessSize.HalfWord:
-                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 16) - 1)) | (ushort)value);
+                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 16) - 1)) | (ushort)data);
                     break;
                 case AccessSize.Word:
-                    WriteSysAD(physicalAddress, (uint)value);
+                    WriteSysAD(physicalAddress, (uint)data);
                     break;
                 case AccessSize.DoubleWord:
-                    WriteSysAD(physicalAddress, (uint)(value >> 32));
-                    WriteSysAD(physicalAddress + sizeof(uint), (uint)value);
+                    WriteSysAD(physicalAddress, (uint)(data >> 32));
+                    WriteSysAD(physicalAddress + sizeof(uint), (uint)data);
                     break;
                 default:
                     throw new ArgumentException("Invalid system bus access size.", nameof(size));

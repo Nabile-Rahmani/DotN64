@@ -23,24 +23,24 @@
                     new MappingEntry(0x0470000C, 0x0470000F) // RI select.
                     {
                         Read = o => Select,
-                        Write = (o, v) => Select = (byte)(v & (1 << 3) - 1)
+                        Write = (o, d) => Select = (byte)(d & (1 << 3) - 1)
                     },
                     new MappingEntry(0x04700004, 0x04700007) // RI config.
                     {
-                        Write = (o, v) => Config = v
+                        Write = (o, d) => Config = d
                     },
                     new MappingEntry(0x04700008, 0x0470000B) // RI current load.
                     {
-                        Write = (o, v) => { /* TODO: Any write updates current control register. */ }
+                        Write = (o, d) => { /* TODO: Any write updates current control register. */ }
                     },
                     new MappingEntry(0x04700000, 0x04700003) // RI mode.
                     {
-                        Write = (o, v) => Mode = v
+                        Write = (o, d) => Mode = d
                     },
                     new MappingEntry(0x04700010, 0x04700013) // RI refresh.
                     {
-                        Read = a => Refresh,
-                        Write = (a, v) => Refresh = v
+                        Read = o => Refresh,
+                        Write = (o, d) => Refresh = d
                     }
                 };
             }

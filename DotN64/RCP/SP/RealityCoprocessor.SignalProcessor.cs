@@ -45,14 +45,14 @@ namespace DotN64.RCP
                     new MappingEntry(0x04001000, 0x04001FFF) // SP_IMEM read/write.
                     {
                         Read = o => BitConverter.ToUInt32(IMEM, (int)o),
-                        Write = (o, v) => BitHelper.Write(IMEM, (int)o, v)
+                        Write = (o, d) => BitHelper.Write(IMEM, (int)o, d)
                     },
                     new MappingEntry(0x04040010, 0x04040013) // SP status.
                     {
                         Read = o => (uint)Status,
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            var status = (StatusWrites)v;
+                            var status = (StatusWrites)d;
 
                             void Clear(StatusWrites clearMask, Statuses value)
                             {
@@ -115,7 +115,7 @@ namespace DotN64.RCP
                     new MappingEntry(0x04000000, 0x04000FFF) // SP_DMEM read/write.
                     {
                         Read = o => BitConverter.ToUInt32(DMEM, (int)o),
-                        Write = (o, v) => BitHelper.Write(DMEM, (int)o, v)
+                        Write = (o, d) => BitHelper.Write(DMEM, (int)o, d)
                     },
                     new MappingEntry(0x04080000, 0x04080003) // SP PC.
                     {

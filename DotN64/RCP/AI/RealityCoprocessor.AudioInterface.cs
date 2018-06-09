@@ -31,15 +31,15 @@
                 {
                     new MappingEntry(0x04500000, 0x04500003) // AI DRAM address.
                     {
-                        Write = (o, v) => DRAMAddress = v
+                        Write = (o, d) => DRAMAddress = d
                     },
                     new MappingEntry(0x04500004, 0x04500007) // AI length.
                     {
-                        Write = (o, v) => TransferLength = v
+                        Write = (o, d) => TransferLength = d
                     },
                     new MappingEntry(0x0450000C, 0x0450000F) // AI status.
                     {
-                        Write = (o, v) => rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.AI
+                        Write = (o, d) => rcp.MI.Interrupt &= ~MIPSInterface.Interrupts.AI
                     }
                 };
             }

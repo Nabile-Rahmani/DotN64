@@ -42,9 +42,9 @@ namespace DotN64
                 new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
                 {
                     Read = o => BitConverter.ToUInt32(RAM, (int)o),
-                    Write = (o, v) =>
+                    Write = (o, d) =>
                     {
-                        BitHelper.Write(RAM, (int)o, v);
+                        BitHelper.Write(RAM, (int)o, d);
                         OnRAMWritten((int)o);
                     }
                 }

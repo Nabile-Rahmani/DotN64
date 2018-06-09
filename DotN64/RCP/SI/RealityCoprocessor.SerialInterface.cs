@@ -17,7 +17,7 @@
                     new MappingEntry(0x04800018, 0x0480001B) // SI status.
                     {
                         Read = o => (uint)Status,
-                        Write = (o, v) => Status &= ~Statuses.Interrupt
+                        Write = (o, d) => Status &= ~Statuses.Interrupt
                     }
                 };
             }

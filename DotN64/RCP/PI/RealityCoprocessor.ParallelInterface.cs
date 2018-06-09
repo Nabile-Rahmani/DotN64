@@ -43,9 +43,9 @@ namespace DotN64.RCP
                     new MappingEntry(0x04600010, 0x04600013) // PI status.
                     {
                         Read = o => (uint)Status,
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            var status = (StatusWrites)v;
+                            var status = (StatusWrites)d;
 
                             if ((status & StatusWrites.ResetController) != 0) { /* TODO. */ }
 
@@ -55,33 +55,33 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x04600014, 0x04600017) // PI dom1 latency.
                     {
-                        Write = (o, v) => Domains[0].Latency = (byte)v
+                        Write = (o, d) => Domains[0].Latency = (byte)d
                     },
                     new MappingEntry(0x04600018, 0x0460001B) // PI dom1 pulse width.
                     {
-                        Write = (o, v) => Domains[0].PulseWidth = (byte)v
+                        Write = (o, d) => Domains[0].PulseWidth = (byte)d
                     },
                     new MappingEntry(0x0460001C, 0x0460001F) // PI dom1 page size.
                     {
-                        Write = (o, v) => Domains[0].PageSize = (byte)v
+                        Write = (o, d) => Domains[0].PageSize = (byte)d
                     },
                     new MappingEntry(0x04600020, 0x04600023) // PI dom1 release.
                     {
-                        Write = (o, v) => Domains[0].Release = (byte)v
+                        Write = (o, d) => Domains[0].Release = (byte)d
                     },
                     new MappingEntry(0x04600000, 0x04600003) // PI DRAM address.
                     {
-                        Write = (o, v) => DRAMAddress = v & ((1 << 24) - 1)
+                        Write = (o, d) => DRAMAddress = d & ((1 << 24) - 1)
                     },
                     new MappingEntry(0x04600004, 0x04600007) // PI pbus (cartridge) address.
                     {
-                        Write = (o, v) => PBusAddress = v
+                        Write = (o, d) => PBusAddress = d
                     },
                     new MappingEntry(0x0460000C, 0x0460000F) // PI write length.
                     {
-                        Write = (o, v) =>
+                        Write = (o, d) =>
                         {
-                            WriteLength = v & ((1 << 24) - 1);
+                            WriteLength = d & ((1 << 24) - 1);
                             Status |= Statuses.DMABusy;
                             var maps = rcp.MemoryMaps;
 
