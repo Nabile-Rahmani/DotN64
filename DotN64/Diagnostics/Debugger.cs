@@ -29,6 +29,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.CACHE)] = null,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.COP0)] = InstructionFormat.R, // FIXME: all CP0 ops are treated as such at the moment.
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.JAL)] = InstructionFormat.J,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.J)] = InstructionFormat.J,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LBU)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LUI)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.LD)] = InstructionFormat.I,
@@ -41,6 +42,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.SLTIU)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.SW)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.OpCode.XORI)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.OpCode.LB)] = InstructionFormat.I,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.ADD)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.ADDU)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.AND)] = InstructionFormat.R,
@@ -49,6 +51,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.DSLL32)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.DSRA32)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.JR)] = InstructionFormat.R,
+            [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.JALR)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFHI)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MFLO)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.MTHI)] = InstructionFormat.R,
@@ -65,7 +68,9 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.SUBU)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.SpecialOpCode.XOR)] = InstructionFormat.R,
             [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZAL)] = InstructionFormat.I,
-            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZL)] = InstructionFormat.I
+            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZL)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BLTZ)] = InstructionFormat.I,
+            [VR4300.Instruction.FromOpCode(VR4300.RegImmOpCode.BGEZ)] = InstructionFormat.I
         };
         #endregion
 
@@ -92,8 +97,24 @@ namespace DotN64.Diagnostics
                         nintendo64.CPU.Cycle();
                     }
                 }),
-                new Command(new[] { "goto", "g" }, "Sets the CPU's PC to the specified address.", args => nintendo64.CPU.PC = ulong.Parse(args.First(), NumberStyles.HexNumber)),
-                new Command(new[] { "disassemble", "d" }, "Disassembles instructions from the current PC.", args =>
+                new Command(new[] { "goto", "g" }, "Sets the CPU's PC to the specified address or register value.", args =>
+                {
+                    var target = args.First();
+                    const char RegisterPrefix = '$';
+
+                    if (target[0] == RegisterPrefix)
+                    {
+                        target = target.Substring(1);
+
+                        if (Enum.TryParse<VR4300.GPRIndex>(target, true, out var gprIndex))
+                            nintendo64.CPU.PC = nintendo64.CPU.GPR[(int)gprIndex];
+                        else if (Enum.TryParse<VR4300.SystemControlUnit.RegisterIndex>(target, true, out var cp0Index))
+                            nintendo64.CPU.PC = nintendo64.CPU.CP0.Registers[(int)cp0Index];
+                    }
+                    else
+                        nintendo64.CPU.PC = ulong.Parse(target, NumberStyles.HexNumber);
+                }),
+                new Command(new[] { "disassemble", "disasm", "d" }, "Disassembles instructions from the current PC.", args =>
                 {
                     var count = args.Length > 0 ? BigInteger.Parse(args.First()) : 1;
 
@@ -127,14 +148,14 @@ namespace DotN64.Diagnostics
                                 {
                                     foreach (var pair in labels)
                                     {
-                                        Console.WriteLine($".{pair.Value}: {pair.Key:X16}");
+                                        Console.WriteLine($"{pair.Value}: {pair.Key:X16}");
                                     }
                                     break;
                                 }
 
                                 var address = ulong.Parse(args[index++], NumberStyles.HexNumber);
 
-                                Console.WriteLine($".{labels[address]}: {address:X16}");
+                                Console.WriteLine($"{labels[address]}: {address:X16}");
                             }
                             break;
                     }
@@ -203,7 +224,7 @@ namespace DotN64.Diagnostics
             {
                 Console.ForegroundColor = ConsoleColor.Green;
 
-                Console.WriteLine($".{label}:");
+                Console.WriteLine($"{label}:");
                 Console.ResetColor();
             }
 

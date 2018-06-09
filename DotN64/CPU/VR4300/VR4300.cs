@@ -135,11 +135,11 @@ namespace DotN64.CPU
             {
                 [Instruction.FromOpCode(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
                 [Instruction.FromOpCode(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
-                [Instruction.FromOpCode(OpCode.LW)] = i => GPR[i.RT] = (ulong)(int)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.LW)] = i => Load(i, AccessSize.Word),
                 [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = i.Immediate & GPR[i.RS],
                 [Instruction.FromOpCode(OpCode.BEQL)] = i => BranchLikely(i, (rs, rt) => rs == rt),
                 [Instruction.FromOpCode(OpCode.ADDIU)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
-                [Instruction.FromOpCode(OpCode.SW)] = i => WriteWord((ulong)(short)i.Immediate + GPR[i.RS], (uint)GPR[i.RT]),
+                [Instruction.FromOpCode(OpCode.SW)] = i => Store(i, AccessSize.Word),
                 [Instruction.FromOpCode(OpCode.BNEL)] = i => BranchLikely(i, (rs, rt) => rs != rt),
                 [Instruction.FromOpCode(OpCode.BNE)] = i => Branch(i, (rs, rt) => rs != rt),
                 [Instruction.FromOpCode(OpCode.BEQ)] = i => Branch(i, (rs, rt) => rs == rt),
@@ -147,41 +147,24 @@ namespace DotN64.CPU
                 [Instruction.FromOpCode(OpCode.CACHE)] = i => { /* TODO: Implement and compare the performance if it's a concern. */ },
                 [Instruction.FromOpCode(OpCode.JAL)] = i =>
                 {
-                    GPR[31] = PC + Instruction.Size;
-                    DelaySlot = PC;
-                    PC = (PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2);
+                    StoreLink();
+                    Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2));
                 },
                 [Instruction.FromOpCode(OpCode.SLTI)] = i => GPR[i.RT] = (long)GPR[i.RS] < (long)(short)i.Immediate ? (ulong)1 : 0,
                 [Instruction.FromOpCode(OpCode.XORI)] = i => GPR[i.RT] = GPR[i.RS] ^ i.Immediate,
                 [Instruction.FromOpCode(OpCode.BLEZL)] = i => BranchLikely(i, (rs, rt) => rs <= 0),
-                [Instruction.FromOpCode(OpCode.SB)] = i =>
-                {
-                    var address = (ulong)(short)i.Immediate + GPR[i.RS];
-
-                    WriteWord(address, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)GPR[i.RT]);
-                },
-                [Instruction.FromOpCode(OpCode.LBU)] = i => GPR[i.RT] = (byte)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.SB)] = i => Store(i, AccessSize.Byte),
+                [Instruction.FromOpCode(OpCode.LBU)] = i => LoadUnsigned(i, AccessSize.Byte),
                 [Instruction.FromOpCode(OpCode.COP3)] = i => ExceptionProcessing.ReservedInstruction(this, i), // CP3 access throws a reserved instruction for this CPU.
                 [Instruction.FromOpCode(OpCode.BLEZ)] = i => Branch(i, (rs, rt) => rs <= 0),
-                [Instruction.FromOpCode(OpCode.LD)] = i =>
-                {
-                    var address = (ulong)(short)i.Immediate + GPR[i.RS];
-                    GPR[i.RT] = ReadWord(address) << 32 | ReadWord(address + sizeof(uint));
-                },
+                [Instruction.FromOpCode(OpCode.LD)] = i => Load(i, AccessSize.DoubleWord),
                 [Instruction.FromOpCode(OpCode.SLTIU)] = i => GPR[i.RT] = GPR[i.RS] < (ulong)(short)i.Immediate ? (ulong)1 : 0,
-                [Instruction.FromOpCode(OpCode.SH)] = i =>
-                {
-                    var address = (ulong)(short)i.Immediate + GPR[i.RS];
-
-                    WriteWord(address, (ReadWord(address) & ~((uint)(1 << 16) - 1)) | (ushort)GPR[i.RT]);
-                },
-                [Instruction.FromOpCode(OpCode.LHU)] = i => GPR[i.RT] = (ushort)ReadWord((ulong)(short)i.Immediate + GPR[i.RS]),
+                [Instruction.FromOpCode(OpCode.SH)] = i => Store(i, AccessSize.HalfWord),
+                [Instruction.FromOpCode(OpCode.LHU)] = i => LoadUnsigned(i, AccessSize.HalfWord),
+                [Instruction.FromOpCode(OpCode.J)] = i => Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2)),
+                [Instruction.FromOpCode(OpCode.LB)] = i => Load(i, AccessSize.Byte),
                 [Instruction.FromOpCode(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
-                [Instruction.FromOpCode(SpecialOpCode.JR)] = i =>
-                {
-                    DelaySlot = PC;
-                    PC = GPR[i.RS];
-                },
+                [Instruction.FromOpCode(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
                 [Instruction.FromOpCode(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
                 [Instruction.FromOpCode(SpecialOpCode.OR)] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
                 [Instruction.FromOpCode(SpecialOpCode.MULTU)] = i =>
@@ -224,8 +207,19 @@ namespace DotN64.CPU
                 [Instruction.FromOpCode(SpecialOpCode.SRA)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
                 [Instruction.FromOpCode(SpecialOpCode.MTLO)] = i => LO = GPR[i.RS],
                 [Instruction.FromOpCode(SpecialOpCode.MTHI)] = i => HI = GPR[i.RS],
-                [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i => Branch(i, (rs, rt) => rs >= 0, true),
-                [Instruction.FromOpCode(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0)
+                [Instruction.FromOpCode(SpecialOpCode.JALR)] = i =>
+                {
+                    StoreLink((GPRIndex)i.RD);
+                    Jump(GPR[i.RS]);
+                },
+                [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i =>
+                {
+                    StoreLink();
+                    Branch(i, (rs, rt) => rs >= 0);
+                },
+                [Instruction.FromOpCode(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0),
+                [Instruction.FromOpCode(RegImmOpCode.BLTZ)] = i => Branch(i, (rs, rt) => rs < 0),
+                [Instruction.FromOpCode(RegImmOpCode.BGEZ)] = i => Branch(i, (rs, rt) => rs >= 0)
             };
         }
         #endregion
@@ -289,18 +283,12 @@ namespace DotN64.CPU
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Branch(Instruction instruction, BranchCondition condition, bool storeLink = false)
+        private bool Branch(Instruction instruction, BranchCondition condition)
         {
             var result = condition(GPR[instruction.RS], GPR[instruction.RT]);
 
-            if (storeLink)
-                GPR[31] = PC + Instruction.Size;
-
             if (result)
-            {
-                DelaySlot = PC;
-                PC += (ulong)(short)instruction.Immediate << 2;
-            }
+                Jump(PC + ((ulong)(short)instruction.Immediate << 2));
 
             return result;
         }
@@ -313,10 +301,92 @@ namespace DotN64.CPU
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private uint ReadWord(ulong address) => ReadSysAD(CP0.Translate(address));
+        private void Jump(ulong address)
+        {
+            DelaySlot = PC;
+            PC = address;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteWord(ulong address, uint value) => WriteSysAD(CP0.Translate(address), value);
+        private void StoreLink(GPRIndex index = GPRIndex.RA) => GPR[(int)index] = PC + Instruction.Size;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint ReadWord(ulong address) => (uint)Read(address, AccessSize.Word);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ulong Read(ulong address, AccessSize size)
+        {
+            var physicalAddress = CP0.Translate(address);
+
+            switch (size)
+            {
+                case AccessSize.Byte:
+                    return (byte)ReadSysAD(physicalAddress);
+                case AccessSize.HalfWord:
+                    return (ushort)ReadSysAD(physicalAddress);
+                case AccessSize.Word:
+                    return ReadSysAD(physicalAddress);
+                case AccessSize.DoubleWord:
+                    return ReadSysAD(physicalAddress) << 32 | ReadSysAD(physicalAddress + sizeof(uint));
+                default:
+                    throw new ArgumentException("Invalid system bus access size.", nameof(size));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Write(ulong address, ulong value, AccessSize size)
+        {
+            var physicalAddress = CP0.Translate(address);
+
+            switch (size)
+            {
+                case AccessSize.Byte:
+                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)value);
+                    break;
+                case AccessSize.HalfWord:
+                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 16) - 1)) | (ushort)value);
+                    break;
+                case AccessSize.Word:
+                    WriteSysAD(physicalAddress, (uint)value);
+                    break;
+                case AccessSize.DoubleWord:
+                    WriteSysAD(physicalAddress, (uint)(value >> 32));
+                    WriteSysAD(physicalAddress + sizeof(uint), (uint)value);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid system bus access size.", nameof(size));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Load(Instruction instruction, AccessSize size, bool signExtend = true)
+        {
+            var value = Read((ulong)(short)instruction.Immediate + GPR[instruction.RS], size);
+
+            if (signExtend)
+            {
+                switch (size)
+                {
+                    case AccessSize.Byte:
+                        value = (ulong)(sbyte)value;
+                        break;
+                    case AccessSize.HalfWord:
+                        value = (ulong)(short)value;
+                        break;
+                    case AccessSize.Word:
+                        value = (ulong)(int)value;
+                        break;
+                }
+            }
+
+            GPR[instruction.RT] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void LoadUnsigned(Instruction instruction, AccessSize size) => Load(instruction, size, false);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Store(Instruction instruction, AccessSize size) => Write((ulong)(short)instruction.Immediate + GPR[instruction.RS], GPR[instruction.RT], size);
         #endregion
     }
 }

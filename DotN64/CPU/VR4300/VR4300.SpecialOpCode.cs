@@ -49,7 +49,9 @@
             /// <summary>Move To LO.</summary>
             MTLO = 0b010011,
             /// <summary>Move To HI.</summary>
-            MTHI = 0b010001
+            MTHI = 0b010001,
+            /// <summary>Jump And Link Register.</summary>
+            JALR = 0b001001
         }
     }
 }

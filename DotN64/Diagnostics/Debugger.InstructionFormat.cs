@@ -67,6 +67,8 @@
                 {
                     case VR4300.RegImmOpCode.BGEZAL:
                     case VR4300.RegImmOpCode.BGEZL:
+                    case VR4300.RegImmOpCode.BLTZ:
+                    case VR4300.RegImmOpCode.BGEZ:
                         return Format(instruction, FormatRegister(instruction.RS, cpu), (short)instruction.Immediate);
                 }
 
@@ -92,6 +94,8 @@
             {
                 switch (instruction.Special)
                 {
+                    case VR4300.SpecialOpCode.JALR:
+                        return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RS, cpu));
                     case VR4300.SpecialOpCode.JR:
                     case VR4300.SpecialOpCode.MTLO:
                     case VR4300.SpecialOpCode.MTHI:
@@ -133,7 +137,7 @@
             /// <summary>
             /// Jump type.
             /// </summary>
-            public static string J(VR4300.Instruction instruction, VR4300 cpu) => Format(instruction, $"0x{instruction.Target:X8}");
+            public static string J(VR4300.Instruction instruction, VR4300 cpu) => Format(instruction, $"0x{((cpu != null ? (cpu.DelaySlot ?? cpu.PC) : 0) & ~(ulong)((1 << 28) - 1)) | (instruction.Target << 2):X8}");
 
             public static string Unknown(VR4300.Instruction instruction) => FormatOpCode(instruction);
             #endregion

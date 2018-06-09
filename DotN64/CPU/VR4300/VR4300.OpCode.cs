@@ -55,7 +55,11 @@
             /// <summary>Store Halfword.</summary>
             SH = 0b101001,
             /// <summary>Load Halfword Unsigned.</summary>
-            LHU = 0b100101
+            LHU = 0b100101,
+            /// <summary>Jump.</summary>
+            J = 0b000010,
+            /// <summary>Load Byte.</summary>
+            LB = 0b100000
         }
     }
 }
