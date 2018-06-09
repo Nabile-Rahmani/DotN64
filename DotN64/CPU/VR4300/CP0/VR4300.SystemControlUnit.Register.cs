@@ -10,6 +10,7 @@ namespace DotN64.CPU
             {
                 #region Fields
                 private readonly SystemControlUnit cp0;
+                private readonly RegisterIndex index;
                 #endregion
 
                 #region Properties
@@ -17,11 +18,9 @@ namespace DotN64.CPU
 
                 protected ulong Data
                 {
-                    get => cp0.Registers[(int)Index];
-                    set => cp0.Registers[(int)Index] = value;
+                    get => cp0.Registers[(int)index];
+                    set => cp0.Registers[(int)index] = value;
                 }
-
-                protected abstract RegisterIndex Index { get; }
                 #endregion
 
                 #region Indexers
@@ -49,9 +48,10 @@ namespace DotN64.CPU
                 #endregion
 
                 #region Constructors
-                protected Register(SystemControlUnit cp0)
+                protected Register(SystemControlUnit cp0, RegisterIndex index)
                 {
                     this.cp0 = cp0;
+                    this.index = index;
                 }
                 #endregion
             }

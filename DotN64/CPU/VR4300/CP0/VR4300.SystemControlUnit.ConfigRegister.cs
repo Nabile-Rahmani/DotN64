@@ -24,8 +24,6 @@ namespace DotN64.CPU
                 #endregion
 
                 #region Properties
-                protected override RegisterIndex Index => RegisterIndex.Config;
-
                 /// <summary>
                 /// Sets coherency algorithm of kseg0.
                 /// </summary>
@@ -74,7 +72,7 @@ namespace DotN64.CPU
 
                 #region Constructors
                 public ConfigRegister(SystemControlUnit cp0)
-                    : base(cp0)
+                    : base(cp0, RegisterIndex.Config)
                 {
                     this[constant1] = 0b11001000110;
                     this[constant2] = 0b00000110;

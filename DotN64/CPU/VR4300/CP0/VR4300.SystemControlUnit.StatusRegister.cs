@@ -29,8 +29,6 @@ namespace DotN64.CPU
                 #endregion
 
                 #region Properties
-                protected override RegisterIndex Index => RegisterIndex.Status;
-
                 /// <summary>
                 /// Specifies and indicates global interrupt enable.
                 /// </summary>
@@ -154,7 +152,7 @@ namespace DotN64.CPU
 
                 #region Constructors
                 public StatusRegister(SystemControlUnit cp0)
-                    : base(cp0) { }
+                    : base(cp0, RegisterIndex.Status) { }
                 #endregion
 
                 #region Structures
