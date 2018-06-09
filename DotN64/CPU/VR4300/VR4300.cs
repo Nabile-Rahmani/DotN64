@@ -248,6 +248,8 @@ namespace DotN64.CPU
             }
             else
                 ExceptionProcessing.ReservedInstruction(this, instruction);
+
+            GPR[(int)GPRIndex.Zero] = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
