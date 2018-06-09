@@ -11,6 +11,7 @@ namespace DotN64.CPU
     public partial class VR4300
     {
         #region Fields
+        private bool branchDelay;
         private readonly IReadOnlyDictionary<Instruction, Action<Instruction>> operations;
         private readonly IReadOnlyDictionary<byte, float> divModeMultipliers = new Dictionary<byte, float>
         {
@@ -253,8 +254,9 @@ namespace DotN64.CPU
         private void Step()
         {
             Instruction instruction;
+            branchDelay = DelaySlot.HasValue;
 
-            if (!DelaySlot.HasValue)
+            if (!branchDelay)
             {
                 instruction = ReadWord(PC);
                 PC += Instruction.Size;

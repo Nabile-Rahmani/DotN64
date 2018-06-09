@@ -32,7 +32,7 @@
 
                 if (!cpu.CP0.Status.EXL)
                 {
-                    if (cpu.CP0.Cause.BD = cpu.DelaySlot.HasValue) // FIXME: Step() nullifies the delay slot before executing it.
+                    if ((cpu.CP0.Cause.BD = cpu.branchDelay))
                         cpu.CP0.Registers[(int)SystemControlUnit.RegisterIndex.EPC] = cpu.PC - Instruction.Size;
                     else
                         cpu.CP0.Registers[(int)SystemControlUnit.RegisterIndex.EPC] = cpu.PC;
