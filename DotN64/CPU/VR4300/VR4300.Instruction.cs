@@ -127,11 +127,11 @@ namespace DotN64.CPU
             #endregion
 
             #region Methods
-            public static Instruction FromOpCode(OpCode op) => new Instruction { OP = op };
+            public static Instruction From(OpCode op) => new Instruction { OP = op };
 
-            public static Instruction FromOpCode(SpecialOpCode op) => new Instruction { Special = op };
+            public static Instruction From(SpecialOpCode op) => new Instruction { Special = op };
 
-            public static Instruction FromOpCode(RegImmOpCode op) => new Instruction { RegImm = op };
+            public static Instruction From(RegImmOpCode op) => new Instruction { RegImm = op };
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Instruction ToOpCode()

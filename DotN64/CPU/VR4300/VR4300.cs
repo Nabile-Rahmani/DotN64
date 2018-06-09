@@ -134,58 +134,58 @@ namespace DotN64.CPU
             COP[1] = new FloatingPointUnit(this);
             operations = new Dictionary<Instruction, Action<Instruction>>
             {
-                [Instruction.FromOpCode(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
-                [Instruction.FromOpCode(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
-                [Instruction.FromOpCode(OpCode.LW)] = i => Load(i, AccessSize.Word),
-                [Instruction.FromOpCode(OpCode.ANDI)] = i => GPR[i.RT] = i.Immediate & GPR[i.RS],
-                [Instruction.FromOpCode(OpCode.BEQL)] = i => BranchLikely(i, (rs, rt) => rs == rt),
-                [Instruction.FromOpCode(OpCode.ADDIU)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
-                [Instruction.FromOpCode(OpCode.SW)] = i => Store(i, AccessSize.Word),
-                [Instruction.FromOpCode(OpCode.BNEL)] = i => BranchLikely(i, (rs, rt) => rs != rt),
-                [Instruction.FromOpCode(OpCode.BNE)] = i => Branch(i, (rs, rt) => rs != rt),
-                [Instruction.FromOpCode(OpCode.BEQ)] = i => Branch(i, (rs, rt) => rs == rt),
-                [Instruction.FromOpCode(OpCode.ADDI)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
-                [Instruction.FromOpCode(OpCode.CACHE)] = i => { /* TODO: Implement and compare the performance if it's a concern. */ },
-                [Instruction.FromOpCode(OpCode.JAL)] = i =>
+                [Instruction.From(OpCode.LUI)] = i => GPR[i.RT] = (ulong)(i.Immediate << 16),
+                [Instruction.From(OpCode.ORI)] = i => GPR[i.RT] = GPR[i.RS] | i.Immediate,
+                [Instruction.From(OpCode.LW)] = i => Load(i, AccessSize.Word),
+                [Instruction.From(OpCode.ANDI)] = i => GPR[i.RT] = i.Immediate & GPR[i.RS],
+                [Instruction.From(OpCode.BEQL)] = i => BranchLikely(i, (rs, rt) => rs == rt),
+                [Instruction.From(OpCode.ADDIU)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
+                [Instruction.From(OpCode.SW)] = i => Store(i, AccessSize.Word),
+                [Instruction.From(OpCode.BNEL)] = i => BranchLikely(i, (rs, rt) => rs != rt),
+                [Instruction.From(OpCode.BNE)] = i => Branch(i, (rs, rt) => rs != rt),
+                [Instruction.From(OpCode.BEQ)] = i => Branch(i, (rs, rt) => rs == rt),
+                [Instruction.From(OpCode.ADDI)] = i => GPR[i.RT] = (ulong)(int)(GPR[i.RS] + (ulong)(short)i.Immediate),
+                [Instruction.From(OpCode.CACHE)] = i => { /* TODO: Implement and compare the performance if it's a concern. */ },
+                [Instruction.From(OpCode.JAL)] = i =>
                 {
                     StoreLink();
                     Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2));
                 },
-                [Instruction.FromOpCode(OpCode.SLTI)] = i => GPR[i.RT] = (long)GPR[i.RS] < (long)(short)i.Immediate ? (ulong)1 : 0,
-                [Instruction.FromOpCode(OpCode.XORI)] = i => GPR[i.RT] = GPR[i.RS] ^ i.Immediate,
-                [Instruction.FromOpCode(OpCode.BLEZL)] = i => BranchLikely(i, (rs, rt) => rs <= 0),
-                [Instruction.FromOpCode(OpCode.SB)] = i => Store(i, AccessSize.Byte),
-                [Instruction.FromOpCode(OpCode.LBU)] = i => LoadUnsigned(i, AccessSize.Byte),
-                [Instruction.FromOpCode(OpCode.COP3)] = i => ExceptionProcessing.ReservedInstruction(this, i), // CP3 access throws a reserved instruction for this CPU.
-                [Instruction.FromOpCode(OpCode.BLEZ)] = i => Branch(i, (rs, rt) => rs <= 0),
-                [Instruction.FromOpCode(OpCode.LD)] = i => Load(i, AccessSize.DoubleWord),
-                [Instruction.FromOpCode(OpCode.SLTIU)] = i => GPR[i.RT] = GPR[i.RS] < (ulong)(short)i.Immediate ? (ulong)1 : 0,
-                [Instruction.FromOpCode(OpCode.SH)] = i => Store(i, AccessSize.HalfWord),
-                [Instruction.FromOpCode(OpCode.LHU)] = i => LoadUnsigned(i, AccessSize.HalfWord),
-                [Instruction.FromOpCode(OpCode.J)] = i => Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2)),
-                [Instruction.FromOpCode(OpCode.LB)] = i => Load(i, AccessSize.Byte),
-                [Instruction.FromOpCode(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
-                [Instruction.FromOpCode(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
-                [Instruction.FromOpCode(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
-                [Instruction.FromOpCode(SpecialOpCode.OR)] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
-                [Instruction.FromOpCode(SpecialOpCode.MULTU)] = i =>
+                [Instruction.From(OpCode.SLTI)] = i => GPR[i.RT] = (long)GPR[i.RS] < (long)(short)i.Immediate ? (ulong)1 : 0,
+                [Instruction.From(OpCode.XORI)] = i => GPR[i.RT] = GPR[i.RS] ^ i.Immediate,
+                [Instruction.From(OpCode.BLEZL)] = i => BranchLikely(i, (rs, rt) => rs <= 0),
+                [Instruction.From(OpCode.SB)] = i => Store(i, AccessSize.Byte),
+                [Instruction.From(OpCode.LBU)] = i => LoadUnsigned(i, AccessSize.Byte),
+                [Instruction.From(OpCode.COP3)] = i => ExceptionProcessing.ReservedInstruction(this, i), // CP3 access throws a reserved instruction for this CPU.
+                [Instruction.From(OpCode.BLEZ)] = i => Branch(i, (rs, rt) => rs <= 0),
+                [Instruction.From(OpCode.LD)] = i => Load(i, AccessSize.DoubleWord),
+                [Instruction.From(OpCode.SLTIU)] = i => GPR[i.RT] = GPR[i.RS] < (ulong)(short)i.Immediate ? (ulong)1 : 0,
+                [Instruction.From(OpCode.SH)] = i => Store(i, AccessSize.HalfWord),
+                [Instruction.From(OpCode.LHU)] = i => LoadUnsigned(i, AccessSize.HalfWord),
+                [Instruction.From(OpCode.J)] = i => Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2)),
+                [Instruction.From(OpCode.LB)] = i => Load(i, AccessSize.Byte),
+                [Instruction.From(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
+                [Instruction.From(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
+                [Instruction.From(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
+                [Instruction.From(SpecialOpCode.OR)] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
+                [Instruction.From(SpecialOpCode.MULTU)] = i =>
                 {
                     var result = (ulong)(uint)GPR[i.RS] * (ulong)(uint)GPR[i.RT];
                     LO = (ulong)(int)result;
                     HI = (ulong)(int)(result >> 32);
                 },
-                [Instruction.FromOpCode(SpecialOpCode.MFLO)] = i => GPR[i.RD] = LO,
-                [Instruction.FromOpCode(SpecialOpCode.SLL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] << i.SA),
-                [Instruction.FromOpCode(SpecialOpCode.SUBU)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
-                [Instruction.FromOpCode(SpecialOpCode.XOR)] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
-                [Instruction.FromOpCode(SpecialOpCode.MFHI)] = i => GPR[i.RD] = HI,
-                [Instruction.FromOpCode(SpecialOpCode.ADDU)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
-                [Instruction.FromOpCode(SpecialOpCode.SLTU)] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
-                [Instruction.FromOpCode(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
-                [Instruction.FromOpCode(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
-                [Instruction.FromOpCode(SpecialOpCode.AND)] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT],
-                [Instruction.FromOpCode(SpecialOpCode.SLT)] = i => GPR[i.RD] = (long)GPR[i.RS] < (long)GPR[i.RT] ? (ulong)1 : 0,
-                [Instruction.FromOpCode(SpecialOpCode.DMULTU)] = i =>
+                [Instruction.From(SpecialOpCode.MFLO)] = i => GPR[i.RD] = LO,
+                [Instruction.From(SpecialOpCode.SLL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] << i.SA),
+                [Instruction.From(SpecialOpCode.SUBU)] = i => GPR[i.RD] = (ulong)(int)(GPR[i.RS] - GPR[i.RT]),
+                [Instruction.From(SpecialOpCode.XOR)] = i => GPR[i.RD] = GPR[i.RS] ^ GPR[i.RT],
+                [Instruction.From(SpecialOpCode.MFHI)] = i => GPR[i.RD] = HI,
+                [Instruction.From(SpecialOpCode.ADDU)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
+                [Instruction.From(SpecialOpCode.SLTU)] = i => GPR[i.RD] = (ulong)(GPR[i.RS] < GPR[i.RT] ? 1 : 0),
+                [Instruction.From(SpecialOpCode.SLLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] << (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.From(SpecialOpCode.SRLV)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> (int)(GPR[i.RS] & ((1 << 5) - 1))),
+                [Instruction.From(SpecialOpCode.AND)] = i => GPR[i.RD] = GPR[i.RS] & GPR[i.RT],
+                [Instruction.From(SpecialOpCode.SLT)] = i => GPR[i.RD] = (long)GPR[i.RS] < (long)GPR[i.RT] ? (ulong)1 : 0,
+                [Instruction.From(SpecialOpCode.DMULTU)] = i =>
                 {
                     ulong rsHi = (uint)(GPR[i.RS] >> 32), rtHi = (uint)(GPR[i.RT] >> 32);
                     ulong rsLo = (uint)GPR[i.RS], rtLo = (uint)GPR[i.RT];
@@ -193,9 +193,9 @@ namespace DotN64.CPU
                     LO = (uint)loProduct + (midProducts << 32);
                     HI = hiProduct + (midProducts >> 32);
                 },
-                [Instruction.FromOpCode(SpecialOpCode.DSLL32)] = i => GPR[i.RD] = GPR[i.RT] << (i.SA + 32),
-                [Instruction.FromOpCode(SpecialOpCode.DSRA32)] = i => GPR[i.RD] = (ulong)((long)GPR[i.RT] >> (i.SA + 32)),
-                [Instruction.FromOpCode(SpecialOpCode.DDIVU)] = i =>
+                [Instruction.From(SpecialOpCode.DSLL32)] = i => GPR[i.RD] = GPR[i.RT] << (i.SA + 32),
+                [Instruction.From(SpecialOpCode.DSRA32)] = i => GPR[i.RD] = (ulong)((long)GPR[i.RT] >> (i.SA + 32)),
+                [Instruction.From(SpecialOpCode.DDIVU)] = i =>
                 {
                     ulong rs = GPR[i.RS], rt = GPR[i.RT];
 
@@ -205,22 +205,22 @@ namespace DotN64.CPU
                     LO = rs / rt;
                     HI = rs % rt;
                 },
-                [Instruction.FromOpCode(SpecialOpCode.SRA)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
-                [Instruction.FromOpCode(SpecialOpCode.MTLO)] = i => LO = GPR[i.RS],
-                [Instruction.FromOpCode(SpecialOpCode.MTHI)] = i => HI = GPR[i.RS],
-                [Instruction.FromOpCode(SpecialOpCode.JALR)] = i =>
+                [Instruction.From(SpecialOpCode.SRA)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
+                [Instruction.From(SpecialOpCode.MTLO)] = i => LO = GPR[i.RS],
+                [Instruction.From(SpecialOpCode.MTHI)] = i => HI = GPR[i.RS],
+                [Instruction.From(SpecialOpCode.JALR)] = i =>
                 {
                     StoreLink((GPRIndex)i.RD);
                     Jump(GPR[i.RS]);
                 },
-                [Instruction.FromOpCode(RegImmOpCode.BGEZAL)] = i =>
+                [Instruction.From(RegImmOpCode.BGEZAL)] = i =>
                 {
                     StoreLink();
                     Branch(i, (rs, rt) => rs >= 0);
                 },
-                [Instruction.FromOpCode(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0),
-                [Instruction.FromOpCode(RegImmOpCode.BLTZ)] = i => Branch(i, (rs, rt) => rs < 0),
-                [Instruction.FromOpCode(RegImmOpCode.BGEZ)] = i => Branch(i, (rs, rt) => rs >= 0)
+                [Instruction.From(RegImmOpCode.BGEZL)] = i => BranchLikely(i, (rs, rt) => rs >= 0),
+                [Instruction.From(RegImmOpCode.BLTZ)] = i => Branch(i, (rs, rt) => rs < 0),
+                [Instruction.From(RegImmOpCode.BGEZ)] = i => Branch(i, (rs, rt) => rs >= 0)
             };
         }
         #endregion
