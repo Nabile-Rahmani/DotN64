@@ -127,15 +127,13 @@ namespace DotN64
         {
             switch (nintendo64.Cartridge?.Country)
             {
-                case Cartridge.CountryCode.Europe:
-                case Cartridge.CountryCode.Germany:
-                case Cartridge.CountryCode.Australia:
-                    return TVType.PAL;
+                case Cartridge.CountryCode.NorthAmerica:
                 case Cartridge.CountryCode.Japan:
-                case Cartridge.CountryCode.USA:
                     return TVType.NTSC;
+                case Cartridge.CountryCode.Brazil:
+                    return TVType.MPAL;
                 default:
-                    return 0;
+                    return TVType.PAL;
             }
         }
 
