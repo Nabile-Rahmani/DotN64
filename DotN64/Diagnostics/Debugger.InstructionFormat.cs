@@ -56,7 +56,7 @@
 
             private static string FormatCP0Register(int index, VR4300 cpu) => RegisterPrefix + (VR4300.SystemControlUnit.RegisterIndex)index + (cpu != null ? FormatRegisterContents(cpu.CP0.Registers[index]) : string.Empty);
 
-            private static string FormatRegisterContents(ulong value) => $"(0x{value:X})";
+            private static string FormatRegisterContents(ulong value) => $"[0x{value:X}]";
 
             /// <summary>
             /// Immediate type.
