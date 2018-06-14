@@ -137,10 +137,20 @@ namespace DotN64
             }
         }
 
-        public void Reset()
+        private void DetectDevice()
         {
             if (nintendo64.Cartridge?.ROM.Length >= Cartridge.HeaderSize + Cartridge.BootstrapSize)
                 DeviceStateFlags = CIC.GetSeed(nintendo64.Cartridge.ROM);
+            else
+                DeviceStateFlags = new DeviceState
+                {
+                    ROM = DeviceState.ROMType.DiskDrive
+                };
+        }
+
+        public void Reset()
+        {
+            DetectDevice();
 
             if (BootROM == null)
                 EmulateBootROM();
