@@ -17,6 +17,7 @@ all: clean
 	chmod +x $(OUTPUT_DIRECTORY)/$(OUTPUT_BINARY)
 
 deploy: all
+	ssh $(DEPLOY_SERVER) 'mkdir -p $(DEPLOY_PATH)/$(BRANCH_NAME)'
 	ssh $(DEPLOY_SERVER) 'cd $(DEPLOY_PATH) && ls -d */ | cut -f 1 -d "/" > streams'
 	cd $(OUTPUT_DIRECTORY) && zip -r - . | ssh $(DEPLOY_SERVER) 'cat > $(DEPLOY_PATH)/$(BRANCH_NAME)/$(PROJECT_NAME).zip'
 	echo $(VERSION) | ssh $(DEPLOY_SERVER) 'cat > $(DEPLOY_PATH)/$(BRANCH_NAME)/version'
