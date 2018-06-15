@@ -50,7 +50,7 @@ namespace DotN64.Desktop
             using (var client = new WebClient())
             {
                 var remoteVersion = new Version(client.DownloadString(new Uri(Program.Website, $"{ProjectName}/Download/{releaseStream}/version")));
-                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var currentVersion = Assembly.GetEntryAssembly().GetName().Version;
 
                 return remoteVersion > currentVersion ? remoteVersion : null;
             }
@@ -97,19 +97,24 @@ namespace DotN64.Desktop
         {
             var updateDirectory = new DirectoryInfo(Path.Combine(InstallDirectory, StagingDirectory));
             var executableName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            var isWindow = Environment.OSVersion.Platform == PlatformID.Win32NT;
-            var shouldRestart = false;
+            var platform = Environment.OSVersion.Platform;
 
             foreach (var file in updateDirectory.GetFiles())
             {
                 var destination = Path.Combine(InstallDirectory, file.Name);
 
-                if (isWindow && file.Name == executableName)
+                if (file.Name == executableName)
                 {
-                    file.MoveTo(destination + NewFileExtension);
-
-                    shouldRestart = true;
-                    continue;
+                    switch (platform)
+                    {
+                        case PlatformID.Unix:
+                        case PlatformID.MacOSX:
+                            Process.Start(new ProcessStartInfo("chmod", $"+x {file.FullName}")).WaitForExit(); // ZipArchive does not preserve permission bits, so we fix it.
+                            break;
+                        case PlatformID.Win32NT:
+                            file.MoveTo(destination + NewFileExtension);
+                            continue;
+                    }
                 }
 
                 File.Delete(destination);
@@ -118,14 +123,14 @@ namespace DotN64.Desktop
 
             updateDirectory.Delete(true);
 
-            if (isWindow && shouldRestart)
+            if (platform == PlatformID.Win32NT)
                 ApplyWindowsUpdate(executableName);
         }
 
         private static void ApplyWindowsUpdate(string executableName)
         {
             var newExecutableName = executableName + NewFileExtension;
-            var scriptFile = new FileInfo("CompleteUpdate.cmd");
+            var scriptFile = new FileInfo(Path.Combine(InstallDirectory, "CompleteUpdate.cmd"));
             var processID = Process.GetCurrentProcess().Id;
 
             using (var writer = scriptFile.CreateText())
@@ -149,7 +154,8 @@ namespace DotN64.Desktop
             Process.Start(new ProcessStartInfo(scriptFile.FullName)
             {
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = InstallDirectory
             });
             Environment.Exit(0);
         }

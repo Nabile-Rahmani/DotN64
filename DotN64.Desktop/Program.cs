@@ -24,7 +24,7 @@ namespace DotN64.Desktop
             }
         }
 
-        public static string ReleaseStream { get; } = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyReleaseStreamAttribute>().Stream;
+        public static string ReleaseStream => Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyReleaseStreamAttribute>().Stream;
 
         public static Uri Website { get; } = new Uri("https://nabile.duckdns.org/DotN64");
         #endregion
@@ -32,7 +32,6 @@ namespace DotN64.Desktop
         #region Methods
         private static void Main(string[] args)
         {
-            Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var options = new Options();
 
             for (int i = 0; i < args.Length; i++)
@@ -65,16 +64,19 @@ namespace DotN64.Desktop
                                 return;
                             case "stream":
                             case "s":
-                                Update(args[++i]);
-                                return;
+                                arg = args[++i];
+
+                                Update(arg, arg != ReleaseStream);
+                                break;
                             default:
                                 Update();
-                                return;
+                                break;
                         }
+                        break;
                     case "--repair":
                     case "-r":
                         Repair();
-                        return;
+                        break;
                     case "--help":
                     case "-h":
                         ShowHelp();
@@ -93,6 +95,8 @@ namespace DotN64.Desktop
 
         private static bool Check(string releaseStream = null)
         {
+            Console.Write("Checking for updates... ");
+
             var newVersion = Updater.Check(releaseStream);
 
             if (newVersion == null)
@@ -148,23 +152,24 @@ namespace DotN64.Desktop
             var version = assembly.GetName().Version;
             var description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
 
-            Console.WriteLine($"{title} v{version} ({BuildDate}){(description != null ? $": {description}" : string.Empty)} ({Website})");
+            Console.WriteLine($"{title} v{version} ({BuildDate}){(description != null ? $": {description}" : string.Empty)}");
+            Console.WriteLine(Website);
         }
 
         private static void ShowHelp()
         {
             ShowInfo();
             Console.WriteLine();
-            Console.WriteLine($"Usage: {Path.GetFileName(Assembly.GetEntryAssembly().Location)} [Options] <ROM image>");
+            Console.WriteLine($"Usage: {Path.GetFileName(Assembly.GetEntryAssembly().Location)} [Options] [ROM image]");
             Console.WriteLine();
             Console.WriteLine("ROM image: Opens the file as a game cartridge.");
             Console.WriteLine("Options:");
             Console.WriteLine("\t--pif-rom <path>: Loads the PIF's boot ROM into the machine.");
             Console.WriteLine("\t-d, --debug: Launches the debugger for the Nintendo 64's CPU.");
             Console.WriteLine("\t-u, --update [action]: Updates the program.");
-            Console.WriteLine("\t[action = 'check', 'c']: Checks for a new update.");
-            Console.WriteLine("\t[action = 'list', 'l']: Lists the release streams available for download.");
-            Console.WriteLine("\t[action = 'stream', 's'] <stream>: Downloads an update from the specified release stream.");
+            Console.WriteLine("\t\t[action = 'check', 'c']: Checks for a new update.");
+            Console.WriteLine("\t\t[action = 'list', 'l']: Lists the release streams available for download.");
+            Console.WriteLine("\t\t[action = 'stream', 's'] <stream>: Downloads an update from the specified release stream.");
             Console.WriteLine("\t-r, --repair: Repairs the installation by redownloading the full program.");
             Console.WriteLine("\t-h, --help: Shows this help.");
         }
