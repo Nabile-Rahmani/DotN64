@@ -95,6 +95,12 @@
     <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.ControlStatusRegister.cs" />
     <Compile Include="CPU\VR4300\CP0\VR4300.SystemControlUnit.FunctOpCode.cs" />
     <Compile Include="CPU\VR4300\VR4300.AccessSize.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.ControlRegister.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.TimingRegister.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.HorizontalSyncRegister.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.VerticalVideoRegister.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.VerticalBurstRegister.cs" />
+    <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.ScaleRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />

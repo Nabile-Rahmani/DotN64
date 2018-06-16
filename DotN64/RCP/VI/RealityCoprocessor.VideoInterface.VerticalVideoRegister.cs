@@ -6,7 +6,7 @@
     {
         public partial class VideoInterface
         {
-            public struct HorizontalVideoRegister
+            public struct VerticalVideoRegister
             {
                 #region Fields
                 private uint data;
@@ -17,7 +17,7 @@
 
                 #region Properties
                 /// <summary>
-                /// End of active video in screen pixels.
+                /// End of active video in screen half-lines.
                 /// </summary>
                 public ushort ActiveVideoEnd
                 {
@@ -26,7 +26,7 @@
                 }
 
                 /// <summary>
-                /// Start of active video in screen pixels.
+                /// Start of active video in screen half-lines.
                 /// </summary>
                 public ushort ActiveVideoStart
                 {
@@ -36,9 +36,9 @@
                 #endregion
 
                 #region Operators
-                public static implicit operator HorizontalVideoRegister(uint data) => new HorizontalVideoRegister { data = data };
+                public static implicit operator VerticalVideoRegister(uint data) => new VerticalVideoRegister { data = data };
 
-                public static implicit operator uint(HorizontalVideoRegister register) => register.data;
+                public static implicit operator uint(VerticalVideoRegister register) => register.data;
                 #endregion
             }
         }
