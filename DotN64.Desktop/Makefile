@@ -12,8 +12,9 @@ VERSION = $(shell $(OUTPUT_DIRECTORY)/$(OUTPUT_BINARY) --help | head -1 | awk '{
 DEPLOY_SERVER := 192.168.1.51
 DEPLOY_PATH := /var/www/nabile.duckdns.org/$(PROJECT_NAME)/Download
 
-all: clean
-	$(COMPILER) /p:Configuration=$(COMPILER_CONFIGURATION)
+all:
+	cd .. && nuget restore
+	$(COMPILER) .. /p:Configuration=$(COMPILER_CONFIGURATION)
 	chmod +x $(OUTPUT_DIRECTORY)/$(OUTPUT_BINARY)
 
 deploy: all
@@ -22,7 +23,4 @@ deploy: all
 	cd $(OUTPUT_DIRECTORY) && zip -r - . | ssh $(DEPLOY_SERVER) 'cat > $(DEPLOY_PATH)/$(BRANCH_NAME)/$(PROJECT_NAME).zip'
 	echo $(VERSION) | ssh $(DEPLOY_SERVER) 'cat > $(DEPLOY_PATH)/$(BRANCH_NAME)/version'
 
-clean:
-	$(COMPILER) /t:Clean /p:Configuration=$(COMPILER_CONFIGURATION)
-
-.PHONY: all deploy clean
+.PHONY: all deploy
