@@ -77,6 +77,7 @@
                     },
                     new MappingEntry(0x04400010, 0x04400013) // VI current vertical line.
                     {
+                        Read = o => CurrentVerticalLine,
                         Write = (o, d) =>
                         {
                             CurrentVerticalLine = (ushort)(d & ((1 << 10) - 1));

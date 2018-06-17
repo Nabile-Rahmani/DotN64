@@ -22,6 +22,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.ANDI)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BEQ)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BEQL)] = InstructionFormat.I,
+            [VR4300.Instruction.From(VR4300.OpCode.BGTZ)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BLEZL)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BLEZ)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BNE)] = InstructionFormat.I,
@@ -30,6 +31,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.COP0)] = InstructionFormat.R, // FIXME: all CP0 ops are treated as such at the moment.
             [VR4300.Instruction.From(VR4300.OpCode.JAL)] = InstructionFormat.J,
             [VR4300.Instruction.From(VR4300.OpCode.J)] = InstructionFormat.J,
+            [VR4300.Instruction.From(VR4300.OpCode.LB)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LBU)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LUI)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LD)] = InstructionFormat.I,
@@ -42,7 +44,6 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.SLTIU)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.SW)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.XORI)] = InstructionFormat.I,
-            [VR4300.Instruction.From(VR4300.OpCode.LB)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.SpecialOpCode.ADD)] = InstructionFormat.R,
             [VR4300.Instruction.From(VR4300.SpecialOpCode.ADDU)] = InstructionFormat.R,
             [VR4300.Instruction.From(VR4300.SpecialOpCode.AND)] = InstructionFormat.R,

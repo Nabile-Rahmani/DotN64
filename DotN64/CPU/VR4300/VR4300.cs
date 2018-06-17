@@ -164,6 +164,7 @@ namespace DotN64.CPU
                 [Instruction.From(OpCode.LHU)] = i => LoadUnsigned(i, AccessSize.HalfWord),
                 [Instruction.From(OpCode.J)] = i => Jump((PC & ~((ulong)(1 << 28) - 1)) | (i.Target << 2)),
                 [Instruction.From(OpCode.LB)] = i => Load(i, AccessSize.Byte),
+                [Instruction.From(OpCode.BGTZ)] = i => Branch(i, (rs, rt) => rs > 0),
                 [Instruction.From(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [Instruction.From(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
                 [Instruction.From(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),

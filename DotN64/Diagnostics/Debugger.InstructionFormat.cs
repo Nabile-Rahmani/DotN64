@@ -81,6 +81,7 @@
                         return Format(instruction, FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu), (short)instruction.Immediate);
                     case VR4300.OpCode.BLEZL:
                     case VR4300.OpCode.BLEZ:
+                    case VR4300.OpCode.BGTZ:
                         return Format(instruction, FormatRegister(instruction.RS, cpu), (short)instruction.Immediate);
                     default:
                         return Format(instruction, FormatRegister(instruction.RT, cpu), FormatRegister(instruction.RS, cpu), (short)instruction.Immediate);

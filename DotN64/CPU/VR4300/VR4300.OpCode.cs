@@ -59,7 +59,9 @@
             /// <summary>Jump.</summary>
             J = 0b000010,
             /// <summary>Load Byte.</summary>
-            LB = 0b100000
+            LB = 0b100000,
+            /// <summary>Branch On Greater Than Zero.</summary>
+            BGTZ = 0b000111
         }
     }
 }
