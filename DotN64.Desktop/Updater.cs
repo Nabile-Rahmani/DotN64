@@ -145,7 +145,7 @@ namespace DotN64.Desktop
 
                 writer.WriteLine(":UPDATE");
                 writer.WriteLine($"move /Y \"{newExecutableName}\" \"{executableName}\"");
-                writer.WriteLine($"start \"\" \"{executableName}\"");
+                //writer.WriteLine($"start \"\" \"{executableName}\""); // It's pointless to automatically restart the program as it'll crash with no arguments in its current state.
                 writer.WriteLine($"del /A:H %0");
             }
 
