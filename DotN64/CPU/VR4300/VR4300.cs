@@ -167,7 +167,7 @@ namespace DotN64.CPU
                 [Instruction.From(OpCode.BGTZ)] = i => Branch(i, (rs, rt) => rs > 0),
                 [Instruction.From(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [Instruction.From(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
-                [Instruction.From(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RT] >> i.SA),
+                [Instruction.From(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> i.SA),
                 [Instruction.From(SpecialOpCode.OR)] = i => GPR[i.RD] = GPR[i.RS] | GPR[i.RT],
                 [Instruction.From(SpecialOpCode.MULTU)] = i =>
                 {
