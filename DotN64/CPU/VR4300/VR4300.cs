@@ -332,7 +332,7 @@ namespace DotN64.CPU
                 case AccessSize.Word:
                     return ReadSysAD(physicalAddress);
                 case AccessSize.DoubleWord:
-                    return ReadSysAD(physicalAddress) << 32 | ReadSysAD(physicalAddress + sizeof(uint));
+                    return (ulong)ReadSysAD(physicalAddress) << 32 | (ulong)ReadSysAD(physicalAddress + sizeof(uint));
                 default:
                     throw new ArgumentException("Invalid system bus access size.", nameof(size));
             }
