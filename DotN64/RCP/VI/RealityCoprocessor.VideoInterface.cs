@@ -15,7 +15,16 @@
             /// <summary>
             /// Current half line, sampled once per line (the lsb of V_CURRENT is constant within a field, and in interlaced modes gives the field number - which is constant for non-interlaced modes).
             /// </summary>
-            public ushort CurrentVerticalLine { get; set; }
+            private ushort currentVerticalLine;
+            public ushort CurrentVerticalLine
+            {
+                get => currentVerticalLine;
+                set
+                {
+                    if ((currentVerticalLine = value) == VerticalInterrupt)
+                        rcp.MI.Interrupt |= MIPSInterface.Interrupts.VI;
+                }
+            }
 
             public ControlRegister Control { get; set; }
 

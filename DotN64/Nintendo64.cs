@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace DotN64
 {
@@ -30,6 +31,12 @@ namespace DotN64
                 CartridgeSwapped?.Invoke(this, value);
             }
         }
+
+        public IVideoOutput VideoOutput { get; set; }
+
+        public Switch Power { get; private set; }
+
+        public Diagnostics.Debugger Debugger { get; set; }
         #endregion
 
         #region Events
@@ -54,16 +61,38 @@ namespace DotN64
         #region Methods
         public void PowerOn()
         {
+            Power = Switch.On;
+
             CPU.Reset();
             PIF.Reset();
         }
 
+        public void PowerOff() => Power = Switch.Off;
+
         public void Run()
         {
-            while (true)
-            {
-                CPU.Cycle();
-            }
+            if (VideoOutput != null)
+                Task.Run(() =>
+                {
+                    while (Power == Switch.On && VideoOutput != null)
+                    {
+                        VideoOutput.Draw(new VideoFrame(RCP.VI), RCP.VI, RAM);
+                    }
+                });
+
+            if (Debugger == null)
+                while (Power == Switch.On)
+                {
+                    if (Debugger == null)
+                        CPU.Cycle();
+                    else
+                    {
+                        Debugger.Run(true);
+                        Debugger = null;
+                    }
+                }
+            else
+                Debugger.Run(true);
         }
         #endregion
     }

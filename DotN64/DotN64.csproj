@@ -100,6 +100,9 @@
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.VerticalVideoRegister.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.VerticalBurstRegister.cs" />
     <Compile Include="RCP\VI\RealityCoprocessor.VideoInterface.ScaleRegister.cs" />
+    <Compile Include="IVideoOutput.cs" />
+    <Compile Include="VideoFrame.cs" />
+    <Compile Include="Switch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />

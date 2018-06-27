@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using DotN64.Desktop;
+using System.Linq;
 
 [assembly: AssemblyTitle(nameof(DotN64))]
 [assembly: AssemblyDescription("Nintendo 64 emulator.")]
@@ -10,6 +11,7 @@ using DotN64.Desktop;
 namespace DotN64.Desktop
 {
     using Diagnostics;
+    using SDL;
 
     internal static class Program
     {
@@ -81,6 +83,29 @@ namespace DotN64.Desktop
                     case "-h":
                         ShowHelp();
                         return;
+                    case "--no-video":
+                        options.NoVideo = true;
+                        break;
+                    case "--video":
+                    case "-v":
+                        var resolution = args[++i].Split('x').Select(v => int.Parse(v));
+                        options.VideoResolution = new Point(resolution.First(), resolution.Last());
+
+                        switch (args[++i])
+                        {
+                            case "fullscreen":
+                            case "f":
+                                options.FullScreenVideo = true;
+                                break;
+                            case "borderless":
+                            case "b":
+                                options.BorderlessWindow = true;
+                                break;
+                            case "windowed":
+                            case "w":
+                                break;
+                        }
+                        break;
                     default:
                         options.Cartridge = arg;
                         break;
@@ -126,23 +151,34 @@ namespace DotN64.Desktop
         private static void Run(Options options)
         {
             var nintendo64 = new Nintendo64();
-            Debugger debugger = null;
+            Window window = null;
+
+            if (options.UseDebugger)
+                nintendo64.Debugger = new Debugger(nintendo64);
+
+            if (!options.NoVideo)
+            {
+                window = new Window(nintendo64, size: options.VideoResolution)
+                {
+                    IsFullScreen = options.FullScreenVideo,
+                    IsBorderless = options.BorderlessWindow
+                };
+                nintendo64.VideoOutput = window;
+            }
 
             if (options.BootROM != null)
                 nintendo64.PIF.BootROM = File.ReadAllBytes(options.BootROM);
 
-            if (options.UseDebugger)
-                debugger = new Debugger(nintendo64);
-
             if (options.Cartridge != null)
+            {
                 nintendo64.Cartridge = Cartridge.FromFile(new FileInfo(options.Cartridge));
 
-            nintendo64.PowerOn();
+                if (window != null)
+                    window.Title += $" - {nintendo64.Cartridge.ImageName.Trim()}";
+            }
 
-            if (debugger == null)
-                nintendo64.Run();
-            else
-                debugger.Run(true);
+            nintendo64.PowerOn();
+            nintendo64.Run();
         }
 
         private static void ShowInfo()
@@ -172,6 +208,8 @@ namespace DotN64.Desktop
             Console.WriteLine("\t\t[action = 'stream', 's'] <stream>: Downloads an update from the specified release stream.");
             Console.WriteLine("\t-r, --repair: Repairs the installation by redownloading the full program.");
             Console.WriteLine("\t-h, --help: Shows this help.");
+            Console.WriteLine("\t-v, --video <width>x<height> <mode = 'fullscreen', 'f', 'borderless', 'b', 'windowed', 'w'>: Sets the window mode.");
+            Console.WriteLine("\t--no-video: Disables the video output.");
         }
         #endregion
 
@@ -179,8 +217,9 @@ namespace DotN64.Desktop
         private struct Options
         {
             #region Fields
-            public bool UseDebugger;
+            public bool UseDebugger, NoVideo, FullScreenVideo, BorderlessWindow;
             public string BootROM, Cartridge;
+            public Point? VideoResolution;
             #endregion
         }
         #endregion

@@ -57,6 +57,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="AssemblyReleaseStreamAttribute.cs" />
     <Compile Include="Updater.cs" />
+    <Compile Include="Point.cs" />
+    <Compile Include="SDL\Window.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SDL\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
