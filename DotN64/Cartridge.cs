@@ -13,7 +13,7 @@ namespace DotN64
         #endregion
 
         #region Properties
-        public byte[] ROM { get; set; }
+        public byte[] ROM { get; }
 
         public uint ClockRate => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x04));
 
@@ -38,15 +38,19 @@ namespace DotN64
         public byte Version => ROM[0x3F];
         #endregion
 
+        #region Constructors
+        public Cartridge(byte[] rom)
+        {
+            ROM = rom;
+        }
+        #endregion
+
         #region Methods
         public static Cartridge FromFile(FileInfo file)
         {
             using (var reader = new BinaryReader(file.OpenRead()))
             {
-                return new Cartridge
-                {
-                    ROM = reader.ReadBytes((int)reader.BaseStream.Length)
-                };
+                return new Cartridge(reader.ReadBytes((int)reader.BaseStream.Length));
             }
         }
         #endregion

@@ -9,7 +9,14 @@ namespace DotN64.RCP
     {
         public partial class ParallelInterface : Interface
         {
+            #region Fields
+            private readonly MappingEntry[] memoryMaps;
+            private readonly int cartridgeMapIndex;
+            #endregion
+
             #region Properties
+            private ref MappingEntry CartridgeMap => ref memoryMaps[cartridgeMapIndex];
+
             public Statuses Status { get; set; }
 
             public Domain[] Domains { get; } = new[]
@@ -38,7 +45,8 @@ namespace DotN64.RCP
             public ParallelInterface(RealityCoprocessor rcp)
                 : base(rcp)
             {
-                MemoryMaps = new[]
+                MappingEntry cartridgeMap;
+                MemoryMaps = memoryMaps = new[]
                 {
                     new MappingEntry(0x04600010, 0x04600013) // PI status.
                     {
@@ -94,9 +102,24 @@ namespace DotN64.RCP
                             rcp.MI.Interrupt |= MIPSInterface.Interrupts.PI;
                         }
                     },
-                    new MappingEntry(0x10000000, 0x1FBFFFFF) // Cartridge Domain 1 Address 2.
+                    cartridgeMap = new MappingEntry(0x10000000, 0x1FBFFFFF, false) // Cartridge Domain 1 Address 2.
                     {
-                        Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rcp.nintendo64.Cartridge.ROM, (int)o))
+                        Read = BitHelper.ReadOpenBus
+                    }
+                };
+                cartridgeMapIndex = Array.IndexOf(memoryMaps, cartridgeMap);
+                rcp.nintendo64.CartridgeSwapped += (n, c) =>
+                {
+                    if (c != null)
+                    {
+                        var rom = c.ROM;
+                        CartridgeMap.OffsetAddress = true;
+                        CartridgeMap.Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rom, (int)o));
+                    }
+                    else
+                    {
+                        CartridgeMap.OffsetAddress = false;
+                        CartridgeMap.Read = BitHelper.ReadOpenBus;
                     }
                 };
             }

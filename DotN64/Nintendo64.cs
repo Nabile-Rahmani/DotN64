@@ -17,7 +17,23 @@ namespace DotN64
 
         public PeripheralInterface PIF { get; }
 
-        public Cartridge Cartridge { get; set; }
+        private Cartridge cartridge;
+        public Cartridge Cartridge
+        {
+            get => cartridge;
+            set
+            {
+                if (Cartridge == value)
+                    return;
+
+                cartridge = value;
+                CartridgeSwapped?.Invoke(this, value);
+            }
+        }
+        #endregion
+
+        #region Events
+        public event Action<Nintendo64, Cartridge> CartridgeSwapped;
         #endregion
 
         #region Constructors

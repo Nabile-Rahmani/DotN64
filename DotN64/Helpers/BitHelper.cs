@@ -46,6 +46,9 @@ namespace DotN64.Helpers
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ToBigEndian(uint value) => (uint)IPAddress.HostToNetworkOrder((int)value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadOpenBus(uint address) => (uint)(address & ~((1 << 16) - 1) | address >> 16);
         #endregion
     }
 }
