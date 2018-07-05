@@ -43,16 +43,9 @@ namespace DotN64
         {
             ROM = rom;
         }
-        #endregion
 
-        #region Methods
-        public static Cartridge FromFile(FileInfo file)
-        {
-            using (var reader = new BinaryReader(file.OpenRead()))
-            {
-                return new Cartridge(reader.ReadBytes((int)reader.BaseStream.Length));
-            }
-        }
+        public Cartridge(FileInfo file)
+            : this(File.ReadAllBytes(file.FullName)) { }
         #endregion
     }
 }

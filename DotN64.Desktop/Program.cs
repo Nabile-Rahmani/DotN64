@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using DotN64.Desktop;
-using System.Linq;
 
 [assembly: AssemblyTitle(nameof(DotN64))]
 [assembly: AssemblyDescription("Nintendo 64 emulator.")]
@@ -148,34 +149,46 @@ namespace DotN64.Desktop
 
         private static void Repair() => Update(force: true);
 
+        private static Cartridge LoadCartridge(string path)
+        {
+            var file = new FileInfo(path);
+
+            if (file.Extension.ToLower() == ".zip")
+            {
+                using (var input = ZipFile.OpenRead(file.FullName).Entries.First().Open())
+                using (var output = new MemoryStream())
+                {
+                    input.CopyTo(output);
+                    return new Cartridge(output.ToArray());
+                }
+            }
+
+            return new Cartridge(file);
+        }
+
         private static void Run(Options options)
         {
             var nintendo64 = new Nintendo64();
-            Window window = null;
 
             if (options.UseDebugger)
                 nintendo64.Debugger = new Debugger(nintendo64);
 
             if (!options.NoVideo)
             {
-                window = new Window(nintendo64, size: options.VideoResolution)
+                var window = new Window(nintendo64, size: options.VideoResolution)
                 {
                     IsFullScreen = options.FullScreenVideo,
                     IsBorderless = options.BorderlessWindow
                 };
                 nintendo64.VideoOutput = window;
+                nintendo64.CartridgeSwapped += (n, c) => window.Title = nameof(DotN64) + (c != null ? $" - {c.ImageName.Trim()}" : string.Empty);
             }
 
             if (options.BootROM != null)
                 nintendo64.PIF.BootROM = File.ReadAllBytes(options.BootROM);
 
             if (options.Cartridge != null)
-            {
-                nintendo64.Cartridge = Cartridge.FromFile(new FileInfo(options.Cartridge));
-
-                if (window != null)
-                    window.Title += $" - {nintendo64.Cartridge.ImageName.Trim()}";
-            }
+                nintendo64.Cartridge = LoadCartridge(options.Cartridge);
 
             nintendo64.PowerOn();
             nintendo64.Run();
