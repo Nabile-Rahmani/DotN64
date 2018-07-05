@@ -9,14 +9,7 @@ namespace DotN64.RCP
     {
         public partial class ParallelInterface : Interface
         {
-            #region Fields
-            private readonly MappingEntry[] memoryMaps;
-            private readonly int cartridgeMapIndex;
-            #endregion
-
             #region Properties
-            private ref MappingEntry CartridgeMap => ref memoryMaps[cartridgeMapIndex];
-
             public Statuses Status { get; set; }
 
             public Domain[] Domains { get; } = new[]
@@ -46,7 +39,7 @@ namespace DotN64.RCP
                 : base(rcp)
             {
                 MappingEntry cartridgeMap;
-                MemoryMaps = memoryMaps = new[]
+                MemoryMaps = new[]
                 {
                     new MappingEntry(0x04600010, 0x04600013) // PI status.
                     {
@@ -107,19 +100,21 @@ namespace DotN64.RCP
                         Read = BitHelper.ReadOpenBus
                     }
                 };
-                cartridgeMapIndex = Array.IndexOf(memoryMaps, cartridgeMap);
+                var cartridgeMapIndex = Array.IndexOf(MemoryMaps as MappingEntry[], cartridgeMap);
                 rcp.nintendo64.CartridgeSwapped += (n, c) =>
                 {
+                    ref var map = ref (MemoryMaps as MappingEntry[])[cartridgeMapIndex];
+
                     if (c != null)
                     {
                         var rom = c.ROM;
-                        CartridgeMap.OffsetAddress = true;
-                        CartridgeMap.Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rom, (int)o));
+                        map.OffsetAddress = true;
+                        map.Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(rom, (int)o));
                     }
                     else
                     {
-                        CartridgeMap.OffsetAddress = false;
-                        CartridgeMap.Read = BitHelper.ReadOpenBus;
+                        map.OffsetAddress = false;
+                        map.Read = BitHelper.ReadOpenBus;
                     }
                 };
             }
