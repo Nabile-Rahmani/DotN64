@@ -20,7 +20,7 @@ namespace DotN64.CPU
             [0b11] = 3.0f
         };
 
-        private delegate bool BranchCondition(ulong rs, ulong rt);
+        private delegate bool BranchCondition(long rs, long rt);
         #endregion
 
         #region Properties
@@ -290,7 +290,7 @@ namespace DotN64.CPU
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Branch(Instruction instruction, BranchCondition condition)
         {
-            var result = condition(GPR[instruction.RS], GPR[instruction.RT]);
+            var result = condition((long)GPR[instruction.RS], (long)GPR[instruction.RT]);
 
             if (result)
                 Jump(PC + ((ulong)(short)instruction.Immediate << 2));
