@@ -132,7 +132,8 @@ namespace DotN64.Diagnostics
                     {
                         case "add":
                         case "a":
-                            labels[args.Length <= index + 1 ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber)] = args[index++];
+                            var label = args[index++];
+                            labels[args.Length <= index ? Cursor : ulong.Parse(args[index++], NumberStyles.HexNumber)] = label;
                             break;
                         case "remove":
                         case "r":
