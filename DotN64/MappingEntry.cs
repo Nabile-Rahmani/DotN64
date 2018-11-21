@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 namespace DotN64
@@ -6,9 +7,9 @@ namespace DotN64
     public struct MappingEntry
     {
         #region Properties
-        public uint StartAddress { get; set; }
+        public uint StartAddress { get; }
 
-        public uint EndAddress { get; set; }
+        public uint EndAddress { get; }
 
         public bool OffsetAddress { get; set; }
 
@@ -24,6 +25,8 @@ namespace DotN64
             StartAddress = startAddress;
             EndAddress = endAddress;
             OffsetAddress = offsetAddress;
+
+            Contract.Ensures(EndAddress >= StartAddress);
         }
         #endregion
 
