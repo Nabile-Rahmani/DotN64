@@ -2,11 +2,12 @@
 {
     public partial class Cartridge
     {
-        public enum MediaFormat
+        public enum MediaFormat : byte
         {
-            Cartridge = 'N',
-            Disk = 'D',
-            ExpandableCartridge = 'E'
+            ExpandableCartridge = (byte)'C',
+            Disk = (byte)'D',
+            ExpansionDisk = (byte)'E',
+            Cartridge = (byte)'N'
         }
     }
 }

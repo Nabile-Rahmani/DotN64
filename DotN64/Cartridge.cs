@@ -17,9 +17,9 @@ namespace DotN64
 
         public uint ClockRate => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x04));
 
-        public uint BootAddressOffset => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x08));
+        public uint BootAddress => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x08));
 
-        public uint ReleaseOffset => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x0C));
+        public uint Release => BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x0C));
 
         public uint[] CRC => new[]
         {
@@ -29,9 +29,9 @@ namespace DotN64
 
         public string ImageName => Encoding.ASCII.GetString(ROM, 0x20, 0x34 - 0x20);
 
-        public MediaFormat Format => (MediaFormat)BitHelper.FromBigEndian(BitConverter.ToUInt32(ROM, 0x38));
+        public string ID => Encoding.ASCII.GetString(ROM, 0x3B, 4);
 
-        public ushort ID => BitHelper.FromBigEndian(BitConverter.ToUInt16(ROM, 0x3C));
+        public MediaFormat Format => (MediaFormat)ROM[0x3B];
 
         public CountryCode Country => (CountryCode)ROM[0x3E];
 
