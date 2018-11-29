@@ -119,19 +119,6 @@
                         return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RT, cpu), (sbyte)instruction.SA);
                 }
 
-                switch (instruction.OP)
-                {
-                    case VR4300.OpCode.COP0:
-                        switch ((VR4300.SystemControlUnit.OpCode)instruction.RS)
-                        {
-                            case VR4300.SystemControlUnit.OpCode.MT:
-                            case VR4300.SystemControlUnit.OpCode.MF:
-                                return Format(instruction, FormatRegister(instruction.RT, cpu), FormatCP0Register(instruction.RD, cpu));
-                            default:
-                                return FormatOpCode(instruction);
-                        }
-                }
-
                 return Format(instruction, FormatRegister(instruction.RD, cpu), FormatRegister(instruction.RS, cpu), FormatRegister(instruction.RT, cpu));
             }
 
@@ -139,6 +126,18 @@
             /// Jump type.
             /// </summary>
             public static string J(VR4300.Instruction instruction, VR4300 cpu) => Format(instruction, $"0x{((cpu != null ? (cpu.DelaySlot ?? cpu.PC) : 0) & ~(ulong)((1 << 28) - 1)) | (instruction.Target << 2):X8}");
+
+            public static string CP0(VR4300.Instruction instruction, VR4300 cpu)
+            {
+                switch ((VR4300.SystemControlUnit.OpCode)instruction.RS)
+                {
+                    case VR4300.SystemControlUnit.OpCode.MT:
+                    case VR4300.SystemControlUnit.OpCode.MF:
+                        return Format(instruction, FormatRegister(instruction.RT, cpu), FormatCP0Register(instruction.RD, cpu));
+                    default:
+                        return FormatOpCode(instruction);
+                }
+            }
 
             public static string Unknown(VR4300.Instruction instruction) => FormatOpCode(instruction);
             #endregion

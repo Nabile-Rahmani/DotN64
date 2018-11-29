@@ -28,7 +28,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.BNE)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.BNEL)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.CACHE)] = null,
-            [VR4300.Instruction.From(VR4300.OpCode.COP0)] = InstructionFormat.R, // FIXME: all CP0 ops are treated as such at the moment.
+            [VR4300.Instruction.From(VR4300.OpCode.COP0)] = InstructionFormat.CP0,
             [VR4300.Instruction.From(VR4300.OpCode.JAL)] = InstructionFormat.J,
             [VR4300.Instruction.From(VR4300.OpCode.J)] = InstructionFormat.J,
             [VR4300.Instruction.From(VR4300.OpCode.LB)] = InstructionFormat.I,
