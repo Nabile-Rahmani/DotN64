@@ -103,6 +103,7 @@
     <Compile Include="IVideoOutput.cs" />
     <Compile Include="VideoFrame.cs" />
     <Compile Include="Switch.cs" />
+    <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.Angrylion.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
@@ -123,6 +124,11 @@
     <Folder Include="PIF\" />
     <Folder Include="RDRAM\" />
     <Folder Include="CPU\VR4300\CP1\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DotN64.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
