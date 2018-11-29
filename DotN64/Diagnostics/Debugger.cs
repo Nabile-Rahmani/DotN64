@@ -39,6 +39,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.LW)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.ORI)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.SB)] = InstructionFormat.I,
+            [VR4300.Instruction.From(VR4300.OpCode.SD)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.SH)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.SLTI)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.SLTIU)] = InstructionFormat.I,
@@ -296,7 +297,7 @@ namespace DotN64.Diagnostics
         {
             DebuggerStatus = debug ? Status.Debugging : Status.Running;
 
-            while (DebuggerStatus != Status.Stopped)
+            while (DebuggerStatus != Status.Stopped && nintendo64.Power == Switch.On)
             {
                 switch (DebuggerStatus)
                 {

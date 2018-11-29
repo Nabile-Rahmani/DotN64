@@ -61,7 +61,9 @@
             /// <summary>Load Byte.</summary>
             LB = 0b100000,
             /// <summary>Branch On Greater Than Zero.</summary>
-            BGTZ = 0b000111
+            BGTZ = 0b000111,
+            /// <summary>Store Doubleword.</summary>
+            SD = 0b111111
         }
     }
 }
