@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace DotN64
 {
@@ -71,28 +71,38 @@ namespace DotN64
 
         public void Run()
         {
-            if (VideoOutput != null)
-                Task.Run(() =>
+            var cpuThread = new Thread(() =>
+            {
+                if (Debugger == null)
                 {
-                    while (Power == Switch.On && VideoOutput != null)
+                    while (Power == Switch.On)
                     {
-                        VideoOutput.Draw(new VideoFrame(RCP.VI), RCP.VI, RAM);
-                    }
-                });
-
-            if (Debugger == null)
-                while (Power == Switch.On)
-                {
-                    if (Debugger == null)
-                        CPU.Cycle();
-                    else
-                    {
-                        Debugger.Run(true);
-                        Debugger = null;
+                        if (Debugger == null)
+                            CPU.Cycle();
+                        else
+                        {
+                            Debugger.Run(true);
+                            Debugger = null;
+                        }
                     }
                 }
-            else
-                Debugger.Run(true);
+                else
+                {
+                    Debugger.Run(true);
+                    PowerOff();
+                }
+            });
+            cpuThread.Start();
+
+            if (VideoOutput != null)
+            {
+                while (Power == Switch.On && VideoOutput != null)
+                {
+                    VideoOutput.Draw(new VideoFrame(RCP.VI), RCP.VI, RAM);
+                }
+            }
+
+            cpuThread.Join();
         }
         #endregion
     }

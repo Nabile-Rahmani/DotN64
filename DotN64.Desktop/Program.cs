@@ -207,6 +207,8 @@ namespace DotN64.Desktop
 
             nintendo64.PowerOn();
             nintendo64.Run();
+
+            (nintendo64.VideoOutput as IDisposable)?.Dispose();
         }
 
         private static void ShowInfo()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using static SDL2.SDL;
 
@@ -12,6 +13,11 @@ namespace DotN64.Desktop.SDL
         #region Fields
         private readonly IntPtr window;
         private readonly Nintendo64 nintendo64;
+        private readonly Dictionary<ControlRegister.PixelSize, uint> pixelFormats = new Dictionary<ControlRegister.PixelSize, uint>
+        {
+            [ControlRegister.PixelSize.RGBA5553] = SDL_PIXELFORMAT_RGBA5551,
+            [ControlRegister.PixelSize.RGBA8888] = SDL_PIXELFORMAT_RGBA8888
+        };
         private IntPtr renderer, texture;
         private VideoFrame lastFrame;
         private bool isDisposed;
@@ -113,23 +119,6 @@ namespace DotN64.Desktop.SDL
             }
         }
 
-        private IntPtr CreateTexture(VideoFrame frame)
-        {
-            uint pixelFormat = 0;
-
-            switch (frame.Size)
-            {
-                case ControlRegister.PixelSize.RGBA5553:
-                    pixelFormat = SDL_PIXELFORMAT_RGBA5551;
-                    break;
-                case ControlRegister.PixelSize.RGBA8888:
-                    pixelFormat = SDL_PIXELFORMAT_RGBA8888;
-                    break;
-            }
-
-            return SDL_CreateTexture(renderer, pixelFormat, (int)SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, frame.Width, frame.Height);
-        }
-
         public void Draw(VideoFrame frame, RealityCoprocessor.VideoInterface vi, RDRAM ram)
         {
             PollEvents();
@@ -137,7 +126,7 @@ namespace DotN64.Desktop.SDL
             if (renderer == IntPtr.Zero)
                 renderer = SDL_CreateRenderer(window, SDL_GetWindowDisplayIndex(window), SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
 
-            if (frame.Size <= ControlRegister.PixelSize.Reserved) // Do nothing on Blank or Reserved frame.
+            if (frame.Size <= ControlRegister.PixelSize.Reserved || frame.Width <= 0 || frame.Height <= 0) // Do nothing on Blank or Reserved frame.
             {
                 // Might want to clear the screen.
                 SDL_RenderPresent(renderer);
@@ -147,7 +136,7 @@ namespace DotN64.Desktop.SDL
             if (frame != lastFrame)
             {
                 SDL_DestroyTexture(texture);
-                texture = CreateTexture(frame);
+                texture = SDL_CreateTexture(renderer, pixelFormats[frame.Size], (int)SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, frame.Width, frame.Height);
                 lastFrame = frame;
             }
 
@@ -167,12 +156,14 @@ namespace DotN64.Desktop.SDL
             // TODO: This should be moved to the VI itself, which would call VideoOutput methods instead.
             for (vi.CurrentVerticalLine = 0; vi.CurrentVerticalLine < vi.VerticalSync; vi.CurrentVerticalLine++) // Sweep all the way down the screen.
             {
-                if (vi.CurrentVerticalLine >= vi.VerticalVideo.ActiveVideoStart && vi.CurrentVerticalLine < vi.VerticalVideo.ActiveVideoEnd) // Only scan active lines.
-                {
-                    var offset = pitch * (vi.CurrentVerticalLine - vi.VerticalVideo.ActiveVideoStart);
+                if (vi.CurrentVerticalLine < vi.VerticalVideo.ActiveVideoStart || vi.CurrentVerticalLine >= vi.VerticalVideo.ActiveVideoEnd) // Only scan active lines.
+                    continue;
 
-                    Marshal.Copy(ram.Memory, (int)vi.DRAMAddress + offset, pixels + offset, pitch);
-                }
+                //var line = (ushort)(((vi.CurrentVerticalLine - vi.VerticalVideo.ActiveVideoStart) >> 1) * (float)vi.VerticalScale.ScaleUpFactor / (1 << 10));
+                var line = (ushort)((vi.CurrentVerticalLine - vi.VerticalVideo.ActiveVideoStart) / (float)(vi.VerticalVideo.ActiveVideoEnd - vi.VerticalVideo.ActiveVideoStart) * frame.Height);
+                var offset = pitch * line;
+
+                Marshal.Copy(ram.Memory, (int)vi.DRAMAddress + offset, pixels + offset, pitch);
             }
 
             SDL_UnlockTexture(texture);
@@ -188,9 +179,8 @@ namespace DotN64.Desktop.SDL
             if (isDisposed)
                 return;
 
-            SDL_DestroyWindow(window);
             SDL_DestroyRenderer(renderer);
-            SDL_DestroyTexture(texture);
+            SDL_DestroyWindow(window);
 
             isDisposed = true;
         }

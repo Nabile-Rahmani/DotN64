@@ -13,5 +13,9 @@
             Y = y;
         }
         #endregion
+
+        #region Methods
+        public override string ToString() => $"X: {X}, Y: {Y}";
+        #endregion
     }
 }
