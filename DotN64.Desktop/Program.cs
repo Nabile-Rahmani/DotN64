@@ -109,18 +109,7 @@ namespace DotN64.Desktop
                         }
                         break;
                     case "--info":
-                        var cartridge = LoadCartridge(args[++i]);
-
-                        Console.WriteLine($"Image name: {cartridge.ImageName}");
-                        Console.WriteLine($"ID: {cartridge.ID}");
-                        Console.WriteLine($"Version: {1.0f + (cartridge.Version & ((1 << 4) - 1) >> 4) + (cartridge.Version & ((1 << 4) - 1)) * 0.1f:0.0}");
-                        Console.WriteLine($"Media format: {cartridge.Format}");
-                        Console.WriteLine($"Country: {cartridge.Country}");
-                        Console.WriteLine($"Size: {cartridge.ROM.Length / (float)0x100000:0.##} MB");
-                        Console.WriteLine($"CRC: 0x{cartridge.CRC[0]:X8}, 0x{cartridge.CRC[1]:X8}");
-                        Console.WriteLine($"Boot address: 0x{cartridge.BootAddress:X8}");
-                        Console.WriteLine($"Clock rate: {cartridge.ClockRate}");
-                        Console.WriteLine($"Release: {cartridge.Release}");
+                        ShowCartridgeInfo(args, ref i);
                         return;
                     default:
                         options.Cartridge = arg;
@@ -179,6 +168,22 @@ namespace DotN64.Desktop
             }
 
             return new Cartridge(file);
+        }
+
+        private static void ShowCartridgeInfo(string[] args, ref int i)
+        {
+            var cartridge = LoadCartridge(args[++i]);
+
+            Console.WriteLine($"Image name: {cartridge.ImageName}");
+            Console.WriteLine($"ID: {cartridge.ID}");
+            Console.WriteLine($"Version: {1.0f + (cartridge.Version & ((1 << 4) - 1) >> 4) + (cartridge.Version & ((1 << 4) - 1)) * 0.1f:0.0}");
+            Console.WriteLine($"Media format: {cartridge.Format}");
+            Console.WriteLine($"Country: {cartridge.Country}");
+            Console.WriteLine($"Size: {cartridge.ROM.Length / (float)0x100000:0.##} MB");
+            Console.WriteLine($"CRC: 0x{cartridge.CRC[0]:X8}, 0x{cartridge.CRC[1]:X8}");
+            Console.WriteLine($"Boot address: 0x{cartridge.BootAddress:X8}");
+            Console.WriteLine($"Clock rate: {cartridge.ClockRate}");
+            Console.WriteLine($"Release: {cartridge.Release}");
         }
 
         private static void Run(Options options)
