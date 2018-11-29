@@ -125,10 +125,5 @@
     <Folder Include="RDRAM\" />
     <Folder Include="CPU\VR4300\CP1\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="DotN64.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
