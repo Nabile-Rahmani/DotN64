@@ -10,8 +10,7 @@ namespace DotN64.CPU
         {
             #region Fields
             private readonly VR4300 cpu;
-            private readonly IReadOnlyDictionary<OpCode, Action<Instruction>> operations;
-            private readonly IReadOnlyDictionary<FunctOpCode, Action<Instruction>> functOperations;
+            private readonly IReadOnlyDictionary<Instruction, Action<Instruction>> operations;
             #endregion
 
             #region Properties
@@ -33,22 +32,12 @@ namespace DotN64.CPU
                 Config = new ConfigRegister(this);
                 Status = new StatusRegister(this);
                 Cause = new CauseRegister(this);
-                operations = new Dictionary<OpCode, Action<Instruction>>
+                operations = new Dictionary<Instruction, Action<Instruction>>
                 {
-                    [OpCode.MT] = i => Registers[i.RD] = cpu.GPR[i.RT],
-                    [OpCode.MF] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD],
-                    [OpCode.CO] = i =>
-                    {
-                        if (functOperations.TryGetValue((FunctOpCode)i.Funct, out var operation))
-                            operation(i);
-                        else //if (i.Funct == 0b010000) // TODO: Uncomment once the operations are implemented.
-                            ExceptionProcessing.ReservedInstruction(cpu, i);
-                    }
-                };
-                functOperations = new Dictionary<FunctOpCode, Action<Instruction>>
-                {
-                    [FunctOpCode.TLBWI] = i => { /* TODO. */ },
-                    [FunctOpCode.ERET] = i =>
+                    [From(OpCode.MT)] = i => Registers[i.RD] = cpu.GPR[i.RT],
+                    [From(OpCode.MF)] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD],
+                    [From(FunctOpCode.TLBWI)] = i => { /* TODO. */ },
+                    [From(FunctOpCode.ERET)] = i =>
                     {
                         if (Status.ERL)
                         {
@@ -69,6 +58,26 @@ namespace DotN64.CPU
             #endregion
 
             #region Methods
+            private static Instruction From(OpCode op) => new Instruction { RS = (byte)op };
+
+            private static Instruction From(FunctOpCode op) => new Instruction { RS = (byte)OpCode.CO, Funct = (byte)op };
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static Instruction ToOpCode(Instruction instruction)
+            {
+                switch ((OpCode)instruction.RS)
+                {
+                    case OpCode.CO:
+                        return new Instruction
+                        {
+                            RS = instruction.RS,
+                            Funct = instruction.Funct
+                        };
+                    default:
+                        return new Instruction { RS = instruction.RS };
+                }
+            }
+
             /// <summary>
             /// Increments the Count register (must be called on every odd PClock cycle), and updates the timer interrupt.
             /// </summary>
@@ -107,7 +116,7 @@ namespace DotN64.CPU
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Run(Instruction instruction)
             {
-                if (operations.TryGetValue((OpCode)instruction.RS, out var operation))
+                if (operations.TryGetValue(ToOpCode(instruction), out var operation))
                     operation(instruction);
                 else
                     ExceptionProcessing.ReservedInstruction(cpu, instruction);
