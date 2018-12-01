@@ -119,7 +119,7 @@ namespace DotN64.Desktop.SDL
             }
         }
 
-        public void Draw(VideoFrame frame, RealityCoprocessor.VideoInterface vi, RDRAM ram)
+        public unsafe void Draw(VideoFrame frame, RealityCoprocessor.VideoInterface vi, RDRAM ram)
         {
             PollEvents();
 
@@ -163,7 +163,19 @@ namespace DotN64.Desktop.SDL
                 var line = (ushort)((vi.CurrentVerticalLine - vi.VerticalVideo.ActiveVideoStart) / (float)(vi.VerticalVideo.ActiveVideoEnd - vi.VerticalVideo.ActiveVideoStart) * frame.Height);
                 var offset = pitch * line;
 
-                Marshal.Copy(ram.Memory, (int)vi.DRAMAddress + offset, pixels + offset, pitch);
+                if (frame.Size != ControlRegister.PixelSize.RGBA5553)
+                    Marshal.Copy(ram.Memory, (int)vi.DRAMAddress + offset, pixels + offset, pitch);
+                else
+                {
+                    fixed (byte* rdram = &ram.Memory[(int)vi.DRAMAddress])
+                    {
+                        for (int end = offset + pitch; offset < end; offset += 4)
+                        {
+                            ((ushort*)(pixels + offset))[0] = ((ushort*)(rdram + offset))[1];
+                            ((ushort*)(pixels + offset))[1] = ((ushort*)(rdram + offset))[0];
+                        }
+                    }
+                }
             }
 
             SDL_UnlockTexture(texture);
