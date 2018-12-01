@@ -62,7 +62,7 @@ namespace DotN64.Desktop
                             case "l":
                                 foreach (var stream in Updater.Streams)
                                 {
-                                    Console.WriteLine($"{stream}{(stream == ReleaseStream ? " (current)" : string.Empty)}");
+                                    Console.WriteLine(stream + (stream == ReleaseStream ? " (default)" : string.Empty));
                                 }
                                 return;
                             case "stream":
