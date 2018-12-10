@@ -166,6 +166,7 @@ namespace DotN64.CPU
                 [Instruction.From(OpCode.LB)] = i => Load(i, AccessSize.Byte),
                 [Instruction.From(OpCode.BGTZ)] = i => Branch(i, (rs, rt) => rs > 0),
                 [Instruction.From(OpCode.SD)] = i => Store(i, AccessSize.DoubleWord),
+                [Instruction.From(OpCode.LH)] = i => Load(i, AccessSize.HalfWord),
                 [Instruction.From(SpecialOpCode.ADD)] = i => GPR[i.RD] = (ulong)((int)GPR[i.RS] + (int)GPR[i.RT]),
                 [Instruction.From(SpecialOpCode.JR)] = i => Jump(GPR[i.RS]),
                 [Instruction.From(SpecialOpCode.SRL)] = i => GPR[i.RD] = (ulong)(int)((uint)GPR[i.RT] >> i.SA),
@@ -349,10 +350,20 @@ namespace DotN64.CPU
             switch (size)
             {
                 case AccessSize.Byte:
-                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 8) - 1)) | (byte)data);
+                    {
+                        physicalAddress &= ~0b11u;
+                        var shift = ((int)address & 0b11 ^ -(int)CP0.Config.BE) << 3;
+
+                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~(uint.MaxValue << shift)) | (uint)((byte)data << shift));
+                    }
                     break;
                 case AccessSize.HalfWord:
-                    WriteSysAD(physicalAddress, (ReadWord(address) & ~((uint)(1 << 16) - 1)) | (ushort)data);
+                    {
+                        physicalAddress &= ~0b11u;
+                        var shift = ((int)address & 0b11 ^ (-(int)CP0.Config.BE << 1)) << 3;
+
+                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~(uint.MaxValue << shift)) | (uint)((ushort)data << shift));
+                    }
                     break;
                 case AccessSize.Word:
                     WriteSysAD(physicalAddress, (uint)data);

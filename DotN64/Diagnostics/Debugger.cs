@@ -35,6 +35,7 @@ namespace DotN64.Diagnostics
             [VR4300.Instruction.From(VR4300.OpCode.LBU)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LUI)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LD)] = InstructionFormat.I,
+            [VR4300.Instruction.From(VR4300.OpCode.LH)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LHU)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.LW)] = InstructionFormat.I,
             [VR4300.Instruction.From(VR4300.OpCode.ORI)] = InstructionFormat.I,

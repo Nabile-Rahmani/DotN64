@@ -63,7 +63,9 @@
             /// <summary>Branch On Greater Than Zero.</summary>
             BGTZ = 0b000111,
             /// <summary>Store Doubleword.</summary>
-            SD = 0b111111
+            SD = 0b111111,
+            /// <summary>Load Halfword.</summary>
+            LH = 0b100001
         }
     }
 }
