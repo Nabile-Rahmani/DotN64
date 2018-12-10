@@ -145,19 +145,17 @@ namespace DotN64.Desktop
 
                 writer.WriteLine(":UPDATE");
                 writer.WriteLine($"move /Y \"{newExecutableName}\" \"{executableName}\"");
-                //writer.WriteLine($"start \"\" \"{executableName}\""); // It's pointless to automatically restart the program as it'll crash with no arguments in its current state.
                 writer.WriteLine($"del /A:H %0");
             }
 
             scriptFile.Attributes |= FileAttributes.Hidden;
 
-            Process.Start(new ProcessStartInfo(scriptFile.FullName)
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Process.Start(new ProcessStartInfo(scriptFile.FullName)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = InstallDirectory
             });
-            Environment.Exit(0);
         }
         #endregion
     }
