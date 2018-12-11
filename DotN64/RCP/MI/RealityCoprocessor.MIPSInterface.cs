@@ -8,10 +8,6 @@ namespace DotN64.RCP
     {
         public partial class MIPSInterface : Interface
         {
-            #region Fields
-            private const byte InterruptPin = 1 << 0;
-            #endregion
-
             #region Properties
             private VR4300 CPU => rcp.nintendo64.CPU;
 
@@ -113,9 +109,9 @@ namespace DotN64.RCP
             private void UpdateInterrupt()
             {
                 if ((Interrupt & InterruptMask) != 0)
-                    CPU.Int |= InterruptPin;
+                    CPU.Int |= (byte)InterruptPins.RCP;
                 else
-                    CPU.Int &= unchecked((byte)~InterruptPin);
+                    CPU.Int &= (byte)~InterruptPins.RCP;
             }
             #endregion
         }

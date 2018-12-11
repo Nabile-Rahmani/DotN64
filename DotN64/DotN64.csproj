@@ -104,6 +104,7 @@
     <Compile Include="VideoFrame.cs" />
     <Compile Include="Switch.cs" />
     <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.Angrylion.cs" />
+    <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.InterruptPins.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />
