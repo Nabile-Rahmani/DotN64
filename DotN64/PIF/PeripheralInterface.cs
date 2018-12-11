@@ -140,11 +140,13 @@ namespace DotN64
         private void DetectDevice()
         {
             if (nintendo64.Cartridge?.ROM.Length >= Cartridge.HeaderSize + Cartridge.BootstrapSize)
-                DeviceStateFlags = CIC.GetSeed(nintendo64.Cartridge.ROM);
+                DeviceStateFlags = CIC.GetDeviceState(nintendo64.Cartridge.ROM);
             else
                 DeviceStateFlags = new DeviceState
                 {
-                    ROM = DeviceState.ROMType.DiskDrive
+                    IPL3Seed = 0xDD, // TODO: Read the 64DD IPL header to set the seed based on region code.
+                    ROM = DeviceState.ROMType.DiskDrive,
+                    Reset = DeviceState.ResetType.NMI
                 };
         }
 

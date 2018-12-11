@@ -2,7 +2,7 @@
 {
     public partial class PeripheralInterface
     {
-        public static class CIC
+        private static class CIC
         {
             #region Methods
             private static uint ComputeCRC32(byte[] data, int offset, int length)
@@ -35,23 +35,44 @@
                 return c ^ 0xFFFFFFFF;
             }
 
-            public static uint GetSeed(byte[] data, int offset = Cartridge.HeaderSize, int length = Cartridge.BootstrapSize)
+            public static DeviceState GetDeviceState(byte[] data, int offset = Cartridge.HeaderSize, int length = Cartridge.BootstrapSize)
             {
                 switch (ComputeCRC32(data, offset, length))
                 {
                     case 0x6170A4A1: // NUS-6101.
                     case 0x009E9EA3: // NUS-7102.
-                        return 0x00043F3F;
+                        return new DeviceState
+                        {
+                            IPL2Seed = 0x3F,
+                            IPL3Seed = 0x3F,
+                            Version = 1
+                        };
                     case 0x90BB6CB5: // NUS-6102.
-                        return 0x00003F3F;
+                        return new DeviceState
+                        {
+                            IPL2Seed = 0x3F,
+                            IPL3Seed = 0x3F
+                        };
                     case 0x0B050EE0: // NUS-6103.
-                        return 0x0000783F;
+                        return new DeviceState
+                        {
+                            IPL2Seed = 0x3F,
+                            IPL3Seed = 0x78
+                        };
                     case 0x98BC2C86: // NUS-6105.
-                        return 0x0000913F;
+                        return new DeviceState
+                        {
+                            IPL2Seed = 0x3F,
+                            IPL3Seed = 0x91
+                        };
                     case 0xACC8580A: // NUS-6106.
-                        return 0x0000853F;
+                        return new DeviceState
+                        {
+                            IPL2Seed = 0x3F,
+                            IPL3Seed = 0x85
+                        };
                     case 0x0E018159: // NUS-8303.
-                        return 0x0000DD00;
+                        return new DeviceState { IPL3Seed = 0xDD };
                     default:
                         return 0;
                 }
