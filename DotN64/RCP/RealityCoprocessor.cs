@@ -95,8 +95,8 @@ namespace DotN64.RCP
                 },
                 new MappingEntry(0x1FC00000, 0x1FC007FF, false)
                 {
-                    Read = nintendo64.PIF.MemoryMaps.ReadWord,
-                    Write = nintendo64.PIF.MemoryMaps.WriteWord
+                    Read = SI.MemoryMaps.ReadWord,
+                    Write = SI.MemoryMaps.WriteWord
                 }
             };
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace DotN64
 {
@@ -16,8 +15,6 @@ namespace DotN64
         #endregion
 
         #region Properties
-        public IReadOnlyList<MappingEntry> MemoryMaps { get; }
-
         public byte[] BootROM { get; set; }
 
         public byte[] RAM { get; } = new byte[64];
@@ -33,22 +30,6 @@ namespace DotN64
         public PeripheralInterface(Nintendo64 nintendo64)
         {
             this.nintendo64 = nintendo64;
-            MemoryMaps = new[]
-            {
-                new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
-                {
-                    Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(BootROM, (int)o))
-                },
-                new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
-                {
-                    Read = o => BitConverter.ToUInt32(RAM, (int)o),
-                    Write = (o, d) =>
-                    {
-                        BitHelper.Write(RAM, (int)o, d);
-                        OnRAMWritten((int)o);
-                    }
-                }
-            };
         }
         #endregion
 
@@ -57,7 +38,7 @@ namespace DotN64
         /// Called when a word is written at a specified index in the RAM.
         /// Handles actions sent through memory writes.
         /// </summary>
-        private void OnRAMWritten(int index)
+        internal void OnRAMWritten(int index)
         {
             switch (index)
             {
