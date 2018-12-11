@@ -43,8 +43,8 @@ namespace DotN64.Desktop
 
                 switch (arg)
                 {
-                    case "--pif-rom":
-                        options.BootROM = args[++i];
+                    case "--ipl":
+                        options.IPL = args[++i];
                         break;
                     case "--debug":
                     case "-d":
@@ -178,7 +178,7 @@ namespace DotN64.Desktop
             Console.WriteLine($"ID: {cartridge.ID}");
             Console.WriteLine($"Version: {1.0f + (cartridge.Version & ((1 << 4) - 1) >> 4) + (cartridge.Version & ((1 << 4) - 1)) * 0.1f:0.0}");
             Console.WriteLine($"Media format: {cartridge.Format}");
-            Console.WriteLine($"Country: {cartridge.Country}");
+            Console.WriteLine($"Region: {cartridge.Region}");
             Console.WriteLine($"Size: {cartridge.ROM.Length / (float)0x100000:0.##} MB");
             Console.WriteLine($"CRC: 0x{cartridge.CRC[0]:X8}, 0x{cartridge.CRC[1]:X8}");
             Console.WriteLine($"Boot address: 0x{cartridge.BootAddress:X8}");
@@ -204,8 +204,8 @@ namespace DotN64.Desktop
                 nintendo64.CartridgeSwapped += (n, c) => window.Title = nameof(DotN64) + (c != null ? $" - {c.ImageName.Trim()}" : string.Empty);
             }
 
-            if (options.BootROM != null)
-                nintendo64.PIF.BootROM = File.ReadAllBytes(options.BootROM);
+            if (options.IPL != null)
+                nintendo64.PIF.IPL = File.ReadAllBytes(options.IPL);
 
             if (options.Cartridge != null)
                 nintendo64.Cartridge = LoadCartridge(options.Cartridge);
@@ -235,7 +235,7 @@ namespace DotN64.Desktop
             Console.WriteLine();
             Console.WriteLine("ROM image: Opens the file as a game cartridge.");
             Console.WriteLine("Options:");
-            Console.WriteLine("\t--pif-rom <path>: Loads the PIF's boot ROM into the machine.");
+            Console.WriteLine("\t--ipl <path>: Loads the PIF's boot ROM into the machine.");
             Console.WriteLine("\t-d, --debug: Launches the debugger for the Nintendo 64's CPU.");
             Console.WriteLine("\t-u, --update [action]: Updates the program.");
             Console.WriteLine("\t\t[action = 'check', 'c']: Checks for a new update.");
@@ -254,7 +254,7 @@ namespace DotN64.Desktop
         {
             #region Fields
             public bool UseDebugger, NoVideo, FullScreenVideo, BorderlessWindow;
-            public string BootROM, Cartridge;
+            public string IPL, Cartridge;
             public Point? VideoResolution;
             #endregion
         }

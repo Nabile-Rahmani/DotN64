@@ -87,7 +87,7 @@
     <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.cs" />
     <Compile Include="PIF\PeripheralInterface.TVType.cs" />
     <Compile Include="Cartridge.MediaFormat.cs" />
-    <Compile Include="Cartridge.CountryCode.cs" />
+    <Compile Include="Cartridge.RegionCode.cs" />
     <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.OpCode.cs" />
     <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.Register.cs" />
     <Compile Include="CPU\VR4300\CP1\VR4300.FloatingPointUnit.ImplementationRevisionRegister.cs" />

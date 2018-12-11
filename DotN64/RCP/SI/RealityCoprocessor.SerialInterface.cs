@@ -31,7 +31,7 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x1FC00000, 0x1FC007BF) // PIF Boot ROM.
                     {
-                        Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(PIF.BootROM, (int)o))
+                        Read = o => BitHelper.FromBigEndian(BitConverter.ToUInt32(PIF.IPL, (int)o))
                     },
                     new MappingEntry(0x1FC007C0, 0x1FC007FF) // PIF (JoyChannel) RAM.
                     {

@@ -33,7 +33,7 @@ namespace DotN64
 
         public MediaFormat Format => (MediaFormat)ROM[0x3B];
 
-        public CountryCode Country => (CountryCode)ROM[0x3E];
+        public RegionCode Region => (RegionCode)ROM[0x3E];
 
         public byte Version => ROM[0x3F];
         #endregion

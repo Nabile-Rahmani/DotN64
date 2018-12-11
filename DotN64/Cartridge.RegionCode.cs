@@ -5,7 +5,7 @@
         /// <summary>
         /// See: https://archive.org/13/items/SNESDevManual/book1.pdf #1-2-20.
         /// </summary>
-        public enum CountryCode : byte
+        public enum RegionCode : byte
         {
             Common = (byte)'A',
             Brazil = (byte)'B',

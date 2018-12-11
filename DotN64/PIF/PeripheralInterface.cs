@@ -15,7 +15,7 @@ namespace DotN64
         #endregion
 
         #region Properties
-        public byte[] BootROM { get; set; }
+        public byte[] IPL { get; set; }
 
         public byte[] RAM { get; } = new byte[64];
 
@@ -106,12 +106,12 @@ namespace DotN64
         /// </summary>
         private TVType GetRegion()
         {
-            switch (nintendo64.Cartridge?.Country)
+            switch (nintendo64.Cartridge?.Region)
             {
-                case Cartridge.CountryCode.NorthAmerica:
-                case Cartridge.CountryCode.Japan:
+                case Cartridge.RegionCode.NorthAmerica:
+                case Cartridge.RegionCode.Japan:
                     return TVType.NTSC;
-                case Cartridge.CountryCode.Brazil:
+                case Cartridge.RegionCode.Brazil:
                     return TVType.MPAL;
                 default:
                     return TVType.PAL;
@@ -135,7 +135,7 @@ namespace DotN64
         {
             DetectDevice();
 
-            if (BootROM == null)
+            if (IPL == null)
                 EmulateBootROM();
         }
         #endregion
