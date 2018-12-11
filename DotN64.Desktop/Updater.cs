@@ -150,12 +150,15 @@ namespace DotN64.Desktop
 
             scriptFile.Attributes |= FileAttributes.Hidden;
 
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Process.Start(new ProcessStartInfo(scriptFile.FullName)
+            void RunScript() => Process.Start(new ProcessStartInfo(scriptFile.FullName)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = InstallDirectory
             });
+
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => RunScript();
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => RunScript();
         }
         #endregion
     }
