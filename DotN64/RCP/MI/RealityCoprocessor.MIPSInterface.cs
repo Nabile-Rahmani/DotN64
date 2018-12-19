@@ -62,8 +62,13 @@ namespace DotN64.RCP
                     {
                         Read = o => 0 // TODO.
                     },
+                    new MappingEntry(0x04300008, 0x0430000B) // MI interrupt.
+                    {
+                        Read = o => (uint)Interrupt
+                    },
                     new MappingEntry(0x0430000C, 0x0430000F) // MI interrupt mask.
                     {
+                        Read = o => (uint)InterruptMask,
                         Write = (o, d) =>
                         {
                             var mask = (InterruptMaskWrites)d;
