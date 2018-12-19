@@ -354,7 +354,7 @@ namespace DotN64.CPU
                         physicalAddress &= ~0b11u;
                         var shift = ((int)address & 0b11 ^ -(int)CP0.Config.BE) << 3;
 
-                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~(uint.MaxValue << shift)) | (uint)((byte)data << shift));
+                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~((uint)byte.MaxValue << shift)) | (uint)((byte)data << shift));
                     }
                     break;
                 case AccessSize.HalfWord:
@@ -362,7 +362,7 @@ namespace DotN64.CPU
                         physicalAddress &= ~0b11u;
                         var shift = ((int)address & 0b11 ^ (-(int)CP0.Config.BE << 1)) << 3;
 
-                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~(uint.MaxValue << shift)) | (uint)((ushort)data << shift));
+                        WriteSysAD(physicalAddress, (ReadSysAD(physicalAddress) & ~((uint)ushort.MaxValue << shift)) | (uint)((ushort)data << shift));
                     }
                     break;
                 case AccessSize.Word:
