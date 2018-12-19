@@ -163,7 +163,7 @@ namespace DotN64.Desktop.SDL
                 var line = (ushort)((vi.CurrentVerticalLine - vi.VerticalVideo.ActiveVideoStart) / (float)(vi.VerticalVideo.ActiveVideoEnd - vi.VerticalVideo.ActiveVideoStart) * frame.Height);
                 var offset = pitch * line;
 
-                if (frame.Size != ControlRegister.PixelSize.RGBA5553)
+                if (!BitConverter.IsLittleEndian || frame.Size != ControlRegister.PixelSize.RGBA5553)
                     Marshal.Copy(ram.Memory, (int)vi.DRAMAddress + offset, pixels + offset, pitch);
                 else
                 {
