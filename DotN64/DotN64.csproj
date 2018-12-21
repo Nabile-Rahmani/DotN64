@@ -105,6 +105,7 @@
     <Compile Include="Switch.cs" />
     <Compile Include="RCP\DP\RealityCoprocessor.DisplayProcessor.Angrylion.cs" />
     <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.InterruptPins.cs" />
+    <Compile Include="RCP\MI\RealityCoprocessor.MIPSInterface.VersionRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CPU\" />

@@ -13,6 +13,8 @@ namespace DotN64.RCP
 
             public InitModeRegister InitMode { get; set; }
 
+            public VersionRegister Version { get; set; } = VersionRegister.Version2;
+
             public Interrupts InterruptMask { get; set; }
 
             private Interrupts interrupt;
@@ -60,7 +62,7 @@ namespace DotN64.RCP
                     },
                     new MappingEntry(0x04300004, 0x04300007) // MI version.
                     {
-                        Read = o => 0 // TODO.
+                        Read = o => Version
                     },
                     new MappingEntry(0x04300008, 0x0430000B) // MI interrupt.
                     {
