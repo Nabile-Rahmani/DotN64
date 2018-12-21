@@ -74,6 +74,7 @@ namespace DotN64.Desktop.SDL
             position = position ?? new Point(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             size = size ?? new Point(640, 480);
             window = SDL_CreateWindow(title ?? nameof(DotN64), position.Value.X, position.Value.Y, size.Value.X, size.Value.Y, SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            renderer = SDL_CreateRenderer(window, SDL_GetWindowDisplayIndex(window), SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
         }
 
         ~Window()
@@ -123,9 +124,6 @@ namespace DotN64.Desktop.SDL
         {
             PollEvents();
 
-            if (renderer == IntPtr.Zero)
-                renderer = SDL_CreateRenderer(window, SDL_GetWindowDisplayIndex(window), SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
-
             if (frame.Size <= ControlRegister.PixelSize.Reserved || frame.Width <= 0 || frame.Height <= 0) // Do nothing on Blank or Reserved frame.
             {
                 // Might want to clear the screen.
@@ -140,18 +138,7 @@ namespace DotN64.Desktop.SDL
                 lastFrame = frame;
             }
 
-            var textureRect = new SDL_Rect
-            {
-                w = frame.Width,
-                h = frame.Height
-            };
-            var rendererRect = new SDL_Rect
-            {
-                w = Size.X,
-                h = Size.Y
-            };
-
-            SDL_LockTexture(texture, ref textureRect, out var pixels, out var pitch);
+            SDL_LockTexture(texture, IntPtr.Zero, out var pixels, out var pitch);
 
             // TODO: This should be moved to the VI itself, which would call VideoOutput methods instead.
             for (vi.CurrentVerticalLine = 0; vi.CurrentVerticalLine < vi.VerticalSync; vi.CurrentVerticalLine++) // Sweep all the way down the screen.
@@ -179,10 +166,7 @@ namespace DotN64.Desktop.SDL
             }
 
             SDL_UnlockTexture(texture);
-
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, ref textureRect, ref rendererRect);
-
+            SDL_RenderCopy(renderer, texture, IntPtr.Zero, IntPtr.Zero);
             SDL_RenderPresent(renderer);
         }
 
