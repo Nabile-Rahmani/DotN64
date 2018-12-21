@@ -61,7 +61,7 @@ namespace DotN64.CPU
                 /// </summary>
                 public Mode KSU
                 {
-                    get => (Mode)this[ksu];
+                    get => (EXL | ERL) ? Mode.Kernel : (Mode)this[ksu];
                     set => this[ksu] = (int)value;
                 }
 
