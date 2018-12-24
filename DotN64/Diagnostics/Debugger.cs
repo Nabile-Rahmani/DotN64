@@ -119,7 +119,17 @@ namespace DotN64.Diagnostics
                                     if (instruction.Special == VR4300.SpecialOpCode.JR && instruction.RS == (byte)VR4300.GPRIndex.RA)
                                         break;
 
-                                    nintendo64.CPU.Cycle();
+                                    if (instruction.OP == VR4300.OpCode.JAL || instruction.Special == VR4300.SpecialOpCode.JALR)
+                                    {
+                                        var target = Cursor + VR4300.Instruction.Size * 2;
+
+                                        while (Cursor != target)
+                                        {
+                                            nintendo64.CPU.Cycle();
+                                        }
+                                    }
+                                    else
+                                        nintendo64.CPU.Cycle();
                                 }
 
                                 Disassemble();
