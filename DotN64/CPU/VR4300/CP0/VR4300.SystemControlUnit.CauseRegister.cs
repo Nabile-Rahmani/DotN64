@@ -21,6 +21,7 @@ namespace DotN64.CPU
                                                             ce = BitVector32.CreateSection((1 << 2) - 1, constant2),
                                                             constant3 = BitVector32.CreateSection(1, ce),
                                                             bd = BitVector32.CreateSection(1, constant3);
+                public static readonly ulong WriteMask = (ulong)(InterruptPending.WriteMask << ip.Offset);
                 #endregion
 
                 #region Properties
@@ -80,9 +81,10 @@ namespace DotN64.CPU
                     #region Fields
                     private BitVector32 bits;
 
-                    private static BitVector32.Section softwareInterrupts = BitVector32.CreateSection((1 << 2) - 1),
+                    private static readonly BitVector32.Section softwareInterrupts = BitVector32.CreateSection((1 << 2) - 1),
                     externalNormalInterrupts = BitVector32.CreateSection((1 << 5) - 1, softwareInterrupts),
                     timerInterrupt = BitVector32.CreateSection(1, externalNormalInterrupts);
+                    public static readonly byte WriteMask = (byte)(softwareInterrupts.Mask << softwareInterrupts.Offset);
                     #endregion
 
                     #region Properties

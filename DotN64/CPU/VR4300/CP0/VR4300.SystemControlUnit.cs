@@ -34,7 +34,26 @@ namespace DotN64.CPU
                 Cause = new CauseRegister(this);
                 operations = new Dictionary<Instruction, Action<Instruction>>
                 {
-                    [From(OpCode.MT)] = i => Registers[i.RD] = cpu.GPR[i.RT],
+                    [From(OpCode.MT)] = i =>
+                    {
+                        var destination = i.RD;
+                        var data = cpu.GPR[i.RT];
+
+                        switch ((RegisterIndex)destination)
+                        {
+                            case RegisterIndex.Cause:
+                                Registers[destination] &= ~CauseRegister.WriteMask;
+                                Registers[destination] |= data & CauseRegister.WriteMask;
+                                return;
+                            case RegisterIndex.Compare:
+                                var ip = Cause.IP;
+                                ip.TimerInterrupt = false;
+                                Cause.IP = ip;
+                                break;
+                        }
+
+                        Registers[destination] = data;
+                    },
                     [From(OpCode.MF)] = i => cpu.GPR[i.RT] = (ulong)(int)Registers[i.RD],
                     [From(FunctOpCode.TLBWI)] = i => { /* TODO. */ },
                     [From(FunctOpCode.ERET)] = i =>
