@@ -91,7 +91,8 @@ namespace DotN64
                     Debugger.Run(true);
                     PowerOff();
                 }
-            });
+            })
+            { Name = nameof(VR4300) };
             cpuThread.Start();
 
             if (VideoOutput != null)

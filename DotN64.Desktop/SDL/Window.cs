@@ -126,7 +126,7 @@ namespace DotN64.Desktop.SDL
 
             if (frame.Size <= ControlRegister.PixelSize.Reserved || frame.Width <= 0 || frame.Height <= 0) // Do nothing on Blank or Reserved frame.
             {
-                // Might want to clear the screen.
+                SDL_RenderClear(renderer);
                 SDL_RenderPresent(renderer);
                 return;
             }
