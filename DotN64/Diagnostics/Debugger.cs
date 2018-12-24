@@ -92,12 +92,58 @@ namespace DotN64.Diagnostics
                 new Command(new[] { "continue", "c" }, "Continues execution of the CPU.", args => DebuggerStatus = Status.Running),
                 new Command(new[] { "step", "s" }, "Steps the CPU a specified amount of times.", args =>
                 {
-                    var count = args.Length > 0 ? BigInteger.Parse(args.First()) : 1;
+                    var i = 0;
+                    var mode = StepMode.In;
 
-                    for (var i = BigInteger.Zero; i < count; i++)
+                    if (i < args.Length && Enum.GetNames(typeof(StepMode)).Any(n => n.ToLower() == args[i].ToLower()))
+                        mode = (StepMode)Enum.Parse(typeof(StepMode), args[i++], true);
+
+                    var count = i < args.Length ? BigInteger.Parse(args[i++]) : 1;
+
+                    switch (mode)
                     {
-                        Disassemble();
-                        nintendo64.CPU.Cycle();
+                        case StepMode.In:
+                            for (BigInteger j = 0; j < count; j++)
+                            {
+                                Disassemble();
+                                nintendo64.CPU.Cycle();
+                            }
+                            break;
+                        case StepMode.Out:
+                            for (BigInteger j = 0; j < count; j++)
+                            {
+                                while (true)
+                                {
+                                    VR4300.Instruction instruction = nintendo64.CPU.ReadSysAD(nintendo64.CPU.CP0.Translate(Cursor));
+
+                                    if (instruction.Special == VR4300.SpecialOpCode.JR && instruction.RS == (byte)VR4300.GPRIndex.RA)
+                                        break;
+
+                                    nintendo64.CPU.Cycle();
+                                }
+
+                                Disassemble();
+                                nintendo64.CPU.Cycle();
+                            }
+                            break;
+                        case StepMode.Over:
+                            for (BigInteger j = 0; j < count; j++)
+                            {
+                                VR4300.Instruction instruction = nintendo64.CPU.ReadSysAD(nintendo64.CPU.CP0.Translate(Cursor));
+                                var target = Cursor + VR4300.Instruction.Size * 2;
+
+                                Disassemble();
+                                nintendo64.CPU.Cycle();
+
+                                if (instruction.OP == VR4300.OpCode.JAL || instruction.Special == VR4300.SpecialOpCode.JALR)
+                                {
+                                    while (Cursor != target)
+                                    {
+                                        nintendo64.CPU.Cycle();
+                                    }
+                                }
+                            }
+                            break;
                     }
                 }),
                 new Command(new[] { "goto", "g" }, "Sets the CPU's PC to the specified address or register value.", args =>
@@ -333,6 +379,15 @@ namespace DotN64.Diagnostics
                         break;
                 }
             }
+        }
+        #endregion
+
+        #region Enumerations
+        private enum StepMode : byte
+        {
+            In,
+            Out,
+            Over
         }
         #endregion
     }
